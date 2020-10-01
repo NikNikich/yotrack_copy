@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class ConfigDto {
   /**
@@ -21,4 +22,54 @@ export class ConfigDto {
   @IsNotEmpty()
   @IsString()
   YOUTRACK_TOKEN: string;
+
+  /**
+   * Название СУБД
+   */
+  @IsNotEmpty()
+  @IsString()
+  TYPEORM_CONNECTION: string;
+
+  /**
+   * Адрес базы
+   */
+  @IsNotEmpty()
+  @IsString()
+  TYPEORM_HOST: string;
+
+  /**
+   * Имя пользователя в базе
+   */
+  @IsNotEmpty()
+  @IsString()
+  TYPEORM_USERNAME: string;
+
+  /**
+   * Пароль для базы
+   */
+  @IsNotEmpty()
+  @IsString()
+  TYPEORM_PASSWORD: string;
+
+  /**
+   * Имя базы данных
+   */
+  @IsNotEmpty()
+  @IsString()
+  TYPEORM_DATABASE: string;
+
+  /**
+   * Порт базы данных
+   */
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsInt()
+  TYPEORM_PORT: number;
+
+  /**
+   * Регулярное выражение к entity
+   */
+  @IsNotEmpty()
+  @IsString()
+  TYPEORM_ENTITIES: string;
 }

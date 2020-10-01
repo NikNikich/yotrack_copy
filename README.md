@@ -41,8 +41,8 @@ $ npm install
 
 ```.dotenv
 # Youtrack
-YOUTRACK_BASE_URL=https://ytr.omega-r.club
-YOUTRACK_TOKEN=<постоянный токен>
+YOUTRACK_BASE_URL = https://ytr.omega-r.club
+YOUTRACK_TOKEN = <постоянный токен>
 
 # Database
 TYPEORM_CONNECTION = postgres
