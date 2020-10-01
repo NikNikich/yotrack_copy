@@ -1,5 +1,5 @@
 {
-  "name": "youtrack-visor",
+  "name": "youtrack-observer",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -23,9 +23,15 @@
   "dependencies": {
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "^7.0.0",
+    "@nestjs/schedule": "^0.4.1",
+    "@nestjs/typeorm": "^7.1.4",
+    "class-transformer": "^0.3.1",
+    "class-validator": "^0.12.2",
+    "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
+    "typeorm": "^0.2.28",
     "youtrack-rest-client": "^1.3.2"
   },
   "devDependencies": {
