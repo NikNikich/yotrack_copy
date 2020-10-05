@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { YoutrackModule } from '../youtrack/youtrack.module';
-import { ObserverService } from './observer-service';
+import { ObserverScheduleService } from './observer-schedule-service';
 import { ConfigService } from '../config/config.service';
 
 @Module({
@@ -13,7 +13,7 @@ import { ConfigService } from '../config/config.service';
       inject: [ConfigService],
     })
   ],
-  providers: [ObserverService]
+  providers: [ObserverScheduleService]
 })
 export class ObserverModule {
 }

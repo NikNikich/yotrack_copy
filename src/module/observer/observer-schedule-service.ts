@@ -3,11 +3,11 @@ import { Youtrack } from 'youtrack-rest-client';
 import { Cron } from '@nestjs/schedule';
 
 @Injectable()
-export class ObserverService {
-  private readonly logger = new Logger(ObserverService.name);
+export class ObserverScheduleService {
+  private readonly logger = new Logger(ObserverScheduleService.name);
 
   constructor(
-    private readonly youtrackClient: Youtrack,
+    private readonly youtrackClient: Youtrack
   ) {
   }
 
