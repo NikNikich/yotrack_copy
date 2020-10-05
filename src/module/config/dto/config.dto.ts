@@ -1,5 +1,5 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export class ConfigDto {
   /**
@@ -72,4 +72,19 @@ export class ConfigDto {
   @IsNotEmpty()
   @IsString()
   TYPEORM_ENTITIES: string;
+
+  /**
+   * Синхронизация моделей базы
+   * @default false
+   */
+  @IsOptional()
+  @IsBoolean()
+  @Transform((value) => value === 'true' ? true : value === 'false' ? false : value)
+  TYPEORM_SYNCHRONIZE: boolean = false;
+
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform((value) => value === 'true' ? true : value === 'false' ? false : value)
+  TYPEORM_LOGGING: boolean = false;
 }
