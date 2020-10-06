@@ -5,10 +5,10 @@ import { RoleEntity } from './role.entity';
 @Entity('role_permission')
 export class RolePermissionEntity extends RowEntity<RolePermissionEntity> {
 
-  @Column({type: 'varchar', nullable: true, length: 255})
-  name?: string;
+  @Column({ type: 'varchar', nullable: false, length: 255 })
+  name: string;
 
   @OneToMany(() => RoleEntity, (roleEvents) => roleEvents.rolePermission)
-  role?: RoleEntity[];
+  roles?: RoleEntity[];
 
 }

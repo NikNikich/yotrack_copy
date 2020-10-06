@@ -13,7 +13,7 @@ export class ConfigService {
   private readonly _config: ConfigDto;
 
   constructor(
-    @Inject(CONFIG_MODULE_PATH) filePath: string
+    @Inject(CONFIG_MODULE_PATH) filePath: string,
   ) {
     const isExistFile = fs.existsSync(filePath);
     let rawConfigFile: any;

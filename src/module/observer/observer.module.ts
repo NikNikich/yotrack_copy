@@ -8,12 +8,12 @@ import { ConfigService } from '../config/config.service';
     YoutrackModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         token: configService.config.YOUTRACK_TOKEN,
-        baseUrl: configService.config.YOUTRACK_BASE_URL
+        baseUrl: configService.config.YOUTRACK_BASE_URL,
       }),
       inject: [ConfigService],
-    })
+    }),
   ],
-  providers: [ObserverScheduleService]
+  providers: [ObserverScheduleService],
 })
 export class ObserverModule {
 }

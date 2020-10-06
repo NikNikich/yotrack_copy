@@ -5,10 +5,9 @@ import { ConfigModule } from './config/config.module';
 
 @Module({
   imports: [
-  //  ConfigModule.register(process.cwd() + '/.env'),
-     ConfigModule.register('.env'),
+    ConfigModule.register('.env'),
     ObserverModule,
-    DatabaseModule
+    DatabaseModule,
   ],
 })
 export class AppModule {

@@ -7,7 +7,7 @@ export class ObserverScheduleService {
   private readonly logger = new Logger(ObserverScheduleService.name);
 
   constructor(
-    private readonly youtrackClient: Youtrack
+    private readonly youtrackClient: Youtrack,
   ) {
   }
 
@@ -15,6 +15,6 @@ export class ObserverScheduleService {
   private async fetchDataFromYoutrack(): Promise<void> {
     this.logger.log('Start fetching data');
     const projects = await this.youtrackClient.projects.all();
-    console.log(projects)
+    console.log(projects);
   }
 }
