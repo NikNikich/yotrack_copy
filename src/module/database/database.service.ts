@@ -28,7 +28,6 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       password: TYPEORM_PASSWORD,
       database: TYPEORM_DATABASE,
       entities: [`${resolve(__dirname, '..')}/**/*.entity{.ts,.js}`],
-      // migrations: [`${resolve(__dirname)}/../entities/src/migrations/{*.ts,*.js}`],
       migrationsRun: true,
       logging: TYPEORM_LOGGING ? true : 'all',
       cli: { migrationsDir: './migrations' },
