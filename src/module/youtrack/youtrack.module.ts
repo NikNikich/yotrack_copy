@@ -1,6 +1,6 @@
 import { HttpModule, Module } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
-import { YoutrackSdkModule } from '../youtrack_sdk/youtrack_sdk.module';
+import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
 import { ConfigModule } from '../config/config.module';
 import { YoutrackTokenOptions } from 'youtrack-rest-client/dist/options/youtrack_options';
 import { YoutrackService } from './youtrack.service';
