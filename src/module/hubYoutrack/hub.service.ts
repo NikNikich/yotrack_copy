@@ -12,21 +12,43 @@ export class HubService {
   ) {
   }
   baseUrl = this.configService.config.HUB_BASE_URL;
-  authorization = "Bearer " + this.configService.config.HUB_TOKEN;
+  headers={
+    "Authorization": "Bearer " + this.configService.config.HUB_TOKEN
+  };
 
   async getListUsers(): Promise<Observable<AxiosResponse>> {
-    return this.hubHTTP.get(this.baseUrl+'/users');
+    let response = undefined;
+    try {
+      response = await this.hubHTTP.get('/users',{
+        headers: this.headers
+      }).pipe().toPromise();
+      response = response.data.users;
+    } catch (error) {
+      console.error(error);
+    }
+    return response;
   }
 
   async getListRoles(): Promise<Observable<AxiosResponse>> {
     let response = undefined;
     try {
-       response = await this.hubHTTP.get(this.baseUrl+'/roles',{
-         headers:{
-           "Authorization": this.authorization
-         }
+       response = await this.hubHTTP.get('/roles',{
+         headers: this.headers
        }).pipe().toPromise();
        response = response.data.roles;
+    } catch (error) {
+      console.error(error);
+    }
+    return response;
+  }
+
+  async getListPermission(): Promise<Observable<AxiosResponse>> {
+    let response = undefined;
+    try {
+      response = await this.hubHTTP.get('/permissions',{
+        headers: this.headers
+      }).pipe().toPromise();
+      response = response.data.permissions;
     } catch (error) {
       console.error(error);
     }

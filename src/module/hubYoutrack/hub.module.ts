@@ -12,7 +12,6 @@ import { HubService } from './hub.service';
       }),
       inject: [ConfigService],
     })
-    //HttpModule.register({}),
   ],
   providers: [HubService],
   exports: [HubService]

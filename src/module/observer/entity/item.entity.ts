@@ -11,6 +11,9 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
+  @Column({ type: 'varchar', nullable: false, length: 50 })
+  idYoutrack: string;
+
   @Column({ type: 'varchar', nullable: true, length: 255 })
   estimationTime?: string;
 

@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
-import { RolePermissionEntity } from './role-permission.entity';
+import { AccessRightEntity } from './accessRight.entity';
 import { RoleEntity } from './role.entity';
 import { DirectionEntity } from './direction.entity';
 import { ItemEntity } from './item.entity';
@@ -10,6 +10,12 @@ export class UserEntity extends RowEntity<UserEntity> {
 
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
+
+  @Column({ type: 'varchar', nullable: true, length: 50 })
+  idYoutrack: string;
+
+  @Column({ type: 'varchar', nullable: true, length: 50 })
+  idHub: string;
 
   @RelationId((user: UserEntity) => user.role)
   @Column({ type: 'integer', nullable: false })

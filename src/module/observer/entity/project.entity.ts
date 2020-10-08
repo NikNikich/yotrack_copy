@@ -9,6 +9,9 @@ export class ProjectEntity extends RowEntity<ProjectEntity> {
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
+  @Column({ type: 'varchar', nullable: false, length: 50 })
+  idYoutrack: string;
+
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.project)
   items?: ItemEntity[];
 

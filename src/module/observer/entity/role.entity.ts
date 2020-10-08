@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
-import { RolePermissionEntity } from './role-permission.entity';
+import { AccessRightEntity } from './accessRight.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('role')
@@ -9,15 +9,17 @@ export class RoleEntity extends RowEntity<RoleEntity> {
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
+  @Column({ type: 'varchar', nullable: false, length: 50 })
+  idHub: string;
 
-  @RelationId((role: RoleEntity) => role.rolePermission)
+  @RelationId((role: RoleEntity) => role.accessRight)
   @Column({ type: 'integer', nullable: false })
   rolePermissionId: number;
 
   @ManyToOne(
-    () => RolePermissionEntity, (rolePermission: RolePermissionEntity) => rolePermission.id,
+    () => AccessRightEntity, (rolePermission: AccessRightEntity) => rolePermission.id,
   )
-  rolePermission: RolePermissionEntity;
+  accessRight: AccessRightEntity;
 
   @OneToMany(() => UserEntity, (userEntity) => userEntity.role)
   users?: UserEntity[];
