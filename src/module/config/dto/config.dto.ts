@@ -24,6 +24,20 @@ export class ConfigDto {
   YOUTRACK_TOKEN: string;
 
   /**
+   * Адрес, по которому будут отсылаться запросы в хаб ютрека
+   */
+  @IsNotEmpty()
+  @IsString()
+  HUB_BASE_URL: string;
+
+  /**
+   * Токен, с которым будут отправляться запросы в хаб ютрека
+   */
+  @IsNotEmpty()
+  @IsString()
+  HUB_TOKEN: string;
+
+  /**
    * Название СУБД
    */
   @IsNotEmpty()

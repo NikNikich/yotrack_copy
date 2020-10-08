@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
 import { YoutrackSdkModule } from '../youtrack_sdk/youtrack_sdk.module';
 import { ConfigModule } from '../config/config.module';
@@ -10,17 +10,13 @@ import { YoutrackService } from './youtrack.service';
     YoutrackSdkModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService):  Promise<YoutrackTokenOptions> => {
-        const {
-          YOUTRACK_BASE_URL,
-          YOUTRACK_TOKEN
-        } = configService.config;
         return {
-          baseUrl:  YOUTRACK_BASE_URL,
-          token: YOUTRACK_TOKEN
+          baseUrl:  configService.config.YOUTRACK_BASE_URL,
+          token: configService.config.YOUTRACK_TOKEN
         }
       },
       inject: [ConfigService]
-    })
+    }),
   ],
   providers: [YoutrackService],
   exports: [YoutrackService]

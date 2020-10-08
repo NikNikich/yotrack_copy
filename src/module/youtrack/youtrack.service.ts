@@ -1,15 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { YoutrackSdkModule } from '../youtrack_sdk/youtrack_sdk.module';
-import { ReducedUser, User, Youtrack } from 'youtrack-rest-client';
+import { HttpService, Injectable } from '@nestjs/common';
+import { ReducedIssue, Youtrack } from 'youtrack-rest-client';
+import { Observable } from 'rxjs';
+import { AxiosResponse } from 'axios';
 
 @Injectable()
 export class YoutrackService {
   constructor(
-    private readonly youtrackSdk: Youtrack,
+    private readonly youtrackClient: Youtrack,
   ) {
   }
 
-  async getListUsers(): Promise<ReducedUser[]> {
-   return this.youtrackSdk.users.all();
+  async getListIssue(query?:string): Promise<ReducedIssue[]> {
+    if (query){
+      return this.youtrackClient.issues.search(query)
+    }
+   return this.youtrackClient.issues.search("project: TR and updated: Today")
   }
+
 }

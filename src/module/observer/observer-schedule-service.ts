@@ -1,12 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Youtrack } from 'youtrack-rest-client';
 import { Cron } from '@nestjs/schedule';
+import { YoutrackService } from '../youtrack/youtrack.service';
+import { HubService } from '../hubYoutrack/hub.service';
 
 @Injectable()
 export class ObserverScheduleService {
   private readonly logger = new Logger(ObserverScheduleService.name);
 
   constructor(
+    private readonly youtrackService: YoutrackService,
+    private readonly hubService: HubService,
     private readonly youtrackClient: Youtrack,
   ) {
   }
@@ -23,6 +27,8 @@ export class ObserverScheduleService {
        return field;
      }
     });
-  //  console.log(projects);
+    const roles = await this.hubService.getListRoles();
+    console.log("roles");
+    console.log(roles);
   }
 }
