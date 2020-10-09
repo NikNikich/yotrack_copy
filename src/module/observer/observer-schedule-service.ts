@@ -18,7 +18,7 @@ export class ObserverScheduleService {
   @Cron('*/1 * * * *')
   private async fetchDataFromYoutrack(): Promise<void> {
     this.logger.log('Start fetching data');
-   /* const users= await this.youtrackClient.users.byId("1-31");
+    /*const users= await this.youtrackClient.users.byId("1-31");
     console.log(users);*/
  //  const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
    const projects = await this.youtrackClient.projects.byId('0-11');
@@ -30,8 +30,8 @@ export class ObserverScheduleService {
      }
     });*/
     console.log(projects);
-    const roles = await this.hubService.getListPermission();
+   /* const roles = await this.hubService.getListUser();
     console.log("roles");
-    console.log(roles);
+    console.log(roles);*/
   }
 }

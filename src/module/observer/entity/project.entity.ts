@@ -21,5 +21,4 @@ export class ProjectEntity extends RowEntity<ProjectEntity> {
   )
   projectInformation?: ProjectInformationEntity[];
 
-
 }
