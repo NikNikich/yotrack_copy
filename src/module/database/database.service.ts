@@ -2,6 +2,7 @@ import { resolve } from 'path';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
+import {SnakeNamingStrategy} from 'typeorm-naming-strategies';
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -31,6 +32,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       migrationsRun: true,
       logging: TYPEORM_LOGGING ? true : 'all',
       cli: { migrationsDir: './migrations' },
+      namingStrategy: new SnakeNamingStrategy(),
       synchronize: TYPEORM_SYNCHRONIZE || false,
     };
   }

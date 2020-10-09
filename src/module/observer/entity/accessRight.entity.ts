@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
 import { RoleEntity } from './role.entity';
 
@@ -9,9 +9,24 @@ export class AccessRightEntity extends RowEntity<AccessRightEntity> {
   name: string;
 
   @Column({ type: 'varchar', nullable: false, length: 50 })
-  idHub: string;
-
+  hubId: string;
+/*
   @OneToMany(() => RoleEntity, (roleEvents) => roleEvents.accessRight)
   roles?: RoleEntity[];
+*/
+
+  @ManyToMany((type) => RoleEntity, (role) => role.accessRights, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({
+    name: 'roleAccess',
+    joinColumn: {
+      name: 'roleId',
+    },
+    inverseJoinColumn: {
+      name: 'accessRightsId',
+    },
+  })
+  roles: RoleEntity[];
 
 }

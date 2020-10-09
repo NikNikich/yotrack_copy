@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
 import { UserEntity } from './user.entity';
 import { ItemEntity } from './item.entity';
-import { RateEntity } from './rate.entity';
+import { ProjectInformationEntity } from './project_information.entity';
 
 @Entity('direction')
 export class DirectionEntity extends RowEntity<DirectionEntity> {
@@ -11,16 +11,18 @@ export class DirectionEntity extends RowEntity<DirectionEntity> {
   name: string;
 
   @Column({ type: 'varchar', nullable: false, length: 50 })
-  idYoutrack: string;
+  youtrackId: string;
 
   @OneToMany(() => UserEntity, (userEntity) => userEntity.direction)
   user?: UserEntity[];
 
-
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.direction)
   items?: ItemEntity[];
 
-  @OneToMany(() => RateEntity, (rateEntity) => rateEntity.direction)
-  rates?: ItemEntity[];
+  @OneToMany(
+    () => ProjectInformationEntity,
+    (information) => information.direction
+  )
+  projectInformation?: ProjectInformationEntity[];
 
 }

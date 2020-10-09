@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Youtrack } from 'youtrack-rest-client';
 import { Cron } from '@nestjs/schedule';
 import { YoutrackService } from '../youtrack/youtrack.service';
-import { HubService } from '../hubYoutrack/hub.service';
+import { HubService } from '../hub-youtrack/hub.service';
 
 @Injectable()
 export class ObserverScheduleService {
@@ -30,8 +30,8 @@ export class ObserverScheduleService {
      }
     });*/
     console.log(projects);
-   // const roles = await this.hubService.getListPermission();
+    const roles = await this.hubService.getListPermission();
     console.log("roles");
-    //console.log(roles);
+    console.log(roles);
   }
 }

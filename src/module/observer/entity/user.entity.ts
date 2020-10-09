@@ -9,13 +9,13 @@ import { ItemEntity } from './item.entity';
 export class UserEntity extends RowEntity<UserEntity> {
 
   @Column({ type: 'varchar', nullable: false, length: 255 })
-  name: string;
+  fullName: string;
 
   @Column({ type: 'varchar', nullable: true, length: 50 })
-  idYoutrack: string;
+  youtrackId: string;
 
   @Column({ type: 'varchar', nullable: true, length: 50 })
-  idHub: string;
+  hubId: string;
 
   @RelationId((user: UserEntity) => user.role)
   @Column({ type: 'integer', nullable: false })

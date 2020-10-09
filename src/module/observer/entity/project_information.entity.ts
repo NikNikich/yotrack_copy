@@ -3,20 +3,23 @@ import { RowEntity } from './shared/row.entity';
 import { ProjectEntity } from './project.entity';
 import { DirectionEntity } from './direction.entity';
 
-@Entity('rate')
-export class RateEntity extends RowEntity<RateEntity> {
+@Entity('project_information')
+export class ProjectInformationEntity extends RowEntity<ProjectInformationEntity> {
 
   @Column({ type: 'numeric', nullable: false })
-  summa: number;
+  rate: number;
 
-  @RelationId((rate: RateEntity) => rate.project)
+  @Column({ type: 'numeric', nullable: false })
+  project_estimation: number;
+
+  @RelationId((information: ProjectInformationEntity) => information.project)
   @Column({ type: 'integer', nullable: false })
   projectId: number;
 
   @ManyToOne(() => ProjectEntity, (project: ProjectEntity) => project.id)
   project: ProjectEntity;
 
-  @RelationId((rate: RateEntity) => rate.direction)
+  @RelationId((information: ProjectInformationEntity) => information.direction)
   @Column({ type: 'integer', nullable: false })
   directionId: number;
 

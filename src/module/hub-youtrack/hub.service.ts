@@ -46,6 +46,9 @@ export class HubService {
     let response = undefined;
     try {
       response = await this.hubHTTP.get('/permissions',{
+        params:{
+          fields: 'name,id'
+        },
         headers: this.headers
       }).pipe().toPromise();
       response = response.data.permissions;
