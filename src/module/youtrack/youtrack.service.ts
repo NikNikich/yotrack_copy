@@ -1,7 +1,5 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { ReducedIssue, Youtrack } from 'youtrack-rest-client';
-import { Observable } from 'rxjs';
-import { AxiosResponse } from 'axios';
 
 @Injectable()
 export class YoutrackService {

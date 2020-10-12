@@ -5,12 +5,16 @@ import { ConfigModule } from './config/config.module';
 import { YoutrackSdkModule } from './youtrack_sdk/youtrack-sdk.module';
 import { YoutrackModule } from './youtrack/youtrack.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CommandModule } from 'nestjs-command';
+import { CommandsModule } from './cli/commands.module';
 
 @Module({
   imports: [
+  //  CommandModule,
+  //  CommandsModule,
     ScheduleModule.forRoot(),
     ConfigModule.register('.env'),
-    ObserverModule,
+    AppModule,
     DatabaseModule,
     YoutrackSdkModule,
     YoutrackModule
