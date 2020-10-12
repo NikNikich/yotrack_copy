@@ -33,7 +33,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       logging: TYPEORM_LOGGING ? true : 'all',
       cli: { migrationsDir: './migrations' },
       namingStrategy: new SnakeNamingStrategy(),
-      synchronize: TYPEORM_SYNCHRONIZE || false,
+      synchronize: TYPEORM_SYNCHRONIZE || true,
     };
   }
 }

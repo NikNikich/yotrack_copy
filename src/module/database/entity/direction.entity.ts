@@ -21,7 +21,7 @@ export class DirectionEntity extends RowEntity<DirectionEntity> {
 
   @OneToMany(
     () => ProjectInformationEntity,
-    (information) => information.direction
+    (information) => information.direction,
   )
   projectInformation?: ProjectInformationEntity[];
 

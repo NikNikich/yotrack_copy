@@ -1,9 +1,8 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
-import { AccessRightEntity } from './accessRight.entity';
-import { RoleEntity } from './role.entity';
 import { DirectionEntity } from './direction.entity';
 import { ItemEntity } from './item.entity';
+import { ProjectTeamEntity } from './projectTeam.entity';
 
 @Entity('user')
 export class UserEntity extends RowEntity<UserEntity> {
@@ -17,12 +16,11 @@ export class UserEntity extends RowEntity<UserEntity> {
   @Column({ type: 'varchar', nullable: true, length: 50 })
   hubId: string;
 
-  @RelationId((user: UserEntity) => user.role)
-  @Column({ type: 'integer', nullable: false })
-  roleId: number;
-
-  @ManyToOne(() => RoleEntity, (role: RoleEntity) => role.id)
-  role: RoleEntity;
+  @ManyToMany(
+    (type) => ProjectTeamEntity,
+    (projectTeam) => projectTeam.users,
+  )
+  projectTeams: ProjectTeamEntity[];
 
   @RelationId((user: UserEntity) => user.direction)
   @Column({ type: 'integer', nullable: true })
@@ -31,6 +29,10 @@ export class UserEntity extends RowEntity<UserEntity> {
   @ManyToOne(() => DirectionEntity, (direction: DirectionEntity) => direction.id)
   direction?: DirectionEntity;
 
-  @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.user)
-  items?: ItemEntity[];
+  @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.assigneeUser)
+  assigneeItems?: ItemEntity[];
+
+
+  @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.updaterUser)
+  updaterItems?: ItemEntity[];
 }

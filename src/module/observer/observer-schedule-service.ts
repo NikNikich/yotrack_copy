@@ -20,8 +20,9 @@ export class ObserverScheduleService {
     this.logger.log('Start fetching data');
     /*const users= await this.youtrackClient.users.byId("1-31");
     console.log(users);*/
- //  const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
-   const projects = await this.youtrackClient.projects.byId('0-11');
+   // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
+    const projects = await this.youtrackClient.issues.byId('2-18113');
+ //  const projects = await this.youtrackClient.projects.byId('0-11');
   /*projects.fields.map((field)=>{
      if (field.name === 'Direction'){
        console.log(field.value);

@@ -11,7 +11,7 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 50})
+  @Column({ type: 'varchar', nullable: false, length: 50 })
   youtrackId: string;
 
   @Column({ type: 'varchar', nullable: true, length: 255 })
@@ -49,12 +49,19 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @ManyToOne(() => ProjectEntity, (project: ProjectEntity) => project.id)
   project: ProjectEntity;
 
-  @RelationId((item: ItemEntity) => item.user)
+  @RelationId((item: ItemEntity) => item.assigneeUser)
   @Column({ type: 'integer', nullable: false })
   assignee: number;
 
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
-  user: UserEntity;
+  assigneeUser: UserEntity;
+
+  @RelationId((item: ItemEntity) => item.updaterUser)
+  @Column({ type: 'integer', nullable: false })
+  updater: number;
+
+  @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
+  updaterUser: UserEntity;
 
   @RelationId((item: ItemEntity) => item.parentItem)
   @Column({ type: 'integer', nullable: true })
