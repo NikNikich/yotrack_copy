@@ -7,15 +7,17 @@ import { YoutrackModule } from './youtrack/youtrack.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CommandModule } from 'nestjs-command';
 import { CommandsModule } from './cli/commands.module';
+import { HubModule } from './hub-youtrack/hub.module';
 
 @Module({
   imports: [
-  //  CommandModule,
-  //  CommandsModule,
+    CommandModule,
+    CommandsModule,
     ScheduleModule.forRoot(),
     ConfigModule.register('.env'),
-    AppModule,
     DatabaseModule,
+    ObserverModule,
+    HubModule,
     YoutrackSdkModule,
     YoutrackModule
   ],

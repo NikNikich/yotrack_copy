@@ -5,11 +5,14 @@ import { Module } from '@nestjs/common';
 import { GetDataCommands } from './get-data.coomand';
 import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
 import { ConfigService } from '../config/config.service';
+import { ObserverModule } from '../observer/observer.module';
+import { ObserverScheduleService } from '../observer/observer-schedule-service';
 
 @Module({
   imports: [
     YoutrackModule,
     HubModule,
+    ObserverModule,
     YoutrackSdkModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         token: configService.config.YOUTRACK_TOKEN,

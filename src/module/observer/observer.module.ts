@@ -4,6 +4,7 @@ import { ObserverScheduleService } from './observer-schedule-service';
 import { ConfigService } from '../config/config.service';
 import { YoutrackModule } from '../youtrack/youtrack.module';
 import { HubModule } from '../hub-youtrack/hub.module';
+import { HubService } from '../hub-youtrack/hub.service';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { HubModule } from '../hub-youtrack/hub.module';
     }),
   ],
   providers: [ObserverScheduleService],
+  exports: [ObserverScheduleService]
 })
 export class ObserverModule {
 }

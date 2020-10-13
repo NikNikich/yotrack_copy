@@ -2,14 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { Command } from 'nestjs-command';
 import { HubService } from '../hub-youtrack/hub.service';
 import { Youtrack } from 'youtrack-rest-client';
+import { ObserverScheduleService } from '../observer/observer-schedule-service';
 
 @Injectable()
 export class GetDataCommands {
   constructor(
+    private readonly observerService: ObserverScheduleService,
     private readonly hubService: HubService,
     private readonly youtrackClient: Youtrack,
   ) {
   }
+
   @Command({
     command: 'get:data',
   })
@@ -32,4 +35,5 @@ export class GetDataCommands {
      console.log("roles");
      console.log(roles);*/
   }
+
 }
