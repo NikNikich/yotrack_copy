@@ -10,7 +10,6 @@ import { AppModule } from './module/app.module';
 
 (async () => {
   const app = await NestFactory.createApplicationContext(AppModule, {
-    logger: false // no logger
   });
   app.select(CommandModule).get(CommandService).exec();
 })();

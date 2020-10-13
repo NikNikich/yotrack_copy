@@ -11,10 +11,10 @@ export class ProjectEntity extends RowEntity<ProjectEntity> {
   name: string;
 
   @Column({ type: 'varchar', nullable: false, length: 50 })
-  youtrackId: string;
+  youtrackId?: string;
 
   @Column({ type: 'varchar', nullable: true, length: 50 })
-  hubId: string;
+  hubResourceId?: string;
 
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.project)
   items?: ItemEntity[];
@@ -27,9 +27,9 @@ export class ProjectEntity extends RowEntity<ProjectEntity> {
 
   @RelationId((project: ProjectEntity) => project.projectTeam)
   @Column({ type: 'integer', nullable: false })
-  projectTeamId: number;
+  projectTeamId?: number;
 
   @ManyToOne(() => ProjectTeamEntity, (projectTeam: ProjectTeamEntity) => projectTeam.id)
-  projectTeam: ProjectTeamEntity;
+  projectTeam?: ProjectTeamEntity;
 
 }

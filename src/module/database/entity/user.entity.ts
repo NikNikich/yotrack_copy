@@ -11,23 +11,16 @@ export class UserEntity extends RowEntity<UserEntity> {
   fullName: string;
 
   @Column({ type: 'varchar', nullable: true, length: 50 })
-  youtrackId: string;
+  youtrackId?: string;
 
   @Column({ type: 'varchar', nullable: true, length: 50 })
-  hubId: string;
+  hubId?: string;
 
   @ManyToMany(
     (type) => ProjectTeamEntity,
     (projectTeam) => projectTeam.users,
   )
-  projectTeams: ProjectTeamEntity[];
-
-  @RelationId((user: UserEntity) => user.direction)
-  @Column({ type: 'integer', nullable: true })
-  directionId?: number;
-
-  @ManyToOne(() => DirectionEntity, (direction: DirectionEntity) => direction.id)
-  direction?: DirectionEntity;
+  projectTeams?: ProjectTeamEntity[];
 
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.assigneeUser)
   assigneeItems?: ItemEntity[];

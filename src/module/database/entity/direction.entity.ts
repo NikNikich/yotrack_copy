@@ -11,10 +11,7 @@ export class DirectionEntity extends RowEntity<DirectionEntity> {
   name: string;
 
   @Column({ type: 'varchar', nullable: false, length: 50 })
-  youtrackId: string;
-
-  @OneToMany(() => UserEntity, (userEntity) => userEntity.direction)
-  user?: UserEntity[];
+  youtrackId?: string;
 
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.direction)
   items?: ItemEntity[];
