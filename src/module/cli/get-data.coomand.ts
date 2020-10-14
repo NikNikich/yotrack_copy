@@ -42,7 +42,7 @@ export class GetDataCommands {
      console.log("roles");
      console.log(roles);*/
      //await this.youtrackService.addNewUsers();
-    await this.youtrackService.addNewProjects();
+ //   await this.youtrackService.addNewProjects();
   }
 
 }
