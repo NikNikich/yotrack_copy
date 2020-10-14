@@ -3,7 +3,7 @@ import { AppModule } from './module/app.module';
 import { Logger } from '@nestjs/common';
 import {
   initializeTransactionalContext,
-  patchTypeORMRepositoryWithBaseRepository
+  patchTypeORMRepositoryWithBaseRepository,
 } from 'typeorm-transactional-cls-hooked';
 
 async function bootstrap() {

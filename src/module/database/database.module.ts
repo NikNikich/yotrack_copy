@@ -10,5 +10,4 @@ import { DatabaseService } from './database.service';
     }),
   ],
 })
-export class DatabaseModule {
-}
+export class DatabaseModule {}

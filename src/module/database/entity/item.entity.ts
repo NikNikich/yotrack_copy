@@ -1,17 +1,15 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
 import { DirectionEntity } from './direction.entity';
 import { ProjectEntity } from './project.entity';
 import { UserEntity } from './user.entity';
 
-
 @Entity('item')
 export class ItemEntity extends RowEntity<ItemEntity> {
-
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 50, unique:true })
+  @Column({ type: 'varchar', nullable: false, length: 50, unique: true })
   youtrackId: string;
 
   @Column({ type: 'varchar', nullable: true, length: 255 })
@@ -39,7 +37,10 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @Column({ type: 'integer', nullable: true })
   directionId?: number;
 
-  @ManyToOne(() => DirectionEntity, (direction: DirectionEntity) => direction.id)
+  @ManyToOne(
+    () => DirectionEntity,
+    (direction: DirectionEntity) => direction.id,
+  )
   direction?: DirectionEntity;
 
   @RelationId((item: ItemEntity) => item.project)
@@ -51,14 +52,13 @@ export class ItemEntity extends RowEntity<ItemEntity> {
 
   @RelationId((item: ItemEntity) => item.assigneeUser)
   @Column({ type: 'integer', nullable: true })
-  assignee: true;
+  assigneeUserID: true;
 
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
   assigneeUser: UserEntity;
 
-  @RelationId((item: ItemEntity) => item.updaterUser)
   @Column({ type: 'integer', nullable: true })
-  updater?: number;
+  updaterUserId?: number;
 
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
   updaterUser?: UserEntity;

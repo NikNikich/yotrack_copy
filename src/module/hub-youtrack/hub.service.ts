@@ -9,20 +9,22 @@ import { IPermission } from '../observer/observer.interfaces';
 export class HubService {
   constructor(
     private readonly hubHTTP: HttpService,
-    private readonly configService: ConfigService
-  ) {
-  }
+    private readonly configService: ConfigService,
+  ) {}
   baseUrl = this.configService.config.HUB_BASE_URL;
-  headers={
-    "Authorization": "Bearer " + this.configService.config.HUB_TOKEN
+  headers = {
+    Authorization: 'Bearer ' + this.configService.config.HUB_TOKEN,
   };
 
   async getListUser(): Promise<Observable<AxiosResponse>> {
     let response = undefined;
     try {
-      response = await this.hubHTTP.get('/users',{
-        headers: this.headers
-      }).pipe().toPromise();
+      response = await this.hubHTTP
+        .get('/users', {
+          headers: this.headers,
+        })
+        .pipe()
+        .toPromise();
       response = response.data.users;
     } catch (error) {
       console.error(error);
@@ -30,13 +32,16 @@ export class HubService {
     return response;
   }
 
-  async getUser(id:string): Promise<Observable<AxiosResponse>> {
+  async getUser(id: string): Promise<Observable<AxiosResponse>> {
     let response = undefined;
     try {
-      response = await this.hubHTTP.get('/users/'+id,{
-        headers: this.headers
-      }).pipe().toPromise();
-      response = response.data.projectRoles
+      response = await this.hubHTTP
+        .get('/users/' + id, {
+          headers: this.headers,
+        })
+        .pipe()
+        .toPromise();
+      response = response.data.projectRoles;
     } catch (error) {
       console.error(error);
     }
@@ -46,13 +51,16 @@ export class HubService {
   async getListRoles(): Promise<Observable<AxiosResponse>> {
     let response = undefined;
     try {
-       response = await this.hubHTTP.get('/roles',{
-         params:{
-           fields: 'name,id,permissions(id,name)'
-         },
-         headers: this.headers
-       }).pipe().toPromise();
-       response = response.data.roles;
+      response = await this.hubHTTP
+        .get('/roles', {
+          params: {
+            fields: 'name,id,permissions(id,name)',
+          },
+          headers: this.headers,
+        })
+        .pipe()
+        .toPromise();
+      response = response.data.roles;
     } catch (error) {
       console.error(error);
     }
@@ -62,12 +70,15 @@ export class HubService {
   async getListPermission(): Promise<IPermission> {
     let response = undefined;
     try {
-      response = await this.hubHTTP.get('/permissions',{
-        params:{
-          fields: 'name,id'
-        },
-        headers: this.headers
-      }).pipe().toPromise();
+      response = await this.hubHTTP
+        .get('/permissions', {
+          params: {
+            fields: 'name,id',
+          },
+          headers: this.headers,
+        })
+        .pipe()
+        .toPromise();
       response = response.data.permissions;
     } catch (error) {
       console.error(error);

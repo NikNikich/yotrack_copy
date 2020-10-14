@@ -6,7 +6,6 @@ import { ProjectInformationEntity } from './project_information.entity';
 
 @Entity('direction')
 export class DirectionEntity extends RowEntity<DirectionEntity> {
-
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
@@ -21,5 +20,4 @@ export class DirectionEntity extends RowEntity<DirectionEntity> {
     (information) => information.direction,
   )
   projectInformation?: ProjectInformationEntity[];
-
 }

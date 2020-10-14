@@ -19,7 +19,6 @@ import { HubService } from '../hub-youtrack/hub.service';
     }),
   ],
   providers: [ObserverScheduleService],
-  exports: [ObserverScheduleService]
+  exports: [ObserverScheduleService],
 })
-export class ObserverModule {
-}
+export class ObserverModule {}

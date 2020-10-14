@@ -3,13 +3,11 @@ import { CommandModule, CommandService } from 'nestjs-command';
 import { CliMainModule } from './module/cli-main.module';
 import { AppModule } from './module/app.module';
 
-
 /**
  * Запускает модуль консольного интерфейса
  */
 
 (async () => {
-  const app = await NestFactory.createApplicationContext(AppModule, {
-  });
+  const app = await NestFactory.createApplicationContext(AppModule, {});
   app.select(CommandModule).get(CommandService).exec();
 })();

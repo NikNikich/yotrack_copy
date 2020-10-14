@@ -12,18 +12,17 @@ export class ObserverScheduleService {
     private readonly youtrackService: YoutrackService,
     private readonly hubService: HubService,
     private readonly youtrackClient: Youtrack,
-  ) {
-  }
+  ) {}
 
   @Cron('*/1 * * * *')
   public async fetchDataFromYoutrack(): Promise<void> {
     this.logger.log('Start fetching data');
     /*const users= await this.youtrackClient.users.byId("1-31");
     console.log(users);*/
-   // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
+    // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
     const projects = await this.youtrackClient.issues.byId('2-18113');
- //  const projects = await this.youtrackClient.projects.byId('0-11');
-  /*projects.fields.map((field)=>{
+    //  const projects = await this.youtrackClient.projects.byId('0-11');
+    /*projects.fields.map((field)=>{
      if (field.name === 'Direction'){
        console.log(field.value);
        console.log(field.projectCustomField);
@@ -31,7 +30,7 @@ export class ObserverScheduleService {
      }
     });*/
     console.log(projects);
-   /* const roles = await this.hubService.getListUser();
+    /* const roles = await this.hubService.getListUser();
     console.log("roles");
     console.log(roles);*/
   }

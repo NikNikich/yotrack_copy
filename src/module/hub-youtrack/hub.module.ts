@@ -8,13 +8,12 @@ import { HubService } from './hub.service';
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        baseURL: configService.config.HUB_BASE_URL
+        baseURL: configService.config.HUB_BASE_URL,
       }),
       inject: [ConfigService],
-    })
+    }),
   ],
   providers: [HubService],
-  exports: [HubService]
+  exports: [HubService],
 })
-export class HubModule {
-}
+export class HubModule {}

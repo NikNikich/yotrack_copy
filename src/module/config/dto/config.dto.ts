@@ -1,4 +1,10 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class ConfigDto {
@@ -93,12 +99,15 @@ export class ConfigDto {
    */
   @IsOptional()
   @IsBoolean()
-  @Transform((value) => value === 'true' ? true : value === 'false' ? false : value)
+  @Transform((value) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
   TYPEORM_SYNCHRONIZE: boolean = false;
-
 
   @IsOptional()
   @IsBoolean()
-  @Transform((value) => value === 'true' ? true : value === 'false' ? false : value)
+  @Transform((value) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
   TYPEORM_LOGGING: boolean = false;
 }

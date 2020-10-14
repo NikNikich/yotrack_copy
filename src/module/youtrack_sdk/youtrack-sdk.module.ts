@@ -10,9 +10,7 @@ export class YoutrackSdkModule {
   static forRoot(options: YoutrackTokenOptions): DynamicModule {
     return {
       module: YoutrackSdkModule,
-      providers: [
-        ...YoutrackSdkModule.createYoutrackProvider(options),
-      ],
+      providers: [...YoutrackSdkModule.createYoutrackProvider(options)],
       exports: [Youtrack],
     };
   }
@@ -30,10 +28,7 @@ export class YoutrackSdkModule {
     return {
       module: YoutrackSdkModule,
       imports: options.imports || [],
-      providers: [
-        this.createConfigAsyncProviders(options),
-        connectionProvider,
-      ],
+      providers: [this.createConfigAsyncProviders(options), connectionProvider],
       exports: [Youtrack],
     };
   }
@@ -67,7 +62,9 @@ export class YoutrackSdkModule {
         // For useClass and useExisting...
         return {
           provide: YOUTRACK_MODULE_OPTIONS,
-          useFactory: async (optionsFactory: YoutrackOptionsFactory): Promise<YoutrackTokenOptions> =>
+          useFactory: async (
+            optionsFactory: YoutrackOptionsFactory,
+          ): Promise<YoutrackTokenOptions> =>
             await optionsFactory.createYoutrackOptions(),
           inject: [options.useExisting || options.useClass],
         };

@@ -23,6 +23,4 @@ import { ObserverScheduleService } from '../observer/observer-schedule-service';
   ],
   providers: [GetDataCommands],
 })
-export class CommandsModule {
-
-}
+export class CommandsModule {}

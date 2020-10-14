@@ -13,18 +13,24 @@ export class GetDataCommands {
     private readonly hubService: HubService,
     private readonly youtrackClient: Youtrack,
     private readonly youtrackService: YoutrackService,
-  ) {
-  }
+  ) {}
 
   @Command({
     command: 'get:data',
   })
   async getData() {
-    console.log("command");
+    console.log('command');
     // const users= await this.youtrackClient.users.byId("1-31");
-   /* const users= await this.youtrackService.getListUserHttp(10,50);
+    /* const users= await this.youtrackService.getListUserHttp(10,50);
         console.log(users);
     console.log(users.length);*/
+    const issue = await this.youtrackService.getListIssueHttp(10, 200);
+    issue.map((issu) => {
+      if (issu.parent.issues.length > 0) {
+        console.log(issu);
+        console.log(issu.parent.issues);
+      }
+    });
     // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
     // const projects = await this.youtrackClient.issues.byId('2-18113');
     //  const projects = await this.youtrackClient.projects.byId('0-11');
@@ -36,13 +42,12 @@ export class GetDataCommands {
        }
       });*/
     /*const projects= await this.youtrackService.getListProjectHttp(10,50);
-    console.log(projects.length);
-     console.log(projects);*/
+    console.log(projects.length);*/
+    // console.log(projects);
     /* const roles = await this.hubService.getListUser();
      console.log("roles");
      console.log(roles);*/
-     //await this.youtrackService.addNewUsers();
- //   await this.youtrackService.addNewProjects();
+    //await this.youtrackService.addNewUsers();
+    //   await this.youtrackService.addNewProjects();
   }
-
 }

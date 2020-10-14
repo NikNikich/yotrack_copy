@@ -19,8 +19,7 @@ import { HubModule } from './hub-youtrack/hub.module';
     ObserverModule,
     HubModule,
     YoutrackSdkModule,
-    YoutrackModule
+    YoutrackModule,
   ],
 })
-export class AppModule {
-}
+export class AppModule {}

@@ -11,14 +11,14 @@ export class ConfigModule {
       providers: [
         {
           provide: CONFIG_MODULE_PATH,
-          useValue: path || '.env'
+          useValue: path || '.env',
         },
         {
           provide: ConfigService,
-          useValue: new ConfigService(path)
-        }
+          useValue: new ConfigService(path),
+        },
       ],
-      exports: [CONFIG_MODULE_PATH, ConfigService]
+      exports: [CONFIG_MODULE_PATH, ConfigService],
     };
   }
 }

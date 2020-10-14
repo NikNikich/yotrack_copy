@@ -6,7 +6,6 @@ import { ProjectEntity } from './project.entity';
 
 @Entity('project_team')
 export class ProjectTeamEntity extends RowEntity<ProjectTeamEntity> {
-
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
@@ -27,10 +26,6 @@ export class ProjectTeamEntity extends RowEntity<ProjectTeamEntity> {
   })
   users: UserEntity[];
 
-  @OneToMany(
-    () => ProjectEntity,
-    (project) => project.projectTeam,
-  )
+  @OneToMany(() => ProjectEntity, (project) => project.projectTeam)
   projects?: ProjectInformationEntity[];
-
 }

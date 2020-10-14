@@ -12,32 +12,28 @@ import { ProjectEntity } from '../database/entity/project.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      UserEntity,
-      DirectionEntity,
-      ProjectEntity
-    ]),
+    TypeOrmModule.forFeature([UserEntity, DirectionEntity, ProjectEntity]),
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        baseURL: configService.config.YOUTRACK_BASE_URL+'/api'
+        baseURL: configService.config.YOUTRACK_BASE_URL + '/api',
       }),
       inject: [ConfigService],
     }),
     YoutrackSdkModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService):  Promise<YoutrackTokenOptions> => {
+      useFactory: async (
+        configService: ConfigService,
+      ): Promise<YoutrackTokenOptions> => {
         return {
-          baseUrl:  configService.config.YOUTRACK_BASE_URL,
-          token: configService.config.YOUTRACK_TOKEN
-        }
+          baseUrl: configService.config.YOUTRACK_BASE_URL,
+          token: configService.config.YOUTRACK_TOKEN,
+        };
       },
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
   ],
   providers: [YoutrackService],
-  exports: [YoutrackService]
+  exports: [YoutrackService],
 })
-export class YoutrackModule {
-
-}
+export class YoutrackModule {}

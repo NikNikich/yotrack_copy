@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DirectionEntity } from '../database/entity/direction.entity';
 import { ConfigService } from '../config/config.service';
-import { IProject, IUser } from './youtrack.interface';
+import { IIssue, IProject, IUser } from './youtrack.interface';
 import { keysIn, merge, keys, forIn } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
 
@@ -21,14 +21,16 @@ export class YoutrackService {
     private readonly hubHTTP: HttpService,
     private readonly youtrackClient: Youtrack,
     private readonly configService: ConfigService,
-  ) {
-  }
+  ) {}
 
   private top = 100;
   private userListFields = 'id,fullName,ringId';
   private projectListFields = 'id,name,hubResourceId';
+  private issueListFields =
+    'id,summary,parent(issues(id,summary)),updater(id,fullName),' +
+    'customFields(id,name,value(name,id))';
   private headers = {
-    'Authorization': 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
+    Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
   };
 
   async addNewUsers(page = 1): Promise<void> {
@@ -37,13 +39,15 @@ export class YoutrackService {
       this.top,
     );
     if (usersYoutrack.length > 0) {
-      const users = await Promise.all(usersYoutrack.map((user) => {
-        return new UserEntity({
-          youtrackId: user.id,
-          hubId: user.ringId,
-          fullName: user.fullName,
-        });
-      }));
+      const users = await Promise.all(
+        usersYoutrack.map((user) => {
+          return new UserEntity({
+            youtrackId: user.id,
+            hubId: user.ringId,
+            fullName: user.fullName,
+          });
+        }),
+      );
       await this.userRepository.save(users);
     }
     if (usersYoutrack.length === this.top) {
@@ -53,7 +57,7 @@ export class YoutrackService {
 
   async addNewProjects(page = 1): Promise<void> {
     const projectsYoutrack = await this.getListProjectHttp(
-      this.top * (page-1),
+      this.top * (page - 1),
       this.top,
     );
     if (projectsYoutrack.length > 0) {
@@ -71,22 +75,46 @@ export class YoutrackService {
     }
   }
 
+  async addNewIssues(page = 1): Promise<void> {
+    const issuesYoutrack = await this.getListIssueHttp(
+      this.top * (page - 1),
+      this.top,
+    );
+    if (issuesYoutrack.length > 0) {
+      const projects = issuesYoutrack.map((project) => {
+        return new ProjectEntity({
+          youtrackId: project.id,
+        });
+      });
+      await this.projectRepository.save(projects);
+    }
+    if (issuesYoutrack.length === this.top) {
+      await this.addNewProjects(++page);
+    }
+  }
+
   async getListUserHttp(skip?: number, top?: number): Promise<IUser[]> {
     const params = this.getParamQuery(this.userListFields, skip, top);
-    return this.setGetQueryYoutrack<IProject[]>('/users',
-      {
-        headers: this.headers,
-        params: params,
-      });
+    return this.setGetQueryYoutrack<IProject[]>('/users', {
+      headers: this.headers,
+      params: params,
+    });
   }
 
   async getListProjectHttp(skip?: number, top?: number): Promise<IProject[]> {
     const params = this.getParamQuery(this.projectListFields, skip, top);
-    return this.setGetQueryYoutrack<IProject[]>('/admin/projects',
-      {
-        headers: this.headers,
-        params: params,
-      });
+    return this.setGetQueryYoutrack<IProject[]>('/admin/projects', {
+      headers: this.headers,
+      params: params,
+    });
+  }
+
+  async getListIssueHttp(skip?: number, top?: number): Promise<IIssue[]> {
+    const params = this.getParamQuery(this.issueListFields, skip, top);
+    return this.setGetQueryYoutrack<IIssue[]>('/issues', {
+      headers: this.headers,
+      params: params,
+    });
   }
 
   async getListIssue(query?: string): Promise<ReducedIssue[]> {
@@ -97,25 +125,36 @@ export class YoutrackService {
   }
 
   private async getIdDirection(direction: string): Promise<number> {
-    let findDirection = await this.directionRepository.findOne({ where: { name: direction } });
+    let findDirection = await this.directionRepository.findOne({
+      where: { name: direction },
+    });
     if (!findDirection) {
-      findDirection = await this.directionRepository.save(new DirectionEntity({ name: direction }));
+      findDirection = await this.directionRepository.save(
+        new DirectionEntity({ name: direction }),
+      );
     }
     return findDirection.id;
   }
 
-  private getParamQuery(fields: string, skip?: number, top?: number): Record<string, unknown> {
-    let params = { 'fields': fields };
+  private getParamQuery(
+    fields: string,
+    skip?: number,
+    top?: number,
+  ): Record<string, unknown> {
+    let params = { fields: fields };
     if (skip) {
-      params = merge(params, { '$skip': skip });
+      params = merge(params, { $skip: skip });
     }
     if (top) {
-      params = merge(params, { '$top': top });
+      params = merge(params, { $top: top });
     }
     return params;
   }
 
-  private async setGetQueryYoutrack<T>(url: string, config: Record<string, unknown>): Promise<T> {
+  private async setGetQueryYoutrack<T>(
+    url: string,
+    config: Record<string, unknown>,
+  ): Promise<T> {
     let response = undefined;
     try {
       response = await this.hubHTTP.get(url, config).pipe().toPromise();
