@@ -11,7 +11,7 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 50 })
+  @Column({ type: 'varchar', nullable: false, length: 50, unique:true })
   youtrackId: string;
 
   @Column({ type: 'varchar', nullable: true, length: 255 })
@@ -36,32 +36,32 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   comment?: string;
 
   @RelationId((item: ItemEntity) => item.direction)
-  @Column({ type: 'integer', nullable: false })
-  directionId: number;
+  @Column({ type: 'integer', nullable: true })
+  directionId?: number;
 
   @ManyToOne(() => DirectionEntity, (direction: DirectionEntity) => direction.id)
-  direction: DirectionEntity;
+  direction?: DirectionEntity;
 
   @RelationId((item: ItemEntity) => item.project)
-  @Column({ type: 'integer', nullable: false })
-  projectId: number;
+  @Column({ type: 'integer', nullable: true })
+  projectId?: number;
 
   @ManyToOne(() => ProjectEntity, (project: ProjectEntity) => project.id)
-  project: ProjectEntity;
+  project?: ProjectEntity;
 
   @RelationId((item: ItemEntity) => item.assigneeUser)
-  @Column({ type: 'integer', nullable: false })
-  assignee: number;
+  @Column({ type: 'integer', nullable: true })
+  assignee: true;
 
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
   assigneeUser: UserEntity;
 
   @RelationId((item: ItemEntity) => item.updaterUser)
-  @Column({ type: 'integer', nullable: false })
-  updater: number;
+  @Column({ type: 'integer', nullable: true })
+  updater?: number;
 
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
-  updaterUser: UserEntity;
+  updaterUser?: UserEntity;
 
   @RelationId((item: ItemEntity) => item.parentItem)
   @Column({ type: 'integer', nullable: true })

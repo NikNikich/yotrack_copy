@@ -10,10 +10,10 @@ export class UserEntity extends RowEntity<UserEntity> {
   @Column({ type: 'varchar', nullable: false, length: 255 })
   fullName: string;
 
-  @Column({ type: 'varchar', nullable: true, length: 50 })
+  @Column({ type: 'varchar', nullable: true, length: 50, unique:true })
   youtrackId?: string;
 
-  @Column({ type: 'varchar', nullable: true, length: 50 })
+  @Column({ type: 'varchar', nullable: true, length: 50, unique:true })
   hubId?: string;
 
   @ManyToMany(

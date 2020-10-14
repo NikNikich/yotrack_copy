@@ -8,12 +8,12 @@ import { ProjectTeamEntity } from './projectTeam.entity';
 export class ProjectEntity extends RowEntity<ProjectEntity> {
 
   @Column({ type: 'varchar', nullable: false, length: 255 })
-  name: string;
+  name?: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 50 })
-  youtrackId?: string;
+  @Column({ type: 'varchar', nullable: false, length: 50, unique:true })
+  youtrackId: string;
 
-  @Column({ type: 'varchar', nullable: true, length: 50 })
+  @Column({ type: 'varchar', nullable: true, length: 50, unique:true })
   hubResourceId?: string;
 
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.project)
@@ -26,7 +26,7 @@ export class ProjectEntity extends RowEntity<ProjectEntity> {
   projectInformation?: ProjectInformationEntity[];
 
   @RelationId((project: ProjectEntity) => project.projectTeam)
-  @Column({ type: 'integer', nullable: false })
+  @Column({ type: 'integer', nullable: true })
   projectTeamId?: number;
 
   @ManyToOne(() => ProjectTeamEntity, (projectTeam: ProjectTeamEntity) => projectTeam.id)

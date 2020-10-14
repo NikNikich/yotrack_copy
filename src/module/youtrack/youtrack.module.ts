@@ -8,12 +8,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../database/entity/user.entity';
 import { DirectionEntity } from '../database/entity/direction.entity';
+import { ProjectEntity } from '../database/entity/project.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       UserEntity,
       DirectionEntity,
+      ProjectEntity
     ]),
     HttpModule.registerAsync({
       imports: [ConfigModule],

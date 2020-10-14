@@ -9,5 +9,5 @@ export interface IUser {
 export interface IProject {
   id: string;
   name?: string;
-  ringId?: string;
+  hubResourceId?: string;
 }

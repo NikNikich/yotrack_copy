@@ -22,12 +22,12 @@ export class GetDataCommands {
   async getData() {
     console.log("command");
     // const users= await this.youtrackClient.users.byId("1-31");
-    /*const users= await this.youtrackService.getListUserHttp(10,50);
+   /* const users= await this.youtrackService.getListUserHttp(10,50);
         console.log(users);
     console.log(users.length);*/
     // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
     // const projects = await this.youtrackClient.issues.byId('2-18113');
-     const projects = await this.youtrackClient.projects.byId('0-11');
+    //  const projects = await this.youtrackClient.projects.byId('0-11');
     /*projects.fields.map((field)=>{
        if (field.name === 'Direction'){
          console.log(field.value);
@@ -35,10 +35,14 @@ export class GetDataCommands {
          return field;
        }
       });*/
-     console.log(projects);
+    /*const projects= await this.youtrackService.getListProjectHttp(10,50);
+    console.log(projects.length);
+     console.log(projects);*/
     /* const roles = await this.hubService.getListUser();
      console.log("roles");
      console.log(roles);*/
+     //await this.youtrackService.addNewUsers();
+    await this.youtrackService.addNewProjects();
   }
 
 }
