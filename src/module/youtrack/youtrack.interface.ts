@@ -1,4 +1,3 @@
-import { IPermission } from '../observer/observer.interfaces';
 
 export interface IUser {
   id: string;
@@ -33,5 +32,5 @@ export interface IIssue {
   summary?: string;
   parent?: IParent;
   updater: IUser;
-  customFields: ICustomFields;
+  customFields: ICustomFields[];
 }

@@ -6,8 +6,10 @@ import { Repository } from 'typeorm';
 import { DirectionEntity } from '../database/entity/direction.entity';
 import { ConfigService } from '../config/config.service';
 import { IIssue, IProject, IUser } from './youtrack.interface';
-import { keysIn, merge, keys, forIn } from 'lodash';
+import { set, merge, get } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
+import { ItemEntity } from '../database/entity/item.entity';
+import { ISSUE_CUSTOM_FIELDS, ISSUE_LIST_FIELDS, PROJECT_LIST_FIELDS, USER_LIST_FIELDS } from './youtrack.const';
 
 @Injectable()
 export class YoutrackService {
@@ -18,17 +20,14 @@ export class YoutrackService {
     private readonly projectRepository: Repository<ProjectEntity>,
     @InjectRepository(DirectionEntity)
     private readonly directionRepository: Repository<DirectionEntity>,
+    @InjectRepository(ItemEntity)
+    private readonly itemRepository: Repository<ItemEntity>,
     private readonly hubHTTP: HttpService,
     private readonly youtrackClient: Youtrack,
     private readonly configService: ConfigService,
   ) {}
 
   private top = 100;
-  private userListFields = 'id,fullName,ringId';
-  private projectListFields = 'id,name,hubResourceId';
-  private issueListFields =
-    'id,summary,parent(issues(id,summary)),updater(id,fullName),' +
-    'customFields(id,name,value(name,id))';
   private headers = {
     Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
   };
@@ -81,12 +80,23 @@ export class YoutrackService {
       this.top,
     );
     if (issuesYoutrack.length > 0) {
-      const projects = issuesYoutrack.map((project) => {
-        return new ProjectEntity({
-          youtrackId: project.id,
-        });
+      const issues = issuesYoutrack.map((issue) => {
+        const newItemEntity = new ItemEntity();
+        newItemEntity.youtrackId = issue.id;
+        await Promise.all(issue.customFields.map(async (field): Promise<void>=>{
+         if(get(ISSUE_CUSTOM_FIELDS, field.name)) {
+           const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
+           if (field.name === 'Direction'){
+          //   newItemEntity.directionId =
+
+           } else {
+             set(newItemEntity, keyIssue, field.value);
+           }
+         }
+        }))
+        return newItemEntity
       });
-      await this.projectRepository.save(projects);
+      await this.itemRepository.save(issues);
     }
     if (issuesYoutrack.length === this.top) {
       await this.addNewProjects(++page);
@@ -94,7 +104,7 @@ export class YoutrackService {
   }
 
   async getListUserHttp(skip?: number, top?: number): Promise<IUser[]> {
-    const params = this.getParamQuery(this.userListFields, skip, top);
+    const params = this.getParamQuery(USER_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IProject[]>('/users', {
       headers: this.headers,
       params: params,
@@ -102,7 +112,7 @@ export class YoutrackService {
   }
 
   async getListProjectHttp(skip?: number, top?: number): Promise<IProject[]> {
-    const params = this.getParamQuery(this.projectListFields, skip, top);
+    const params = this.getParamQuery(PROJECT_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IProject[]>('/admin/projects', {
       headers: this.headers,
       params: params,
@@ -110,7 +120,7 @@ export class YoutrackService {
   }
 
   async getListIssueHttp(skip?: number, top?: number): Promise<IIssue[]> {
-    const params = this.getParamQuery(this.issueListFields, skip, top);
+    const params = this.getParamQuery(ISSUE_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IIssue[]>('/issues', {
       headers: this.headers,
       params: params,
