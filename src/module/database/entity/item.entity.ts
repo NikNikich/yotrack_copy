@@ -52,10 +52,10 @@ export class ItemEntity extends RowEntity<ItemEntity> {
 
   @RelationId((item: ItemEntity) => item.assigneeUser)
   @Column({ type: 'integer', nullable: true })
-  assigneeUserID: true;
+  assigneeUserId?: number;
 
   @ManyToOne(() => UserEntity, (user: UserEntity) => user.id)
-  assigneeUser: UserEntity;
+  assigneeUser?: UserEntity;
 
   @Column({ type: 'integer', nullable: true })
   updaterUserId?: number;

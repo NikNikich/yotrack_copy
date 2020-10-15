@@ -24,13 +24,13 @@ export class GetDataCommands {
     /* const users= await this.youtrackService.getListUserHttp(10,50);
         console.log(users);
     console.log(users.length);*/
-    const issue = await this.youtrackService.getListIssueHttp(10, 200);
+   /* const issue = await this.youtrackService.getListIssueHttp(10, 200);
     issue.map((issu) => {
       if (issu.parent.issues.length > 0) {
         console.log(issu);
         console.log(issu.parent.issues);
       }
-    });
+    });*/
     // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
     // const projects = await this.youtrackClient.issues.byId('2-18113');
     //  const projects = await this.youtrackClient.projects.byId('0-11');
@@ -49,5 +49,6 @@ export class GetDataCommands {
      console.log(roles);*/
     //await this.youtrackService.addNewUsers();
     //   await this.youtrackService.addNewProjects();
+    await this.youtrackService.addNewIssues();
   }
 }

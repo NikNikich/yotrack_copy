@@ -9,10 +9,11 @@ import { Repository } from 'typeorm';
 import { UserEntity } from '../database/entity/user.entity';
 import { DirectionEntity } from '../database/entity/direction.entity';
 import { ProjectEntity } from '../database/entity/project.entity';
+import { ItemEntity } from '../database/entity/item.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, DirectionEntity, ProjectEntity]),
+    TypeOrmModule.forFeature([UserEntity, DirectionEntity, ProjectEntity, ItemEntity]),
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
