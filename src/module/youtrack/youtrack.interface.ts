@@ -17,10 +17,21 @@ export interface IIdName {
   summary?: string;
 }
 
+export interface IIssueFieldValue {
+  id?: string;
+  name?: string;
+  localizedName?: string;
+  fullName?: string;
+  login?: string;
+  avatarUrl?: string;
+  isResolved?: boolean;
+  presentation?: string;
+}
+
 export interface ICustomFields {
   id: string;
   name?: string;
-  value?: IIdName;
+  value?: IIssueFieldValue;
 }
 
 export interface IParent {
@@ -30,6 +41,7 @@ export interface IParent {
 export interface IIssue {
   id: string;
   summary?: string;
+  project?:IIdName
   parent?: IParent;
   updater: IUser;
   customFields: ICustomFields[];

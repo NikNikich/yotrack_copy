@@ -1,4 +1,4 @@
-import { CommandModule } from 'nestjs-command';
+import { CommandModule, CommandService } from 'nestjs-command';
 import { YoutrackModule } from '../youtrack/youtrack.module';
 import { HubModule } from '../hub-youtrack/hub.module';
 import { Module } from '@nestjs/common';
@@ -11,6 +11,7 @@ import { ObserverScheduleService } from '../observer/observer-schedule-service';
 @Module({
   imports: [
     YoutrackModule,
+    CommandModule,
     HubModule,
     ObserverModule,
     YoutrackSdkModule.forRootAsync({

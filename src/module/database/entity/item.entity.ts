@@ -18,11 +18,11 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @Column({ type: 'varchar', nullable: true, length: 255 })
   spentTime?: string;
 
-  @Column({ type: 'timestamp without time zone', nullable: true })
-  startDate?: Date;
+  @Column({ type: 'numeric', nullable: true })
+  startDate?: number;
 
-  @Column({ type: 'timestamp without time zone', nullable: true })
-  endDate?: Date;
+  @Column({ type: 'numeric', nullable: true })
+  endDate?: number;
 
   @Column({ type: 'numeric', nullable: true })
   percent?: number;

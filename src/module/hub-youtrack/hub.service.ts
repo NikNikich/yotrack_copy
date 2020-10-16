@@ -16,6 +16,23 @@ export class HubService {
     Authorization: 'Bearer ' + this.configService.config.HUB_TOKEN,
   };
 
+  async getListProjectTeam(): Promise<Observable<AxiosResponse>> {
+    let response = undefined;
+    try {
+      response = await this.hubHTTP
+        .get('/users', {
+          headers: this.headers,
+        })
+        .pipe()
+        .toPromise();
+      response = response.data.users;
+    } catch (error) {
+      console.error(error);
+    }
+    return response;
+  }
+
+
   async getListUser(): Promise<Observable<AxiosResponse>> {
     let response = undefined;
     try {
@@ -48,41 +65,4 @@ export class HubService {
     return response;
   }
 
-  async getListRoles(): Promise<Observable<AxiosResponse>> {
-    let response = undefined;
-    try {
-      response = await this.hubHTTP
-        .get('/roles', {
-          params: {
-            fields: 'name,id,permissions(id,name)',
-          },
-          headers: this.headers,
-        })
-        .pipe()
-        .toPromise();
-      response = response.data.roles;
-    } catch (error) {
-      console.error(error);
-    }
-    return response;
-  }
-
-  async getListPermission(): Promise<IPermission> {
-    let response = undefined;
-    try {
-      response = await this.hubHTTP
-        .get('/permissions', {
-          params: {
-            fields: 'name,id',
-          },
-          headers: this.headers,
-        })
-        .pipe()
-        .toPromise();
-      response = response.data.permissions;
-    } catch (error) {
-      console.error(error);
-    }
-    return response;
-  }
 }

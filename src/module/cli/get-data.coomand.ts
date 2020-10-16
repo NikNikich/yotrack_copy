@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Command } from 'nestjs-command';
+import { Command, CommandService } from 'nestjs-command';
 import { HubService } from '../hub-youtrack/hub.service';
 import { Youtrack } from 'youtrack-rest-client';
 import { ObserverScheduleService } from '../observer/observer-schedule-service';
@@ -13,10 +13,12 @@ export class GetDataCommands {
     private readonly hubService: HubService,
     private readonly youtrackClient: Youtrack,
     private readonly youtrackService: YoutrackService,
+    private readonly commandService: CommandService,
   ) {}
 
   @Command({
     command: 'get:data',
+    autoExit: false
   })
   async getData() {
     console.log('command');
@@ -32,23 +34,25 @@ export class GetDataCommands {
       }
     });*/
     // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
-    // const projects = await this.youtrackClient.issues.byId('2-18113');
+     const projects = await this.youtrackClient.issues.byId('2-19181');
     //  const projects = await this.youtrackClient.projects.byId('0-11');
     /*projects.fields.map((field)=>{
-       if (field.name === 'Direction'){
+       if (field.name === 'Estimation'){
          console.log(field.value);
-         console.log(field.projectCustomField);
+         console.log(field.projectCustomField.field.fieldDefaults);
+         console.log(field);
          return field;
        }
       });*/
     /*const projects= await this.youtrackService.getListProjectHttp(10,50);
     console.log(projects.length);*/
-    // console.log(projects);
+     // console.log(projects);
     /* const roles = await this.hubService.getListUser();
      console.log("roles");
      console.log(roles);*/
     //await this.youtrackService.addNewUsers();
     //   await this.youtrackService.addNewProjects();
     await this.youtrackService.addNewIssues();
+    this.commandService.exit(0);
   }
 }
