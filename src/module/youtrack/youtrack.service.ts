@@ -16,6 +16,7 @@ import {
   PROJECT_LIST_FIELDS,
   USER_LIST_FIELDS,
 } from './youtrack.const';
+import { getParamQuery } from '../shared/http.function';
 
 @Injectable()
 export class YoutrackService {
@@ -28,7 +29,7 @@ export class YoutrackService {
     private readonly directionRepository: Repository<DirectionEntity>,
     @InjectRepository(ItemEntity)
     private readonly itemRepository: Repository<ItemEntity>,
-    private readonly hubHTTP: HttpService,
+    private readonly youtrackHTTP: HttpService,
     private readonly youtrackClient: Youtrack,
     private readonly configService: ConfigService,
   ) {
@@ -61,6 +62,32 @@ export class YoutrackService {
     }
   }
 
+  async updateUsers(page = 1): Promise<void> {
+    const usersYoutrack = await this.getListUserHttp(
+      this.top * (page - 1),
+      this.top,
+    );
+    if (usersYoutrack.length > 0) {
+      const users = [];
+      await Promise.all(usersYoutrack.map(async (user) => {
+        const findUser = await this.userRepository.findOne({where:{youtrackId: user.id}});
+        if (!findUser) {
+         users.push( new UserEntity({
+           youtrackId: user.id,
+           hubId: user.ringId,
+           fullName: user.fullName,
+          }));
+        }
+      }));
+      if(users.length>0) {
+        await this.projectRepository.save(users);
+      }
+    }
+    if (usersYoutrack.length === this.top) {
+      await this.addNewProjects(++page);
+    }
+  }
+
   async addNewProjects(page = 1): Promise<void> {
     const projectsYoutrack = await this.getListProjectHttp(
       this.top * (page - 1),
@@ -76,9 +103,35 @@ export class YoutrackService {
       });
       await this.projectRepository.save(projects);
     }
-   /* if (projectsYoutrack.length === this.top) {
+    if (projectsYoutrack.length === this.top) {
       await this.addNewProjects(++page);
-    }*/
+    }
+  }
+
+  async updateProjects(page = 1): Promise<void> {
+    const projectsYoutrack = await this.getListProjectHttp(
+      this.top * (page - 1),
+      this.top,
+    );
+    if (projectsYoutrack.length > 0) {
+      const projects = [];
+      await Promise.all(projectsYoutrack.map(async (project,index) => {
+            const findProject = await this.projectRepository.findOne({where:{youtrackId: project.id}});
+            if (!findProject) {
+              projects.push( new ProjectEntity({
+                youtrackId: project.id,
+                hubResourceId: project.hubResourceId,
+                name: project.name,
+              }));
+            }
+      }));
+      if(projects.length>0) {
+        await this.projectRepository.save(projects);
+      }
+    }
+    if (projectsYoutrack.length === this.top) {
+      await this.addNewProjects(++page);
+    }
   }
 
   async addNewIssues(page = 1): Promise<void> {
@@ -109,11 +162,6 @@ export class YoutrackService {
     }
     newItemEntity.name = issue.summary;
     await Promise.all(issue.customFields.map(async (field): Promise<void> => {
-      if ((field.name === 'Fix versions') && (!isNil(field.value))){
-        if (Array.isArray((field.value)) && (field.value.length >0)) {
-          console.log(field.value);
-        }
-      }
       if (get(ISSUE_CUSTOM_FIELDS, field.name) && (!isNil(field.value))) {
         const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
         switch (field.name) {
@@ -159,8 +207,9 @@ export class YoutrackService {
       console.log(error);
     }
   }
+
   async getListUserHttp(skip?: number, top?: number): Promise<IUser[]> {
-    const params = this.getParamQuery(USER_LIST_FIELDS, skip, top);
+    const params = getParamQuery(USER_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IProject[]>('/users', {
       headers: this.headers,
       params: params,
@@ -168,7 +217,7 @@ export class YoutrackService {
   }
 
   async getListProjectHttp(skip?: number, top?: number): Promise<IProject[]> {
-    const params = this.getParamQuery(PROJECT_LIST_FIELDS, skip, top);
+    const params = getParamQuery(PROJECT_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IProject[]>('/admin/projects', {
       headers: this.headers,
       params: params,
@@ -176,7 +225,7 @@ export class YoutrackService {
   }
 
   async getListIssueHttp(skip?: number, top?: number): Promise<IIssue[]> {
-    const params = this.getParamQuery(ISSUE_LIST_FIELDS, skip, top);
+    const params = getParamQuery(ISSUE_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IIssue[]>('/issues', {
       headers: this.headers,
       params: params,
@@ -238,28 +287,13 @@ export class YoutrackService {
     return findProject.id;
   }
 
-  private getParamQuery(
-    fields: string,
-    skip?: number,
-    top?: number,
-  ): Record<string, unknown> {
-    let params = { fields: fields };
-    if (skip) {
-      params = merge(params, { $skip: skip });
-    }
-    if (top) {
-      params = merge(params, { $top: top });
-    }
-    return params;
-  }
-
   private async setGetQueryYoutrack<T>(
     url: string,
     config: Record<string, unknown>,
   ): Promise<T> {
     let response = undefined;
     try {
-      response = await this.hubHTTP.get(url, config).pipe().toPromise();
+      response = await this.youtrackHTTP.get(url, config).pipe().toPromise();
       response = response.data;
     } catch (error) {
       console.error(error);

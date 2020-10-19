@@ -34,7 +34,7 @@ export class GetDataCommands {
       }
     });*/
     // const projects = await this.youtrackClient.issues.search("project: TR and updated: Today")
-     const projects = await this.youtrackClient.issues.byId('2-19181');
+    //  const projects = await this.youtrackClient.issues.byId('2-20432');
     //  const projects = await this.youtrackClient.projects.byId('0-11');
     /*projects.fields.map((field)=>{
        if (field.name === 'Estimation'){
@@ -52,7 +52,8 @@ export class GetDataCommands {
      console.log(roles);*/
     //await this.youtrackService.addNewUsers();
     //   await this.youtrackService.addNewProjects();
-    await this.youtrackService.addNewIssues();
+    // await this.youtrackService.addNewIssues();
+    await this.youtrackService.updateUsers();
     this.commandService.exit(0);
   }
 }
