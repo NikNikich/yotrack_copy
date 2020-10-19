@@ -14,13 +14,6 @@ import { ObserverScheduleService } from '../observer/observer-schedule-service';
     CommandModule,
     HubModule,
     ObserverModule,
-    YoutrackSdkModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        token: configService.config.YOUTRACK_TOKEN,
-        baseUrl: configService.config.YOUTRACK_BASE_URL,
-      }),
-      inject: [ConfigService],
-    }),
   ],
   providers: [GetDataCommands],
 })

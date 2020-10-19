@@ -53,7 +53,8 @@ export class GetDataCommands {
     //await this.youtrackService.addNewUsers();
     //   await this.youtrackService.addNewProjects();
     // await this.youtrackService.addNewIssues();
-    await this.youtrackService.updateUsers();
+   // await this.youtrackService.updateUsers();
+    await  this.hubService.addNewProjectTeams();
     this.commandService.exit(0);
   }
 }
