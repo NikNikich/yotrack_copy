@@ -52,25 +52,38 @@ export class HubService {
   }
 
   async addNewProjectTeamOne(team: IProjectTeam): Promise<void> {
-    let newTeamEntity = await this.projectTeamRepository.findOne({ where: { hubId: team.id } });
+    let newTeamEntity = await this.projectTeamRepository.findOne({
+      where: { hubId: team.id },
+      relations: ['users'],
+    });
     if (isNil(newTeamEntity)) {
       newTeamEntity = new ProjectTeamEntity();
       newTeamEntity.hubId = team.id;
     }
-    if (team.users.length > 0) {
+    if (!isNil(team.users) && team.users.length > 0) {
       await Promise.all(team.users.map(async (user, index) => {
         const findUser = await this.userRepository.findOne({ where: { hubId: user.id } });
         if (!isNil(findUser)) {
-          newTeamEntity.users.push(findUser);
+         if (isNil(newTeamEntity.users)) {
+           newTeamEntity.users = [findUser];
+         } else {
+           if (!newTeamEntity.users.find((user) => user.id === findUser.id)) {
+             newTeamEntity.users.push(findUser);
+           }
+         }
         }
       }));
     }
     newTeamEntity.name = team.name;
-    await this.projectTeamRepository.save(newTeamEntity);
-    if (!isNil(team.project) && (team.project.resource.length > 0)) {
+    try {
+      await this.projectTeamRepository.save(newTeamEntity);
+    } catch (error) {
+      console.error(error);
+    }
+    if (!isNil(team.project) && !isNil(team.project.resource) && (team.project.resource.length > 0)) {
       await Promise.all(team.project.resource.map(async (resourceOne, index) => {
         const findProject = await this.projectRepository.findOne({ where: { hubId: resourceOne.id } });
-        if (!isNil(findProject)) {
+        if (!isNil(findProject) && (findProject.projectTeamId !== newTeamEntity.id)) {
           findProject.projectTeamId = newTeamEntity.id;
         }
       }));
@@ -82,11 +95,11 @@ export class HubService {
     let response = undefined;
     try {
       const params = getParamQuery(PROJECT_TEAMS_LIST_FIELDS, skip, top);
-      response = this.setGetQueryYoutrack<IProject[]>('/projectteams', {
+      response = await this.setGetQueryYoutrack<IProject[]>('/projectteams', {
         headers: this.headers,
         params: params,
       });
-      return response;
+      return response.projectteams;
     } catch (error) {
       console.error(error);
     }

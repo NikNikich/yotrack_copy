@@ -16,7 +16,7 @@ export class ProjectTeamEntity extends RowEntity<ProjectTeamEntity> {
     onDelete: 'CASCADE',
   })
   @JoinTable({
-    name: 'userProjectTeam',
+    name: 'user_project_team',
     joinColumn: {
       name: 'userId',
     },

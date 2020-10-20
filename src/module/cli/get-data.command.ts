@@ -5,13 +5,14 @@ import { Youtrack } from 'youtrack-rest-client';
 import { ObserverScheduleService } from '../observer/observer-schedule-service';
 import { YoutrackModule } from '../youtrack/youtrack.module';
 import { YoutrackService } from '../youtrack/youtrack.service';
+import { CliSingleton } from './cli.singletone';
 
 @Injectable()
 export class GetDataCommands {
   constructor(
     private readonly observerService: ObserverScheduleService,
     private readonly hubService: HubService,
-    private readonly youtrackClient: Youtrack,
+ //   private readonly youtrackClient: Youtrack,
     private readonly youtrackService: YoutrackService,
     private readonly commandService: CommandService,
   ) {}
@@ -54,7 +55,7 @@ export class GetDataCommands {
     //   await this.youtrackService.addNewProjects();
     // await this.youtrackService.addNewIssues();
    // await this.youtrackService.updateUsers();
-    await  this.hubService.addNewProjectTeams();
+  //  await  this.hubService.addNewProjectTeams();
     this.commandService.exit(0);
   }
 }
