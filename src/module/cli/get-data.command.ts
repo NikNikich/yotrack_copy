@@ -5,7 +5,6 @@ import { Youtrack } from 'youtrack-rest-client';
 import { ObserverScheduleService } from '../observer/observer-schedule-service';
 import { YoutrackModule } from '../youtrack/youtrack.module';
 import { YoutrackService } from '../youtrack/youtrack.service';
-import { CliSingleton } from './cli.singletone';
 
 @Injectable()
 export class GetDataCommands {
@@ -51,8 +50,8 @@ export class GetDataCommands {
     /* const roles = await this.hubService.getListUser();
      console.log("roles");
      console.log(roles);*/
-    //await this.youtrackService.addNewUsers();
-    //   await this.youtrackService.addNewProjects();
+    await this.youtrackService.addNewUsers();
+    await this.youtrackService.addNewProjects();
     // await this.youtrackService.addNewIssues();
    // await this.youtrackService.updateUsers();
   //  await  this.hubService.addNewProjectTeams();

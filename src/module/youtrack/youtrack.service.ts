@@ -47,12 +47,19 @@ export class YoutrackService {
     );
     if (usersYoutrack.length > 0) {
       const users = await Promise.all(
-        usersYoutrack.map((user) => {
-          return new UserEntity({
-            youtrackId: user.id,
-            hubId: user.ringId,
-            fullName: user.fullName,
-          });
+        usersYoutrack.map(async (user) => {
+          const findUser = await this.userRepository.findOne({ where: { youtrackId: user.id } });
+          if (!isNil(findUser)){
+            findUser.fullName = user.fullName;
+            findUser.hubId = user.ringId;
+            return findUser
+          } else {
+            return new UserEntity({
+              youtrackId: user.id,
+              hubId: user.ringId,
+              fullName: user.fullName,
+            });
+          }
         }),
       );
       await this.userRepository.save(users);
@@ -62,72 +69,28 @@ export class YoutrackService {
     }
   }
 
-  async updateUsers(page = 1): Promise<void> {
-    const usersYoutrack = await this.getListUserHttp(
-      this.top * (page - 1),
-      this.top,
-    );
-    if (usersYoutrack.length > 0) {
-      const users = [];
-      await Promise.all(usersYoutrack.map(async (user) => {
-        const findUser = await this.userRepository.findOne({where:{youtrackId: user.id}});
-        if (!findUser) {
-         users.push( new UserEntity({
-           youtrackId: user.id,
-           hubId: user.ringId,
-           fullName: user.fullName,
-          }));
-        }
-      }));
-      if(users.length>0) {
-        await this.projectRepository.save(users);
-      }
-    }
-    if (usersYoutrack.length === this.top) {
-      await this.addNewProjects(++page);
-    }
-  }
-
   async addNewProjects(page = 1): Promise<void> {
     const projectsYoutrack = await this.getListProjectHttp(
       this.top * (page - 1),
       this.top,
     );
     if (projectsYoutrack.length > 0) {
-      const projects = projectsYoutrack.map((project) => {
-        return new ProjectEntity({
-          youtrackId: project.id,
-          hubResourceId: project.hubResourceId,
-          name: project.name,
-        });
-      });
-      await this.projectRepository.save(projects);
-    }
-    if (projectsYoutrack.length === this.top) {
-      await this.addNewProjects(++page);
-    }
-  }
-
-  async updateProjects(page = 1): Promise<void> {
-    const projectsYoutrack = await this.getListProjectHttp(
-      this.top * (page - 1),
-      this.top,
-    );
-    if (projectsYoutrack.length > 0) {
-      const projects = [];
-      await Promise.all(projectsYoutrack.map(async (project,index) => {
-            const findProject = await this.projectRepository.findOne({where:{youtrackId: project.id}});
-            if (!findProject) {
-              projects.push( new ProjectEntity({
-                youtrackId: project.id,
-                hubResourceId: project.hubResourceId,
-                name: project.name,
-              }));
-            }
+      const projects = await Promise.all(
+        projectsYoutrack.map(async (project) => {
+        const findProject = await this.projectRepository.findOne({ where: { youtrackId: project.id } });
+        if (!isNil(findProject)){
+          findProject.name = project.name;
+          findProject.hubResourceId = project.hubResourceId;
+          return findProject
+        } else {
+          return new ProjectEntity({
+            youtrackId: project.id,
+            hubResourceId: project.hubResourceId,
+            name: project.name,
+          });
+        }
       }));
-      if(projects.length>0) {
-        await this.projectRepository.save(projects);
-      }
+      await this.projectRepository.save(projects);
     }
     if (projectsYoutrack.length === this.top) {
       await this.addNewProjects(++page);
