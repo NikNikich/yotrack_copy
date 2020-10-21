@@ -117,6 +117,10 @@ export class YoutrackService {
     }
   }
 
+  async updateIssues(page = 1): Promise<void>{
+
+  }
+
   async addNewIssueOne(issue: IIssue): Promise<void>{
     let newItemEntity = await this.itemRepository.findOne({ where: { youtrackId: issue.id } });
     if (isNil(newItemEntity)) {
