@@ -12,7 +12,7 @@ export class ObserverScheduleService {
     private readonly hubService: HubService,
   ) {}
 
-  @Cron('*/1 * * * *')
+  @Cron('10 00 * * *')
   public async fetchDataFromYoutrack(): Promise<void> {
     this.logger.log('Start fetching data');
     await this.youtrackService.addNewUsers();
