@@ -1,4 +1,4 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { Youtrack } from 'youtrack-rest-client';
 import { UserEntity } from '../database/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { DirectionEntity } from '../database/entity/direction.entity';
 import { ConfigService } from '../config/config.service';
 import { IIssue, IProject, IUser } from './youtrack.interface';
-import { set, merge, get, isNil } from 'lodash';
+import { set,  get, isNil } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
 import { ItemEntity } from '../database/entity/item.entity';
 import {
@@ -20,6 +20,12 @@ import { getParamQuery } from '../shared/http.function';
 
 @Injectable()
 export class YoutrackService {
+  private readonly logger: Logger = new Logger(YoutrackService.name);
+  private top = 100;
+  private headers = {
+    Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
+  };
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -34,11 +40,6 @@ export class YoutrackService {
     private readonly configService: ConfigService,
   ) {
   }
-
-  private top = 100;
-  private headers = {
-    Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
-  };
 
   async addNewUsers(page = 1): Promise<void> {
     const usersYoutrack = await this.getListUserHttp(
@@ -191,7 +192,7 @@ export class YoutrackService {
     try {
       await this.itemRepository.save(newItemEntity);
     } catch (error) {
-      console.log(error);
+      this.logger.log(error);
     }
   }
 

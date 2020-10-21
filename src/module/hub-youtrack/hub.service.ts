@@ -1,10 +1,10 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
-import { IIssue, IProject, IUser } from '../youtrack/youtrack.interface';
+import { IProject } from '../youtrack/youtrack.interface';
 import { IProjectTeam, PROJECT_TEAMS_LIST_FIELDS } from './hub.interface';
 import { getParamQuery } from '../shared/http.function';
-import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from '../youtrack/youtrack.const';
-import { set, merge, get, isNil } from 'lodash';
+import { DELAY_MS } from '../youtrack/youtrack.const';
+import { isNil } from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../database/entity/user.entity';
 import { Repository } from 'typeorm';
@@ -13,6 +13,11 @@ import { ProjectTeamEntity } from '../database/entity/projectTeam.entity';
 
 @Injectable()
 export class HubService {
+  private top = 100;
+  headers = {
+    Authorization: 'Bearer ' + this.configService.config.HUB_TOKEN,
+  };
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -24,12 +29,6 @@ export class HubService {
     private readonly configService: ConfigService,
   ) {
   }
-
-  private top = 100;
-
-  headers = {
-    Authorization: 'Bearer ' + this.configService.config.HUB_TOKEN,
-  };
 
   async addNewProjectTeams(page = 1): Promise<void> {
     const TeamsHub = await this.getListProjectTeam(

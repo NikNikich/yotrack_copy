@@ -104,6 +104,10 @@ export class ConfigDto {
   )
   TYPEORM_SYNCHRONIZE: boolean = false;
 
+  /**
+   * Логирование typeOrm
+   * @default false
+   */
   @IsOptional()
   @IsBoolean()
   @Transform((value) =>

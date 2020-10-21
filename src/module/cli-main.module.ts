@@ -8,7 +8,7 @@ import { HubModule } from './hub-youtrack/hub.module';
 
 @Module({
   imports: [
-    ConfigModule.register('.env'),
+    ConfigModule.register(process.cwd() + '/.env'),
     CommandsModule,
     DatabaseModule,
     YoutrackSdkModule,

@@ -14,7 +14,7 @@ import { HubModule } from './hub-youtrack/hub.module';
     CommandModule,
     CommandsModule,
     ScheduleModule.forRoot(),
-    ConfigModule.register('.env'),
+    ConfigModule.register(process.cwd() + '/.env'),
     DatabaseModule,
     ObserverModule,
     HubModule,

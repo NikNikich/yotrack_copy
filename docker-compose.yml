@@ -6,7 +6,7 @@ services:
     container_name: youtrack-database
     restart: always
     ports:
-      - 6000:5432
+      - ${DB_PORT:-6000}:${INTERNAL_DB_PORT:-5432}
     environment:
       - POSTGRES_USER=${TYPEORM_USERNAME:-postgres}
       - POSTGRES_PASSWORD=${TYPEORM_PASSWORD:-postgres}

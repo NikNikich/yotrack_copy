@@ -28,6 +28,7 @@
     "@nestjs/typeorm": "^7.1.4",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
+    "google-spreadsheet": "^3.0.13",
     "lodash.countby": "^4.6.0",
     "nestjs-command": "^1.5.0",
     "pg": "^8.3.3",
