@@ -1,5 +1,5 @@
 import { HttpService, Injectable } from '@nestjs/common';
-import { ReducedIssue, Youtrack } from 'youtrack-rest-client';
+import { Youtrack } from 'youtrack-rest-client';
 import { UserEntity } from '../database/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,7 +12,7 @@ import { ItemEntity } from '../database/entity/item.entity';
 import {
   DELAY_MS,
   ISSUE_CUSTOM_FIELDS,
-  ISSUE_LIST_FIELDS,
+  ISSUE_LIST_FIELDS, ISSUE_LIST_QUERY,
   PROJECT_LIST_FIELDS,
   USER_LIST_FIELDS,
 } from './youtrack.const';
@@ -49,10 +49,10 @@ export class YoutrackService {
       const users = await Promise.all(
         usersYoutrack.map(async (user) => {
           const findUser = await this.userRepository.findOne({ where: { youtrackId: user.id } });
-          if (!isNil(findUser)){
+          if (!isNil(findUser)) {
             findUser.fullName = user.fullName;
             findUser.hubId = user.ringId;
-            return findUser
+            return findUser;
           } else {
             return new UserEntity({
               youtrackId: user.id,
@@ -77,19 +77,19 @@ export class YoutrackService {
     if (projectsYoutrack.length > 0) {
       const projects = await Promise.all(
         projectsYoutrack.map(async (project) => {
-        const findProject = await this.projectRepository.findOne({ where: { youtrackId: project.id } });
-        if (!isNil(findProject)){
-          findProject.name = project.name;
-          findProject.hubResourceId = project.hubResourceId;
-          return findProject
-        } else {
-          return new ProjectEntity({
-            youtrackId: project.id,
-            hubResourceId: project.hubResourceId,
-            name: project.name,
-          });
-        }
-      }));
+          const findProject = await this.projectRepository.findOne({ where: { youtrackId: project.id } });
+          if (!isNil(findProject)) {
+            findProject.name = project.name;
+            findProject.hubResourceId = project.hubResourceId;
+            return findProject;
+          } else {
+            return new ProjectEntity({
+              youtrackId: project.id,
+              hubResourceId: project.hubResourceId,
+              name: project.name,
+            });
+          }
+        }));
       await this.projectRepository.save(projects);
     }
     if (projectsYoutrack.length === this.top) {
@@ -103,12 +103,12 @@ export class YoutrackService {
       this.top,
     );
     if (issuesYoutrack.length > 0) {
-      await Promise.all(issuesYoutrack.map(async (issue,index) => {
+      await Promise.all(issuesYoutrack.map(async (issue, index) => {
         await new Promise((resolve) => {
           setTimeout((that) => {
             this.addNewIssueOne(issue);
             resolve();
-          },  DELAY_MS*index, this);
+          }, DELAY_MS * index, this);
         });
       }));
     }
@@ -117,13 +117,33 @@ export class YoutrackService {
     }
   }
 
-  async updateIssues(page = 1): Promise<void>{
-
+  async updateIssues(page = 1): Promise<void> {
+    const issuesYoutrack = await this.getListIssueHttp(
+      this.top * (page - 1),
+      this.top,
+      ISSUE_LIST_QUERY,
+    );
+    if (issuesYoutrack.length > 0) {
+      await Promise.all(issuesYoutrack.map(async (issue, index) => {
+        await new Promise((resolve) => {
+          setTimeout((that) => {
+            this.addNewIssueOne(issue, true);
+            resolve();
+          }, DELAY_MS * index, this);
+        });
+      }));
+    }
+    if (issuesYoutrack.length === this.top) {
+      await this.updateIssues(++page);
+    }
   }
 
-  async addNewIssueOne(issue: IIssue): Promise<void>{
-    let newItemEntity = await this.itemRepository.findOne({ where: { youtrackId: issue.id } });
-    if (isNil(newItemEntity)) {
+  async addNewIssueOne(issue: IIssue, newAlways = false): Promise<void> {
+    let newItemEntity: ItemEntity;
+    if (!newAlways) {
+      newItemEntity = await this.itemRepository.findOne({ where: { youtrackId: issue.id } });
+    }
+    if (isNil(newItemEntity) || newAlways) {
       newItemEntity = new ItemEntity();
       newItemEntity.youtrackId = issue.id;
     }
@@ -144,33 +164,33 @@ export class YoutrackService {
           case '% выполнения':
           case 'Start date':
           case 'End Date':
-              set(newItemEntity, keyIssue, field.value);
+            set(newItemEntity, keyIssue, field.value);
             break;
           case 'Assignee':
             newItemEntity.assigneeUserId = await this.getIdUser(field.value.name, field.value.id);
             break;
           default:
-            if(!isNil(field.value.name)){
+            if (!isNil(field.value.name)) {
               set(newItemEntity, keyIssue, field.value.name);
             }
         }
       }
     }));
-     if (issue.updater){
-       newItemEntity.assigneeUserId = await this.getIdUser(issue.updater.fullName, issue.updater.id);
-     }
-    if (issue.project){
+    if (issue.updater) {
+      newItemEntity.assigneeUserId = await this.getIdUser(issue.updater.fullName, issue.updater.id);
+    }
+    if (issue.project) {
       newItemEntity.projectId = await this.getIdProject(issue.project.name, issue.project.id);
     }
-    if ((issue.parent.issues.length > 0)&&(issue.parent.issues[0].id !== issue.id)) {
+    if ((issue.parent.issues.length > 0) && (issue.parent.issues[0].id !== issue.id)) {
       newItemEntity.parentItemId = await this.getIdItem(
         issue.parent.issues[0].summary,
-        issue.parent.issues[0].id
+        issue.parent.issues[0].id,
       );
     }
     try {
       await this.itemRepository.save(newItemEntity);
-    }  catch (error){
+    } catch (error) {
       console.log(error);
     }
   }
@@ -191,19 +211,12 @@ export class YoutrackService {
     });
   }
 
-  async getListIssueHttp(skip?: number, top?: number): Promise<IIssue[]> {
-    const params = getParamQuery(ISSUE_LIST_FIELDS, skip, top);
+  async getListIssueHttp(skip?: number, top?: number, query?: string): Promise<IIssue[]> {
+    const params = getParamQuery(ISSUE_LIST_FIELDS, skip, top, query);
     return this.setGetQueryYoutrack<IIssue[]>('/issues', {
       headers: this.headers,
       params: params,
     });
-  }
-
-  async getListIssue(query?: string): Promise<ReducedIssue[]> {
-    if (query) {
-      return this.youtrackClient.issues.search(query);
-    }
-    return this.youtrackClient.issues.search('project: TR and updated: Today');
   }
 
   private async getIdDirection(direction: string, youtrackDirectionId: string): Promise<number> {
@@ -230,21 +243,25 @@ export class YoutrackService {
     return findUser.id;
   }
 
-  private async getIdItem (name: string, youtrackItemId: string): Promise<number> {
+  private async getIdItem(name: string, youtrackItemId: string, newAlways = false): Promise<number> {
     let findItem = await this.itemRepository.findOne({
-      where: { youtrackId: youtrackItemId},
+      where: { youtrackId: youtrackItemId },
     });
     if (!findItem) {
-      findItem = await this.itemRepository.save(
-        new ItemEntity({ name, youtrackId: youtrackItemId })
-      );
+      if (newAlways) {
+        return null;
+      } else {
+        findItem = await this.itemRepository.save(
+          new ItemEntity({ name, youtrackId: youtrackItemId }),
+        );
+      }
     }
     return findItem.id;
   }
 
   private async getIdProject(name: string, youtrackProjectId: string): Promise<number> {
     let findProject = await this.projectRepository.findOne({
-      where: { youtrackId:youtrackProjectId },
+      where: { youtrackId: youtrackProjectId },
     });
     if (!findProject) {
       findProject = await this.projectRepository.save(

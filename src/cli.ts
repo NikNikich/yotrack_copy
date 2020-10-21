@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { CommandModule, CommandService } from 'nestjs-command';
-import { CliMainModule } from './module/cli-main.module';
 import { AppModule } from './module/app.module';
 
 /**

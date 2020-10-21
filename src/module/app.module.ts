@@ -22,4 +22,5 @@ import { HubModule } from './hub-youtrack/hub.module';
     YoutrackModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+}

@@ -4,9 +4,7 @@ import { ProjectEntity } from './project.entity';
 import { DirectionEntity } from './direction.entity';
 
 @Entity('project_information')
-export class ProjectInformationEntity extends RowEntity<
-  ProjectInformationEntity
-> {
+export class ProjectInformationEntity extends RowEntity<ProjectInformationEntity> {
   @Column({ type: 'numeric', nullable: false })
   rate: number;
 

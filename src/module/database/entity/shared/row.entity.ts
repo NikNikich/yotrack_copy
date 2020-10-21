@@ -9,9 +9,7 @@ type NonFunctionPropertyNames<T> = {
   [K in keyof T]: T[K] extends Function ? never : K;
 }[keyof T];
 
-export abstract class ConstructableEntity<
-  T = ConstructableEntity<Record<string, unknown>>
-> {
+export abstract class ConstructableEntity<T = ConstructableEntity<Record<string, unknown>>> {
   constructor(dto?: Pick<T, NonFunctionPropertyNames<T>>) {
     if (dto) {
       Object.assign(this, dto);
@@ -19,9 +17,7 @@ export abstract class ConstructableEntity<
   }
 }
 
-export class RowEntity<
-  T = RowEntity<Record<string, unknown>>
-> extends ConstructableEntity<T> {
+export class RowEntity<T = RowEntity<Record<string, unknown>>> extends ConstructableEntity<T> {
   @PrimaryGeneratedColumn()
   readonly id?: number;
 

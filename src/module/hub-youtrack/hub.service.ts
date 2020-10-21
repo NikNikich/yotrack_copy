@@ -64,13 +64,13 @@ export class HubService {
       await Promise.all(team.users.map(async (user, index) => {
         const findUser = await this.userRepository.findOne({ where: { hubId: user.id } });
         if (!isNil(findUser)) {
-         if (isNil(newTeamEntity.users)) {
-           newTeamEntity.users = [findUser];
-         } else {
-           if (!newTeamEntity.users.find((user) => user.id === findUser.id)) {
-             newTeamEntity.users.push(findUser);
-           }
-         }
+          if (isNil(newTeamEntity.users)) {
+            newTeamEntity.users = [findUser];
+          } else {
+            if (!newTeamEntity.users.find((user) => user.id === findUser.id)) {
+              newTeamEntity.users.push(findUser);
+            }
+          }
         }
       }));
     }

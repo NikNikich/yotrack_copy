@@ -1,4 +1,3 @@
-
 export interface IUser {
   id: string;
   fullName?: string;
@@ -41,7 +40,7 @@ export interface IParent {
 export interface IIssue {
   id: string;
   summary?: string;
-  project?:IIdName
+  project?: IIdName
   parent?: IParent;
   updater: IUser;
   customFields: ICustomFields[];

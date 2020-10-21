@@ -5,7 +5,6 @@ import { ConfigModule } from '../config/config.module';
 import { YoutrackTokenOptions } from 'youtrack-rest-client/dist/options/youtrack_options';
 import { YoutrackService } from './youtrack.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UserEntity } from '../database/entity/user.entity';
 import { DirectionEntity } from '../database/entity/direction.entity';
 import { ProjectEntity } from '../database/entity/project.entity';
@@ -37,4 +36,5 @@ import { ItemEntity } from '../database/entity/item.entity';
   providers: [YoutrackService],
   exports: [YoutrackService],
 })
-export class YoutrackModule {}
+export class YoutrackModule {
+}

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
-import { ObserverScheduleService } from './observer-schedule-service';
+import { ObserverScheduleService } from './observer-schedule.service';
 import { ConfigService } from '../config/config.service';
 import { YoutrackModule } from '../youtrack/youtrack.module';
 import { HubModule } from '../hub-youtrack/hub.module';
