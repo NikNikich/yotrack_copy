@@ -1,15 +1,17 @@
-import { HttpService, Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
-import { IProject } from '../youtrack/youtrack.interface';
-import { IProjectTeam, PROJECT_TEAMS_LIST_FIELDS } from './hub.interface';
-import { getParamQuery } from '../shared/http.function';
+import { IProjectTeam} from './hub.interface';
 import { DELAY_MS } from '../youtrack/youtrack.const';
 import { isNil } from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../database/entity/user.entity';
 import { Repository } from 'typeorm';
 import { ProjectEntity } from '../database/entity/project.entity';
-import { ProjectTeamEntity } from '../database/entity/projectTeam.entity';
+import { ProjectTeamEntity } from '../database/entity/project-team.entity';
+import { HttpHubService } from '../http-hub/http-hub.service';
+import { UserRepository } from '../database/repository/user.repository';
+import { ProjectRepository } from '../database/repository/project.repository';
+import { ProjectTeamRepository } from '../database/repository/project-team.repository';
 
 @Injectable()
 export class HubService {
@@ -19,19 +21,16 @@ export class HubService {
   };
 
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(ProjectEntity)
-    private readonly projectRepository: Repository<ProjectEntity>,
-    @InjectRepository(ProjectTeamEntity)
-    private readonly projectTeamRepository: Repository<ProjectTeamEntity>,
-    private readonly hubHTTP: HttpService,
+    private readonly userRepository: UserRepository,
+    private readonly projectRepository: ProjectRepository,
+    private readonly projectTeamRepository: ProjectTeamRepository,
+    private readonly hubHTTP: HttpHubService,
     private readonly configService: ConfigService,
   ) {
   }
 
   async addNewProjectTeams(page = 1): Promise<void> {
-    const TeamsHub = await this.getListProjectTeam(
+    const TeamsHub = await this.hubHTTP.getListProjectTeam(
       this.top * (page - 1),
       this.top,
     );
@@ -51,7 +50,7 @@ export class HubService {
   }
 
   async addNewProjectTeamOne(team: IProjectTeam): Promise<void> {
-    let newTeamEntity = await this.projectTeamRepository.findOne({
+    let newTeamEntity: ProjectTeamEntity = await this.projectTeamRepository.findOne({
       where: { hubId: team.id },
       relations: ['users'],
     });
@@ -60,7 +59,7 @@ export class HubService {
       newTeamEntity.hubId = team.id;
     }
     if (!isNil(team.users) && team.users.length > 0) {
-      await Promise.all(team.users.map(async (user, index) => {
+      await Promise.all(team.users.map(async (user) => {
         const findUser = await this.userRepository.findOne({ where: { hubId: user.id } });
         if (!isNil(findUser)) {
           if (isNil(newTeamEntity.users)) {
@@ -89,34 +88,4 @@ export class HubService {
     }
 
   }
-
-  async getListProjectTeam(skip?: number, top?: number): Promise<IProjectTeam[]> {
-    let response = undefined;
-    try {
-      const params = getParamQuery(PROJECT_TEAMS_LIST_FIELDS, skip, top);
-      response = await this.setGetQueryYoutrack<IProject[]>('/projectteams', {
-        headers: this.headers,
-        params: params,
-      });
-      return response.projectteams;
-    } catch (error) {
-      console.error(error);
-    }
-    return response;
-  }
-
-  private async setGetQueryYoutrack<T>(
-    url: string,
-    config: Record<string, unknown>,
-  ): Promise<T> {
-    let response = undefined;
-    try {
-      response = await this.hubHTTP.get(url, config).pipe().toPromise();
-      response = response.data;
-    } catch (error) {
-      console.error(error);
-    }
-    return response;
-  }
-
 }

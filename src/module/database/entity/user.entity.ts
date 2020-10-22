@@ -9,7 +9,7 @@ import {
 import { RowEntity } from './shared/row.entity';
 import { DirectionEntity } from './direction.entity';
 import { ItemEntity } from './item.entity';
-import { ProjectTeamEntity } from './projectTeam.entity';
+import { ProjectTeamEntity } from './project-team.entity';
 
 @Entity('user')
 export class UserEntity extends RowEntity<UserEntity> {

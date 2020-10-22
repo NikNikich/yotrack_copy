@@ -1,35 +1,23 @@
 import { HttpModule, Module } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
-import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
 import { ConfigModule } from '../config/config.module';
-import { YoutrackTokenOptions } from 'youtrack-rest-client/dist/options/youtrack_options';
 import { YoutrackService } from './youtrack.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../database/entity/user.entity';
-import { DirectionEntity } from '../database/entity/direction.entity';
-import { ProjectEntity } from '../database/entity/project.entity';
-import { ItemEntity } from '../database/entity/item.entity';
+import { HttpYoutrackModule } from '../http-youtrack/http-youtrack.module';
+import { UserRepository } from '../database/repository/user.repository';
+import { DirectionRepository } from '../database/repository/direction.repository';
+import { ProjectRepository } from '../database/repository/project.repository';
+import { ItemRepository } from '../database/repository/item.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, DirectionEntity, ProjectEntity, ItemEntity]),
+    TypeOrmModule.forFeature([UserRepository, DirectionRepository, ProjectRepository, ItemRepository]),
+    HttpYoutrackModule.forRootAsync(),
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         baseURL: configService.config.YOUTRACK_BASE_URL + '/api',
       }),
-      inject: [ConfigService],
-    }),
-    YoutrackSdkModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (
-        configService: ConfigService,
-      ): Promise<YoutrackTokenOptions> => {
-        return {
-          baseUrl: configService.config.YOUTRACK_BASE_URL,
-          token: configService.config.YOUTRACK_TOKEN,
-        };
-      },
       inject: [ConfigService],
     }),
   ],

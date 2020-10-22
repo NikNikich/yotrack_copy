@@ -8,8 +8,8 @@ import {
 } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
 import { ItemEntity } from './item.entity';
-import { ProjectInformationEntity } from './project_information.entity';
-import { ProjectTeamEntity } from './projectTeam.entity';
+import { ProjectInformationEntity } from './project-information.entity';
+import { ProjectTeamEntity } from './project-team.entity';
 
 @Entity('project')
 export class ProjectEntity extends RowEntity<ProjectEntity> {

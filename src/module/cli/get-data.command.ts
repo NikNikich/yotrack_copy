@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Command, CommandService } from 'nestjs-command';
-import { HubService } from '../hub-youtrack/hub.service';
 import { ObserverScheduleService } from '../observer/observer-schedule.service';
 import { YoutrackService } from '../youtrack/youtrack.service';
+import { ConfigService } from '../config/config.service';
+import { HubService } from '../hub/hub.service';
 
 @Injectable()
 export class GetDataCommands {

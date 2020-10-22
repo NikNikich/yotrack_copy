@@ -7,7 +7,8 @@ import { YoutrackModule } from './youtrack/youtrack.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CommandModule } from 'nestjs-command';
 import { CommandsModule } from './cli/commands.module';
-import { HubModule } from './hub-youtrack/hub.module';
+import { HubModule } from './hub/hub.module';
+import { HttpYoutrackModule } from './http-youtrack/http-youtrack.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { HubModule } from './hub-youtrack/hub.module';
     HubModule,
     YoutrackSdkModule,
     YoutrackModule,
+    HttpYoutrackModule
   ],
 })
 export class AppModule {

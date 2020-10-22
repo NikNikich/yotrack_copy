@@ -1,48 +1,40 @@
-import { HttpService, Injectable, Logger } from '@nestjs/common';
-import { Youtrack } from 'youtrack-rest-client';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserEntity } from '../database/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DirectionEntity } from '../database/entity/direction.entity';
-import { ConfigService } from '../config/config.service';
-import { IIssue, IProject, IUser } from './youtrack.interface';
+import { IIssue } from './youtrack.interface';
 import { set,  get, isNil } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
 import { ItemEntity } from '../database/entity/item.entity';
 import {
   DELAY_MS,
   ISSUE_CUSTOM_FIELDS,
-  ISSUE_LIST_FIELDS, ISSUE_LIST_QUERY,
-  PROJECT_LIST_FIELDS,
-  USER_LIST_FIELDS,
 } from './youtrack.const';
 import { getParamQuery } from '../shared/http.function';
+import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
+import { ISSUE_LIST_QUERY } from '../http-youtrack/http-youtrack.const';
+import { UserRepository } from '../database/repository/user.repository';
+import { ProjectRepository } from '../database/repository/project.repository';
+import { DirectionRepository } from '../database/repository/direction.repository';
+import { ItemRepository } from '../database/repository/item.repository';
 
 @Injectable()
 export class YoutrackService {
   private readonly logger: Logger = new Logger(YoutrackService.name);
   private top = 100;
-  private headers = {
-    Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
-  };
 
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(ProjectEntity)
-    private readonly projectRepository: Repository<ProjectEntity>,
-    @InjectRepository(DirectionEntity)
-    private readonly directionRepository: Repository<DirectionEntity>,
-    @InjectRepository(ItemEntity)
-    private readonly itemRepository: Repository<ItemEntity>,
-    private readonly youtrackHTTP: HttpService,
-    private readonly youtrackClient: Youtrack,
-    private readonly configService: ConfigService,
+    private readonly userRepository: UserRepository,
+    private readonly projectRepository: ProjectRepository,
+    private readonly directionRepository: DirectionRepository,
+    private readonly itemRepository: ItemRepository,
+    private readonly youtrackHTTP: HttpYoutrackService,
   ) {
   }
 
   async addNewUsers(page = 1): Promise<void> {
-    const usersYoutrack = await this.getListUserHttp(
+    const usersYoutrack = await this.youtrackHTTP.getListUserHttp(
       this.top * (page - 1),
       this.top,
     );
@@ -71,7 +63,7 @@ export class YoutrackService {
   }
 
   async addNewProjects(page = 1): Promise<void> {
-    const projectsYoutrack = await this.getListProjectHttp(
+    const projectsYoutrack = await this.youtrackHTTP.getListProjectHttp(
       this.top * (page - 1),
       this.top,
     );
@@ -99,7 +91,7 @@ export class YoutrackService {
   }
 
   async addNewIssues(page = 1): Promise<void> {
-    const issuesYoutrack = await this.getListIssueHttp(
+    const issuesYoutrack = await this.youtrackHTTP.getListIssueHttp(
       this.top * (page - 1),
       this.top,
     );
@@ -119,7 +111,7 @@ export class YoutrackService {
   }
 
   async updateIssues(page = 1): Promise<void> {
-    const issuesYoutrack = await this.getListIssueHttp(
+    const issuesYoutrack = await this.youtrackHTTP.getListIssueHttp(
       this.top * (page - 1),
       this.top,
       ISSUE_LIST_QUERY,
@@ -196,29 +188,6 @@ export class YoutrackService {
     }
   }
 
-  async getListUserHttp(skip?: number, top?: number): Promise<IUser[]> {
-    const params = getParamQuery(USER_LIST_FIELDS, skip, top);
-    return this.setGetQueryYoutrack<IProject[]>('/users', {
-      headers: this.headers,
-      params: params,
-    });
-  }
-
-  async getListProjectHttp(skip?: number, top?: number): Promise<IProject[]> {
-    const params = getParamQuery(PROJECT_LIST_FIELDS, skip, top);
-    return this.setGetQueryYoutrack<IProject[]>('/admin/projects', {
-      headers: this.headers,
-      params: params,
-    });
-  }
-
-  async getListIssueHttp(skip?: number, top?: number, query?: string): Promise<IIssue[]> {
-    const params = getParamQuery(ISSUE_LIST_FIELDS, skip, top, query);
-    return this.setGetQueryYoutrack<IIssue[]>('/issues', {
-      headers: this.headers,
-      params: params,
-    });
-  }
 
   private async getIdDirection(direction: string, youtrackDirectionId: string): Promise<number> {
     let findDirection = await this.directionRepository.findOne({
@@ -272,17 +241,4 @@ export class YoutrackService {
     return findProject.id;
   }
 
-  private async setGetQueryYoutrack<T>(
-    url: string,
-    config: Record<string, unknown>,
-  ): Promise<T> {
-    let response = undefined;
-    try {
-      response = await this.youtrackHTTP.get(url, config).pipe().toPromise();
-      response = response.data;
-    } catch (error) {
-      console.error(error);
-    }
-    return response;
-  }
 }
