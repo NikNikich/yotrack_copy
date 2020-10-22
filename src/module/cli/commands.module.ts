@@ -11,6 +11,7 @@ import { ObserverModule } from '../observer/observer.module';
     CommandModule,
     HubModule,
     ObserverModule,
+
   ],
   providers: [GetDataCommands],
 })

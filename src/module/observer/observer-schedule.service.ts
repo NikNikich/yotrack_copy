@@ -15,9 +15,9 @@ export class ObserverScheduleService {
   @Cron('10 00 * * *')
   public async fetchDataFromYoutrack(): Promise<void> {
     this.logger.log('Start fetching data');
-    await this.youtrackService.addNewUsers();
+    /*await this.youtrackService.addNewUsers();
     await this.youtrackService.addNewProjects();
     await this.youtrackService.updateIssues();
-    await  this.hubService.addNewProjectTeams();
+    await  this.hubService.addNewProjectTeams();*/
   }
 }
