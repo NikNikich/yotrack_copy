@@ -26,13 +26,13 @@ export class SpreadSheetService {
     const sheetInfos = await  this.getSheetInfo();
     if (sheetInfos.length > 0) {
       const projectInforms = await Promise.all(
-        sheetInfos.map(async (sheetInfo)=>
-          new ProjectInformationEntity({
-            projectId: await this.getIdProject( sheetInfo.project),
-            directionId: await this.getIdDirection( sheetInfo.direction),
-            rate: sheetInfo.rate,
-            projectEstimation: sheetInfo.projectEstimation
-          })
+        sheetInfos.map(async (sheetInfo)=> {
+           return new ProjectInformationEntity({
+              projectId: await this.getIdProject(sheetInfo.project),
+              directionId: await this.getIdDirection(sheetInfo.direction),
+              rate: toNumber(sheetInfo.rate.replace(',', '.')),
+              projectEstimation: toNumber(sheetInfo.projectEstimation.replace(',', '.')),
+            })}
         ));
       await this.projectInformationRepository.save(projectInforms);
     }
@@ -41,7 +41,7 @@ export class SpreadSheetService {
   async getSheetInfo( ): Promise<ISheetInformation[]> {
     const doc = new GoogleSpreadsheet('1RYabRn005y0v_hUvVUNT4GHyIs5xJT_F602hfVj0Ku8');
     await doc.useApiKey(this.configService.config.GOOGLE_API_KEY);
-    const info = await doc.loadInfo();
+    await doc.loadInfo();
     const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
     let indexHeader: IIndexHeader = {
       direction: null,
@@ -57,7 +57,7 @@ export class SpreadSheetService {
        set(indexHeader, keyIssue, index);
       }
     })
-    const sheetInfo = rows.map((row) => {
+    return  rows.map((row) => {
      const rowData =  row._rawData
       return  {
       direction: !isNil(indexHeader.direction)?rowData[indexHeader.direction] : null,
@@ -65,7 +65,6 @@ export class SpreadSheetService {
       projectEstimation: !isNil(indexHeader.projectEstimation)?rowData[indexHeader.projectEstimation] : null,
       rate: !isNil(indexHeader.rate)?rowData[indexHeader.rate] : null
     }});
-    return sheetInfo;
   }
 
   private async getIdProject(name: string): Promise<number> {

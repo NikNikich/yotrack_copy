@@ -5,14 +5,14 @@ import { DirectionEntity } from './direction.entity';
 
 @Entity('project_information')
 export class ProjectInformationEntity extends RowEntity<ProjectInformationEntity> {
-  @Column({ type: 'varchar' })
-  rate?: string;
+  @Column({ type: 'real',nullable: true })
+  rate?: number;
 
-  @Column({ type: 'varchar'})
-  projectEstimation?: string;
+  @Column({ type: 'real',nullable: true})
+  projectEstimation?: number;
 
   @RelationId((information: ProjectInformationEntity) => information.project)
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   projectId?: number;
 
   @ManyToOne(() => ProjectEntity, (project: ProjectEntity) => project.id)
