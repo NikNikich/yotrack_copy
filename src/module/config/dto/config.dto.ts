@@ -114,4 +114,25 @@ export class ConfigDto {
     value === 'true' ? true : value === 'false' ? false : value,
   )
   TYPEORM_LOGGING: boolean = false;
+
+  /**
+   * Имя аккаунта в гугл
+   */
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
+
+  /**
+   * Пароль аккаунта в гугл
+   */
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_PRIVATE_KEY: string;
+
+  /**
+   * Ключ апи таблиц в гугл
+   */
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_API_KEY: string;
 }

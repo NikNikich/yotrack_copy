@@ -7,14 +7,15 @@ import { ObserverModule } from '../observer/observer.module';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
 import { HttpYoutrackModule } from '../http-youtrack/http-youtrack.module';
+import { SpreadSheetModule } from '../spread-sheet/spread-sheet.module';
 
 @Module({
   imports: [
+    SpreadSheetModule,
     ConfigModule,
     YoutrackModule,
     CommandModule,
     HubModule,
-    ObserverModule,
     HttpYoutrackModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
         baseURL: configService.config.HUB_BASE_URL,

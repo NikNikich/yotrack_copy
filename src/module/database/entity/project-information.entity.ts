@@ -5,26 +5,26 @@ import { DirectionEntity } from './direction.entity';
 
 @Entity('project_information')
 export class ProjectInformationEntity extends RowEntity<ProjectInformationEntity> {
-  @Column({ type: 'numeric', nullable: false })
-  rate: number;
+  @Column({ type: 'varchar' })
+  rate?: string;
 
-  @Column({ type: 'numeric', nullable: false })
-  project_estimation: number;
+  @Column({ type: 'varchar'})
+  projectEstimation?: string;
 
   @RelationId((information: ProjectInformationEntity) => information.project)
-  @Column({ type: 'integer', nullable: false })
-  projectId: number;
+  @Column({ type: 'integer' })
+  projectId?: number;
 
   @ManyToOne(() => ProjectEntity, (project: ProjectEntity) => project.id)
-  project: ProjectEntity;
+  project?: ProjectEntity;
 
   @RelationId((information: ProjectInformationEntity) => information.direction)
-  @Column({ type: 'integer', nullable: false })
-  directionId: number;
+  @Column({ type: 'integer', nullable: true})
+  directionId?: number;
 
   @ManyToOne(
     () => DirectionEntity,
     (direction: DirectionEntity) => direction.id,
   )
-  direction: DirectionEntity;
+  direction?: DirectionEntity;
 }

@@ -170,7 +170,7 @@ export class YoutrackService {
       }
     }));
     if (issue.updater) {
-      newItemEntity.assigneeUserId = await this.getIdUser(issue.updater.fullName, issue.updater.id);
+      newItemEntity.updaterUserId = await this.getIdUser(issue.updater.fullName, issue.updater.id);
     }
     if (issue.project) {
       newItemEntity.projectId = await this.getIdProject(issue.project.name, issue.project.id);
@@ -203,7 +203,7 @@ export class YoutrackService {
 
   private async getIdUser(fullName: string, youtrackUserId: string): Promise<number> {
     let findUser = await this.userRepository.findOne({
-      where: { fullName },
+      where: { youtrackId: youtrackUserId},
     });
     if (!findUser) {
       findUser = await this.userRepository.save(

@@ -28,7 +28,7 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   percent?: number;
 
   @Column({ type: 'varchar', nullable: true, length: 255 })
-  fixVersions?: string;
+  week?: string;
 
   @Column({ type: 'varchar', nullable: true, length: 255 })
   comment?: string;

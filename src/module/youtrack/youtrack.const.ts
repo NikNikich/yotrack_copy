@@ -3,7 +3,7 @@ export const ISSUE_CUSTOM_FIELDS = {
   'Estimation': 'estimationTime',
   'Spent time': 'spentTime',
   '% выполнения': 'percent',
-  'Fix versions': 'fixVersions',
+  'Week': 'week',
   'Start date': 'startDate',
   'End date': 'endDate',
   'Direction': 'endDate',

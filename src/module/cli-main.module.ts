@@ -4,8 +4,10 @@ import { CommandsModule } from './cli/commands.module';
 import { ConfigModule } from './config/config.module';
 import { YoutrackSdkModule } from './youtrack_sdk/youtrack-sdk.module';
 import { YoutrackModule } from './youtrack/youtrack.module';
-import { HubModule } from './hub-youtrack/hub.module';
-import { HttpPbiModule } from './http-pbi/http-pbi.module';
+import { SpreadSheetModule } from './spread-sheet/spread-sheet.module';
+import { HubModule } from './hub/hub.module';
+import { HttpYoutrackModule } from './http-youtrack/http-youtrack.module';
+import { HttpHubModule } from './http-hub/http-hub.module';
 
 @Module({
   imports: [
@@ -15,7 +17,9 @@ import { HttpPbiModule } from './http-pbi/http-pbi.module';
     YoutrackSdkModule,
     YoutrackModule,
     HubModule,
-    HttpPbiModule
+    SpreadSheetModule,
+    HttpYoutrackModule,
+    HttpHubModule
   ],
 })
 export class CliMainModule {
