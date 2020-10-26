@@ -3,7 +3,7 @@ import { UserEntity } from '../database/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DirectionEntity } from '../database/entity/direction.entity';
-import { IIssue } from './youtrack.interface';
+import { IIssue, ITimeTracking } from './youtrack.interface';
 import { set,  get, isNil } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
 import { ItemEntity } from '../database/entity/item.entity';
@@ -18,6 +18,8 @@ import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { DirectionRepository } from '../database/repository/direction.repository';
 import { ItemRepository } from '../database/repository/item.repository';
+import { TimeTrackingEntity } from '../database/entity/time-tracking.entity';
+import { TimeTrackingRepository } from '../database/repository/time-tracking.repository';
 
 @Injectable()
 export class YoutrackService {
@@ -29,6 +31,7 @@ export class YoutrackService {
     private readonly projectRepository: ProjectRepository,
     private readonly directionRepository: DirectionRepository,
     private readonly itemRepository: ItemRepository,
+    private readonly timeTrackingRepository: TimeTrackingRepository,
     private readonly youtrackHTTP: HttpYoutrackService,
   ) {
   }
@@ -110,6 +113,24 @@ export class YoutrackService {
     }
   }
 
+  async addListIssueTimeTrack(issue:ItemEntity, page = 1){
+    const listTrackTime = await this.youtrackHTTP.getListIssueTrackHttp(
+      issue.youtrackId,
+      this.top * (page - 1),
+      this.top,
+    );
+    if (listTrackTime.length > 0) {
+      const tracks = await Promise.all(
+        listTrackTime.map(async (track) => {
+          return this.addIssueTimeTrack(issue, track)
+        }));
+      await this.timeTrackingRepository.save(tracks);
+    }
+    if (listTrackTime.length === this.top) {
+      await this.addListIssueTimeTrack( issue, ++page);
+    }
+  }
+
   async updateIssues(page = 1): Promise<void> {
     const issuesYoutrack = await this.youtrackHTTP.getListIssueHttp(
       this.top * (page - 1),
@@ -188,6 +209,10 @@ export class YoutrackService {
     }
   }
 
+  async addIssueTimeTrack(issue:ItemEntity, item:ITimeTracking): Promise<TimeTrackingEntity>{
+
+  return this.timeTrackingRepository.findByItemIdAndYoutrackIdOrCreate(issue.id, item.id);
+  }
 
   private async getIdDirection(direction: string, youtrackDirectionId: string): Promise<number> {
     let findDirection = await this.directionRepository.findOne({

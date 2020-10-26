@@ -6,6 +6,7 @@ import { ConfigService } from '../config/config.service';
 import { HubService } from '../hub/hub.service';
 import { SpreadSheetModule } from '../spread-sheet/spread-sheet.module';
 import { SpreadSheetService } from '../spread-sheet/spread-sheet.service';
+import { Youtrack } from 'youtrack-rest-client';
 
 @Injectable()
 export class GetDataCommands {
@@ -15,7 +16,8 @@ export class GetDataCommands {
     private readonly youtrackService: YoutrackService,
     private readonly commandService: CommandService,
     private readonly spreadSheetService: SpreadSheetService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly youtrackClient: Youtrack
   ) {
   }
 
@@ -29,7 +31,9 @@ export class GetDataCommands {
     await this.youtrackService.addNewProjects();
     await this.youtrackService.addNewIssues();
     await this.hubService.addNewProjectTeams();*/
-    await this.spreadSheetService.getProjectInfo();
+    // await this.spreadSheetService.getProjectInfo();
+    const time = await this.youtrackClient.workItems.all("2-19568");
+    console.log(time);
     this.commandService.exit(0);
   }
 }

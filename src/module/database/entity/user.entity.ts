@@ -10,6 +10,7 @@ import { RowEntity } from './shared/row.entity';
 import { DirectionEntity } from './direction.entity';
 import { ItemEntity } from './item.entity';
 import { ProjectTeamEntity } from './project-team.entity';
+import { TimeTrackingEntity } from './time-tracking.entity';
 
 @Entity('user')
 export class UserEntity extends RowEntity<UserEntity> {
@@ -30,4 +31,7 @@ export class UserEntity extends RowEntity<UserEntity> {
 
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.updaterUser)
   updaterItems?: ItemEntity[];
+
+  @OneToMany(() => TimeTrackingEntity, (track) => track.author)
+  authorTracks?: TimeTrackingEntity[];
 }

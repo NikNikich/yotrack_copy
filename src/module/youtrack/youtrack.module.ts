@@ -8,10 +8,17 @@ import { UserRepository } from '../database/repository/user.repository';
 import { DirectionRepository } from '../database/repository/direction.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { ItemRepository } from '../database/repository/item.repository';
+import { TimeTrackingRepository } from '../database/repository/time-tracking.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserRepository, DirectionRepository, ProjectRepository, ItemRepository]),
+    TypeOrmModule.forFeature([
+      UserRepository,
+      DirectionRepository,
+      ProjectRepository,
+      ItemRepository,
+      TimeTrackingRepository
+    ]),
     HttpYoutrackModule.forRootAsync(),
     HttpModule.registerAsync({
       imports: [ConfigModule],

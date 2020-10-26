@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
 import { DirectionEntity } from './direction.entity';
 import { ProjectEntity } from './project.entity';
 import { UserEntity } from './user.entity';
+import { TimeTrackingEntity } from './time-tracking.entity';
 
 @Entity('item')
 export class ItemEntity extends RowEntity<ItemEntity> {
@@ -69,4 +70,7 @@ export class ItemEntity extends RowEntity<ItemEntity> {
 
   @ManyToOne(() => ItemEntity, (parentItem: ItemEntity) => parentItem.id)
   parentItem?: UserEntity;
+
+  @OneToMany(() => TimeTrackingEntity, (track) => track.item)
+  timeTracks?: TimeTrackingEntity[];
 }

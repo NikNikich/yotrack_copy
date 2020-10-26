@@ -45,3 +45,16 @@ export interface IIssue {
   updater: IUser;
   customFields: ICustomFields[];
 }
+
+export interface ITimeTracking {
+  id: string;
+  text?: string;
+  duration?: IDuration
+  created?: number;
+  author: IUser;
+  date: number;
+}
+
+export interface IDuration {
+  presentation?: string;
+}
