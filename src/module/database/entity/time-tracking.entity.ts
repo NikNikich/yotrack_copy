@@ -4,12 +4,12 @@ import { ItemEntity } from './item.entity';
 import { UserEntity } from './user.entity';
 import { Type } from 'class-transformer';
 
-@Entity('time-tracking')
+@Entity('time_tracking')
 export class TimeTrackingEntity extends RowEntity<TimeTrackingEntity> {
-  @Column({ type: 'varchar', nullable: true})
+  @Column({ type: 'varchar', nullable: true })
   text?: string;
 
-  @Column({ type: 'varchar', nullable: true})
+  @Column({ type: 'varchar', nullable: true })
   duration?: string;
 
   @Column({ type: 'varchar', nullable: false, length: 50, unique: true })
@@ -17,7 +17,7 @@ export class TimeTrackingEntity extends RowEntity<TimeTrackingEntity> {
 
   @Column({ type: 'timestamp', nullable: true })
   @Type(() => Date)
-  trackUpdatedAt?: Date;
+  date?: Date;
 
   @RelationId((track: TimeTrackingEntity) => track.author)
   @Column({ type: 'integer', nullable: true })
@@ -32,5 +32,4 @@ export class TimeTrackingEntity extends RowEntity<TimeTrackingEntity> {
 
   @ManyToOne(() => ItemEntity, (item: ItemEntity) => item.id)
   item?: ItemEntity;
-
 }

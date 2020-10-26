@@ -1,17 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UserEntity } from '../database/entity/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { DirectionEntity } from '../database/entity/direction.entity';
-import { IIssue, ITimeTracking } from './youtrack.interface';
-import { set,  get, isNil } from 'lodash';
+import { IIssue, IIssueFieldValue, ITimeTracking } from './youtrack.interface';
+import { set, get, isNil, isArray } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
 import { ItemEntity } from '../database/entity/item.entity';
-import {
-  DELAY_MS,
-  ISSUE_CUSTOM_FIELDS,
-} from './youtrack.const';
-import { getParamQuery } from '../shared/http.function';
+import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from './youtrack.const';
 import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
 import { ISSUE_LIST_QUERY } from '../http-youtrack/http-youtrack.const';
 import { UserRepository } from '../database/repository/user.repository';
@@ -33,8 +27,7 @@ export class YoutrackService {
     private readonly itemRepository: ItemRepository,
     private readonly timeTrackingRepository: TimeTrackingRepository,
     private readonly youtrackHTTP: HttpYoutrackService,
-  ) {
-  }
+  ) {}
 
   async addNewUsers(page = 1): Promise<void> {
     const usersYoutrack = await this.youtrackHTTP.getListUserHttp(
@@ -44,7 +37,9 @@ export class YoutrackService {
     if (usersYoutrack.length > 0) {
       const users = await Promise.all(
         usersYoutrack.map(async (user) => {
-          const findUser = await this.userRepository.findOne({ where: { youtrackId: user.id } });
+          const findUser = await this.userRepository.findOne({
+            where: { youtrackId: user.id },
+          });
           if (!isNil(findUser)) {
             findUser.fullName = user.fullName;
             findUser.hubId = user.ringId;
@@ -73,7 +68,9 @@ export class YoutrackService {
     if (projectsYoutrack.length > 0) {
       const projects = await Promise.all(
         projectsYoutrack.map(async (project) => {
-          const findProject = await this.projectRepository.findOne({ where: { youtrackId: project.id } });
+          const findProject = await this.projectRepository.findOne({
+            where: { youtrackId: project.id },
+          });
           if (!isNil(findProject)) {
             findProject.name = project.name;
             findProject.hubResourceId = project.hubResourceId;
@@ -85,7 +82,8 @@ export class YoutrackService {
               name: project.name,
             });
           }
-        }));
+        }),
+      );
       await this.projectRepository.save(projects);
     }
     if (projectsYoutrack.length === this.top) {
@@ -99,35 +97,42 @@ export class YoutrackService {
       this.top,
     );
     if (issuesYoutrack.length > 0) {
-      await Promise.all(issuesYoutrack.map(async (issue, index) => {
-        await new Promise((resolve) => {
-          setTimeout((that) => {
-            this.addNewIssueOne(issue);
-            resolve();
-          }, DELAY_MS * index, this);
-        });
-      }));
+      await Promise.all(
+        issuesYoutrack.map(async (issue, index) => {
+          await new Promise((resolve) => {
+            setTimeout(
+              () => {
+                this.addNewIssueOne(issue);
+                resolve();
+              },
+              DELAY_MS * index,
+              this,
+            );
+          });
+        }),
+      );
     }
     if (issuesYoutrack.length === this.top) {
       await this.addNewIssues(++page);
     }
   }
 
-  async addListIssueTimeTrack(issue:ItemEntity, page = 1){
+  async addListIssueTimeTrack(issue: ItemEntity, page = 1): Promise<void> {
     const listTrackTime = await this.youtrackHTTP.getListIssueTrackHttp(
       issue.youtrackId,
       this.top * (page - 1),
       this.top,
     );
-    if (listTrackTime.length > 0) {
+    if (!isNil(listTrackTime) && listTrackTime.length > 0) {
       const tracks = await Promise.all(
         listTrackTime.map(async (track) => {
-          return this.addIssueTimeTrack(issue, track)
-        }));
+          return this.addIssueTimeTrack(issue, track);
+        }),
+      );
       await this.timeTrackingRepository.save(tracks);
     }
     if (listTrackTime.length === this.top) {
-      await this.addListIssueTimeTrack( issue, ++page);
+      await this.addListIssueTimeTrack(issue, ++page);
     }
   }
 
@@ -138,14 +143,20 @@ export class YoutrackService {
       ISSUE_LIST_QUERY,
     );
     if (issuesYoutrack.length > 0) {
-      await Promise.all(issuesYoutrack.map(async (issue, index) => {
-        await new Promise((resolve) => {
-          setTimeout((that) => {
-            this.addNewIssueOne(issue, true);
-            resolve();
-          }, DELAY_MS * index, this);
-        });
-      }));
+      await Promise.all(
+        issuesYoutrack.map(async (issue, index) => {
+          await new Promise((resolve) => {
+            setTimeout(
+              () => {
+                this.addNewIssueOne(issue, true);
+                resolve();
+              },
+              DELAY_MS * index,
+              this,
+            );
+          });
+        }),
+      );
     }
     if (issuesYoutrack.length === this.top) {
       await this.updateIssues(++page);
@@ -155,80 +166,147 @@ export class YoutrackService {
   async addNewIssueOne(issue: IIssue, newAlways = false): Promise<void> {
     let newItemEntity: ItemEntity;
     if (!newAlways) {
-      newItemEntity = await this.itemRepository.findOne({ where: { youtrackId: issue.id } });
+      newItemEntity = await this.itemRepository.findOne({
+        where: { youtrackId: issue.id },
+      });
     }
     if (isNil(newItemEntity) || newAlways) {
       newItemEntity = new ItemEntity();
       newItemEntity.youtrackId = issue.id;
     }
     newItemEntity.name = issue.summary;
-    await Promise.all(issue.customFields.map(async (field): Promise<void> => {
-      if (get(ISSUE_CUSTOM_FIELDS, field.name) && (!isNil(field.value))) {
-        const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
-        switch (field.name) {
-          case 'Direction':
-            newItemEntity.directionId = await this.getIdDirection(field.value.name, field.value.id);
-            break;
-          case 'Estimation':
-          case 'Spent time':
-            if (!isNil(field.value.presentation)) {
-              set(newItemEntity, keyIssue, field.value.presentation);
+    await Promise.all(
+      issue.customFields.map(
+        async (field): Promise<void> => {
+          if (get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value)) {
+            const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
+            switch (field.name) {
+              case 'Week':
+                if (isArray(field.value) && field.value.length > 0) {
+                  const weeks = field.value
+                    .map((value) => value.name)
+                    .join(', ');
+                  set(newItemEntity, keyIssue, weeks);
+                }
+                break;
+              case 'Direction':
+                if (!isArray(field.value)) {
+                  newItemEntity.directionId = await this.getIdDirection(
+                    field.value.name,
+                    field.value.id,
+                  );
+                }
+                break;
+              case 'Estimation':
+              case 'Spent time':
+                if (!isArray(field.value) && !isNil(field.value.presentation)) {
+                  set(newItemEntity, keyIssue, field.value.presentation);
+                }
+                break;
+              case 'Комментарий по % выполнению':
+              case '% выполнения':
+              case 'Start date':
+              case 'End Date':
+                set(newItemEntity, keyIssue, field.value);
+                break;
+              case 'Assignee':
+                if (!isArray(field.value)) {
+                  newItemEntity.assigneeUserId = await this.getIdUser(
+                    field.value.name,
+                    field.value.id,
+                  );
+                }
+                break;
+              default:
+                if (!isArray(field.value) && !isNil(field.value.name)) {
+                  set(newItemEntity, keyIssue, field.value.name);
+                }
             }
-            break;
-          case '% выполнения':
-          case 'Start date':
-          case 'End Date':
-            set(newItemEntity, keyIssue, field.value);
-            break;
-          case 'Assignee':
-            newItemEntity.assigneeUserId = await this.getIdUser(field.value.name, field.value.id);
-            break;
-          default:
-            if (!isNil(field.value.name)) {
-              set(newItemEntity, keyIssue, field.value.name);
-            }
-        }
-      }
-    }));
+          }
+        },
+      ),
+    );
     if (issue.updater) {
-      newItemEntity.updaterUserId = await this.getIdUser(issue.updater.fullName, issue.updater.id);
+      newItemEntity.updaterUserId = await this.getIdUser(
+        issue.updater.fullName,
+        issue.updater.id,
+      );
     }
     if (issue.project) {
-      newItemEntity.projectId = await this.getIdProject(issue.project.name, issue.project.id);
+      newItemEntity.projectId = await this.getIdProject(
+        issue.project.name,
+        issue.project.id,
+      );
     }
-    if ((issue.parent.issues.length > 0) && (issue.parent.issues[0].id !== issue.id)) {
+    if (
+      issue.parent.issues.length > 0 &&
+      issue.parent.issues[0].id !== issue.id
+    ) {
       newItemEntity.parentItemId = await this.getIdItem(
         issue.parent.issues[0].summary,
         issue.parent.issues[0].id,
       );
     }
     try {
-      await this.itemRepository.save(newItemEntity);
+      const saveItem = await this.itemRepository.save(newItemEntity);
+      if (!isNil(saveItem)) {
+        await this.addListIssueTimeTrack(saveItem);
+      }
     } catch (error) {
       this.logger.log(error);
     }
   }
 
-  async addIssueTimeTrack(issue:ItemEntity, item:ITimeTracking): Promise<TimeTrackingEntity>{
-
-  return this.timeTrackingRepository.findByItemIdAndYoutrackIdOrCreate(issue.id, item.id);
+  async addIssueTimeTrack(
+    issue: ItemEntity,
+    youtrackTrack: ITimeTracking,
+  ): Promise<TimeTrackingEntity> {
+    const timeTrack = await this.timeTrackingRepository.findByItemIdAndYoutrackIdOrCreate(
+      issue.id,
+      youtrackTrack.id,
+    );
+    if (!isNil(youtrackTrack.author)) {
+      timeTrack.authorId = await this.getIdUser(
+        youtrackTrack.author.fullName,
+        youtrackTrack.author.id,
+      );
+    }
+    if (!isNil(youtrackTrack.duration)) {
+      timeTrack.duration = youtrackTrack.duration.presentation;
+    }
+    if (!isNil(youtrackTrack.date)) {
+      timeTrack.date = new Date(youtrackTrack.date);
+    }
+    if (!isNil(youtrackTrack.text)) {
+      timeTrack.text = youtrackTrack.text;
+    }
+    return timeTrack;
   }
 
-  private async getIdDirection(direction: string, youtrackDirectionId: string): Promise<number> {
+  private async getIdDirection(
+    direction: string,
+    youtrackDirectionId: string,
+  ): Promise<number> {
     let findDirection = await this.directionRepository.findOne({
       where: { name: direction },
     });
     if (!findDirection) {
       findDirection = await this.directionRepository.save(
-        new DirectionEntity({ name: direction, youtrackId: youtrackDirectionId }),
+        new DirectionEntity({
+          name: direction,
+          youtrackId: youtrackDirectionId,
+        }),
       );
     }
     return findDirection.id;
   }
 
-  private async getIdUser(fullName: string, youtrackUserId: string): Promise<number> {
+  private async getIdUser(
+    fullName: string,
+    youtrackUserId: string,
+  ): Promise<number> {
     let findUser = await this.userRepository.findOne({
-      where: { youtrackId: youtrackUserId},
+      where: { youtrackId: youtrackUserId },
     });
     if (!findUser) {
       findUser = await this.userRepository.save(
@@ -238,7 +316,11 @@ export class YoutrackService {
     return findUser.id;
   }
 
-  private async getIdItem(name: string, youtrackItemId: string, newAlways = false): Promise<number> {
+  private async getIdItem(
+    name: string,
+    youtrackItemId: string,
+    newAlways = false,
+  ): Promise<number> {
     let findItem = await this.itemRepository.findOne({
       where: { youtrackId: youtrackItemId },
     });
@@ -254,7 +336,10 @@ export class YoutrackService {
     return findItem.id;
   }
 
-  private async getIdProject(name: string, youtrackProjectId: string): Promise<number> {
+  private async getIdProject(
+    name: string,
+    youtrackProjectId: string,
+  ): Promise<number> {
     let findProject = await this.projectRepository.findOne({
       where: { youtrackId: youtrackProjectId },
     });
@@ -265,5 +350,4 @@ export class YoutrackService {
     }
     return findProject.id;
   }
-
 }

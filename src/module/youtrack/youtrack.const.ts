@@ -1,11 +1,12 @@
 export const DELAY_MS = 100;
 export const ISSUE_CUSTOM_FIELDS = {
-  'Estimation': 'estimationTime',
+  Estimation: 'estimationTime',
   'Spent time': 'spentTime',
   '% выполнения': 'percent',
-  'Week': 'week',
+  Week: 'week',
   'Start date': 'startDate',
   'End date': 'endDate',
-  'Direction': 'endDate',
-  'Assignee': 'assigneeUserId',
+  Direction: 'endDate',
+  Assignee: 'assigneeUserId',
+  'Комментарий по % выполнению': 'comment',
 };

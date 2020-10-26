@@ -30,7 +30,7 @@ export interface IIssueFieldValue {
 export interface ICustomFields {
   id: string;
   name?: string;
-  value?: IIssueFieldValue;
+  value?: IIssueFieldValue | IIssueFieldValue[];
 }
 
 export interface IParent {
@@ -40,7 +40,7 @@ export interface IParent {
 export interface IIssue {
   id: string;
   summary?: string;
-  project?: IIdName
+  project?: IIdName;
   parent?: IParent;
   updater: IUser;
   customFields: ICustomFields[];
@@ -49,7 +49,7 @@ export interface IIssue {
 export interface ITimeTracking {
   id: string;
   text?: string;
-  duration?: IDuration
+  duration?: IDuration;
   created?: number;
   author: IUser;
   date: number;
