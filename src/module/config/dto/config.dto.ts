@@ -118,16 +118,16 @@ export class ConfigDto {
   /**
    * Имя аккаунта в гугл
    */
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
+  GOOGLE_SERVICE_ACCOUNT_EMAIL?: string;
 
   /**
    * Пароль аккаунта в гугл
    */
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  GOOGLE_PRIVATE_KEY: string;
+  GOOGLE_PRIVATE_KEY?: string;
 
   /**
    * Ключ апи таблиц в гугл
@@ -135,4 +135,11 @@ export class ConfigDto {
   @IsNotEmpty()
   @IsString()
   GOOGLE_API_KEY: string;
+
+  /**
+   * Ключ нужной ексель таблицы в гугл
+   */
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_SHEET_ID: string;
 }

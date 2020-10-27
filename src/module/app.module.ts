@@ -10,6 +10,7 @@ import { CommandsModule } from './cli/commands.module';
 import { HubModule } from './hub/hub.module';
 import { HttpYoutrackModule } from './http-youtrack/http-youtrack.module';
 import { SpreadSheetModule } from './spread-sheet/spread-sheet.module';
+import { GoogleExcelModule } from './google-excel/google-excel.module';
 
 @Module({
   imports: [
@@ -23,8 +24,8 @@ import { SpreadSheetModule } from './spread-sheet/spread-sheet.module';
     YoutrackSdkModule,
     YoutrackModule,
     HttpYoutrackModule,
-    SpreadSheetModule
+    SpreadSheetModule,
+    GoogleExcelModule,
   ],
 })
-export class AppModule {
-}
+export class AppModule {}

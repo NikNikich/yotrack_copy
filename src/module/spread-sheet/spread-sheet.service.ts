@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { get, isNil, toNumber } from 'lodash';
 import { ConfigService } from '../config/config.service';
@@ -8,21 +8,23 @@ import { ProjectInformationRepository } from '../database/repository/project-inf
 import { ISheetInformation } from './spreed-sheet.interface';
 import { SPREED_HEADERS } from './spreed-sheet.const';
 import { ProjectInformationEntity } from '../database/entity/project-information.entity';
+import { GOOGLE_EXCEL_MODULE_OPTIONS } from '../google-excel/constant/google-excel.constant';
+import { IGoogleExcelOptions } from '../google-excel/interface/google-excel-options-factory';
 
 @Injectable()
 export class SpreadSheetService {
   constructor(
+    private readonly googleSpreadsheet: GoogleSpreadsheet,
     private readonly directionRepository: DirectionRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly projectInformationRepository: ProjectInformationRepository,
     private readonly configService: ConfigService,
   ) {}
 
-  tableName = 'project_information';
-
   async updateProjectInfo(): Promise<void> {
+    const tableName = this.projectInformationRepository.metadata.tableName;
     await this.projectInformationRepository.query(
-      `TRUNCATE TABLE "${this.tableName}" CASCADE `,
+      `TRUNCATE TABLE "${tableName}" CASCADE `,
     );
     await this.getProjectInfo();
   }
@@ -45,12 +47,11 @@ export class SpreadSheetService {
   }
 
   async getSheetInfo(): Promise<ISheetInformation[]> {
-    const doc = new GoogleSpreadsheet(
-      '1RYabRn005y0v_hUvVUNT4GHyIs5xJT_F602hfVj0Ku8',
+    await this.googleSpreadsheet.useApiKey(
+      this.configService.config.GOOGLE_API_KEY,
     );
-    await doc.useApiKey(this.configService.config.GOOGLE_API_KEY);
-    await doc.loadInfo();
-    const sheet = doc.sheetsByIndex[0];
+    await this.googleSpreadsheet.loadInfo();
+    const sheet = this.googleSpreadsheet.sheetsByIndex[0];
     const rows = await sheet.getRows();
     return rows.map((row) => {
       return {
