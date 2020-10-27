@@ -4,10 +4,3 @@ export interface ISheetInformation {
   rate?: string;
   projectEstimation?: string;
 }
-
-export interface IIndexHeader {
-  project: number;
-  direction: number;
-  rate: number;
-  projectEstimation: number;
-}

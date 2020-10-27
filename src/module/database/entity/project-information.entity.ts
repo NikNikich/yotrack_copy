@@ -1,14 +1,16 @@
-import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
 import { ProjectEntity } from './project.entity';
 import { DirectionEntity } from './direction.entity';
 
 @Entity('project_information')
-export class ProjectInformationEntity extends RowEntity<ProjectInformationEntity> {
-  @Column({ type: 'real',nullable: true })
+export class ProjectInformationEntity extends RowEntity<
+  ProjectInformationEntity
+> {
+  @Column({ type: 'decimal', nullable: true })
   rate?: number;
 
-  @Column({ type: 'real',nullable: true})
+  @Column({ type: 'decimal', nullable: true })
   projectEstimation?: number;
 
   @RelationId((information: ProjectInformationEntity) => information.project)
@@ -19,7 +21,7 @@ export class ProjectInformationEntity extends RowEntity<ProjectInformationEntity
   project?: ProjectEntity;
 
   @RelationId((information: ProjectInformationEntity) => information.direction)
-  @Column({ type: 'integer', nullable: true})
+  @Column({ type: 'integer', nullable: true })
   directionId?: number;
 
   @ManyToOne(

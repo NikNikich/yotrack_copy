@@ -1,6 +1,6 @@
 export const SPREED_HEADERS = {
-  'Project': 'project',
-  'Direction': 'direction',
-  'Rate': 'rate',
-  'Estimation_by_direction': 'projectEstimation',
-}
+  project: 'Project',
+  direction: 'Direction',
+  rate: 'Rate',
+  projectEstimation: 'Estimation_by_direction',
+};
