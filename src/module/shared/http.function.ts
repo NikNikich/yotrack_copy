@@ -1,4 +1,5 @@
 import { merge } from 'lodash';
+import { isNil } from 'lodash';
 
 export const getParamQuery = (
   fields: string,
@@ -7,13 +8,13 @@ export const getParamQuery = (
   query?: string,
 ): Record<string, unknown> => {
   let params = { fields: fields };
-  if (query) {
+  if (!isNil(query)) {
     params = merge(params, { query: query });
   }
-  if (skip) {
+  if (!isNil(skip)) {
     params = merge(params, { $skip: skip });
   }
-  if (top) {
+  if (!isNil(top)) {
     params = merge(params, { $top: top });
   }
   return params;

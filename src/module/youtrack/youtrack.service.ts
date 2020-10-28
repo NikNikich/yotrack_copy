@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UserEntity } from '../database/entity/user.entity';
 import { DirectionEntity } from '../database/entity/direction.entity';
-import { IIssue, IIssueFieldValue, ITimeTracking } from './youtrack.interface';
+import { IIssue, ITimeTracking } from './youtrack.interface';
 import { set, get, isNil, isArray } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
 import { ItemEntity } from '../database/entity/item.entity';
@@ -14,6 +14,7 @@ import { DirectionRepository } from '../database/repository/direction.repository
 import { ItemRepository } from '../database/repository/item.repository';
 import { TimeTrackingEntity } from '../database/entity/time-tracking.entity';
 import { TimeTrackingRepository } from '../database/repository/time-tracking.repository';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class YoutrackService {
@@ -163,17 +164,51 @@ export class YoutrackService {
     }
   }
 
-  async addNewIssueOne(issue: IIssue, newAlways = false): Promise<void> {
+  async updateNullProjectIssues(): Promise<void> {
+    const issuesNullProject = await this.itemRepository.find({
+      where: { projectId: IsNull() },
+    });
+    if (issuesNullProject.length > 0) {
+      await Promise.all(
+        issuesNullProject.map(async (issueBD, index) => {
+          await new Promise((resolve) => {
+            setTimeout(
+              async () => {
+                const issue = await this.youtrackHTTP.getIssueHttp(
+                  issueBD.youtrackId,
+                );
+                await this.addNewIssueOne(issue, false);
+                resolve();
+              },
+              DELAY_MS * index * 3,
+              this,
+            );
+          });
+        }),
+      );
+    }
+  }
+
+  async addNewIssueOne(
+    issue: IIssue,
+    newAlways = false,
+    BDIssueId = 0,
+  ): Promise<void> {
     let newItemEntity: ItemEntity;
-    if (!newAlways) {
-      newItemEntity = await this.itemRepository.findOne({
-        where: { youtrackId: issue.id },
-      });
+    if (BDIssueId > 0) {
+      newItemEntity = await this.itemRepository.findOne(BDIssueId);
+    } else {
+      if (!newAlways) {
+        newItemEntity = await this.itemRepository.findOne({
+          where: { youtrackId: issue.id },
+        });
+      }
     }
     if (isNil(newItemEntity) || newAlways) {
       newItemEntity = new ItemEntity();
       newItemEntity.youtrackId = issue.id;
     }
+
     newItemEntity.name = issue.summary;
     await Promise.all(
       issue.customFields.map(

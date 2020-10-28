@@ -12,7 +12,7 @@ export class TimeTrackingEntity extends RowEntity<TimeTrackingEntity> {
   @Column({ type: 'varchar', nullable: true })
   duration?: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 50, unique: true })
+  @Column({ type: 'varchar', nullable: false, length: 50 })
   youtrackId: string;
 
   @Column({ type: 'timestamp', nullable: true })

@@ -43,6 +43,7 @@ export class GoogleExcelModule {
     options: IGoogleExcelOptions,
   ): Provider[] {
     const googleSpreadsheet = new GoogleSpreadsheet(options.sheetId);
+    googleSpreadsheet.useApiKey(options.useApiKey);
     return [
       {
         provide: GOOGLE_EXCEL_MODULE_OPTIONS,

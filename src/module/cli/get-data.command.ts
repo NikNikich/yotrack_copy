@@ -30,9 +30,14 @@ export class GetDataCommands {
     await this.youtrackService.addNewProjects();
     await this.youtrackService.addNewIssues();
     await this.hubService.addNewProjectTeams();*/
-    await this.spreadSheetService.updateProjectInfo();
+    /*await this.youtrackService.addNewUsers();
+    await this.youtrackService.addNewProjects();
+    await this.youtrackService.addNewIssues();
+    await  this.hubService.addNewProjectTeams();
+    await this.spreadSheetService.updateProjectInfo();*/
     /*  const time = await this.youtrackClient.workItems.all("2-19568");
     console.log(time);*/
+    await this.youtrackService.updateNullProjectIssues();
     this.commandService.exit(0);
   }
 }
