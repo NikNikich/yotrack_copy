@@ -177,7 +177,7 @@ export class YoutrackService {
                 const issue = await this.youtrackHTTP.getIssueHttp(
                   issueBD.youtrackId,
                 );
-                await this.addNewIssueOne(issue, false);
+                await this.addNewIssueOne(issue, false, issueBD.id);
                 resolve();
               },
               DELAY_MS * index * 3,
