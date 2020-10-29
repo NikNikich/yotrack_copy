@@ -6,8 +6,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
-  constructor(private readonly configService: ConfigService) {
-  }
+  constructor(private readonly configService: ConfigService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     const {
@@ -29,7 +28,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       database: TYPEORM_DATABASE,
       entities: [`${resolve(__dirname, '..')}/**/*.entity{.ts,.js}`],
       migrationsRun: true,
-      logging: TYPEORM_LOGGING ? true : 'all',
+      //  logging: TYPEORM_LOGGING ? true : 'all',
       cli: { migrationsDir: './migrations' },
       namingStrategy: new SnakeNamingStrategy(),
       synchronize: TYPEORM_SYNCHRONIZE || true,

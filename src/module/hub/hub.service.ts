@@ -8,6 +8,8 @@ import { HttpHubService } from '../http-hub/http-hub.service';
 import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { ProjectTeamRepository } from '../database/repository/project-team.repository';
+import { IIdName } from '../youtrack/youtrack.interface';
+import { UserEntity } from '../database/entity/user.entity';
 
 @Injectable()
 export class HubService {
@@ -31,10 +33,10 @@ export class HubService {
     );
     if (TeamsHub.length > 0) {
       await Promise.all(
-        TeamsHub.map(async (team, index) => {
+        TeamsHub.map(async (team: IProjectTeam, index: number) => {
           await new Promise((resolve) => {
             setTimeout(
-              (that) => {
+              () => {
                 this.addNewProjectTeamOne(team);
                 resolve();
               },
@@ -51,19 +53,12 @@ export class HubService {
   }
 
   async addNewProjectTeamOne(team: IProjectTeam): Promise<void> {
-    let newTeamEntity: ProjectTeamEntity = await this.projectTeamRepository.findOne(
-      {
-        where: { hubId: team.id },
-        relations: ['users'],
-      },
+    const newTeamEntity = await this.projectTeamRepository.findByHubIdOrCreateNew(
+      team.id,
     );
-    if (isNil(newTeamEntity)) {
-      newTeamEntity = new ProjectTeamEntity();
-      newTeamEntity.hubId = team.id;
-    }
     if (!isNil(team.users) && team.users.length > 0) {
       await Promise.all(
-        team.users.map(async (user) => {
+        team.users.map(async (user: IIdName) => {
           const findUser = await this.userRepository.findOne({
             where: { hubId: user.id },
           });
@@ -72,7 +67,9 @@ export class HubService {
               newTeamEntity.users = [findUser];
             } else {
               if (
-                !newTeamEntity.users.find((user) => user.id === findUser.id)
+                !newTeamEntity.users.find(
+                  (user: UserEntity) => user.id === findUser.id,
+                )
               ) {
                 newTeamEntity.users.push(findUser);
               }
@@ -93,26 +90,31 @@ export class HubService {
       team.project.resource.length > 0
     ) {
       await Promise.all(
-        team.project.resource.map(async (resourceOne, index) => {
-          await new Promise((resolve) => {
-            setTimeout(
-              () => {
-                this.addProjectTeamIDInProject(
-                  resourceOne.id,
-                  newTeamEntity.id,
-                );
-                resolve();
-              },
-              DELAY_MS * index,
-              this,
-            );
-          });
-        }),
+        team.project.resource.map(
+          async (resourceOne: IIdName, index: number) => {
+            await new Promise((resolve) => {
+              setTimeout(
+                () => {
+                  this.addProjectTeamIdInProject(
+                    resourceOne.id,
+                    newTeamEntity.id,
+                  );
+                  resolve();
+                },
+                DELAY_MS * index,
+                this,
+              );
+            });
+          },
+        ),
       );
     }
   }
 
-  async addProjectTeamIDInProject(hubId, projectTeamId): Promise<void> {
+  async addProjectTeamIdInProject(
+    hubId: string,
+    projectTeamId: number,
+  ): Promise<void> {
     const findProject = await this.projectRepository.findOne({
       where: { hubId },
     });

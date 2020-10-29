@@ -20,6 +20,7 @@ export interface IIssueFieldValue {
   id?: string;
   name?: string;
   localizedName?: string;
+  minutes?: number;
   fullName?: string;
   login?: string;
   avatarUrl?: string;

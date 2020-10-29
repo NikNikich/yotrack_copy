@@ -12,6 +12,7 @@ import { ItemRepository } from '../database/repository/item.repository';
 import { TimeTrackingEntity } from '../database/entity/time-tracking.entity';
 import { TimeTrackingRepository } from '../database/repository/time-tracking.repository';
 import { IsNull } from 'typeorm';
+import { isNumeric } from 'rxjs/internal-compatibility';
 
 @Injectable()
 export class YoutrackService {
@@ -133,7 +134,7 @@ export class YoutrackService {
                 this.addNewIssueOne(issue, true);
                 resolve();
               },
-              DELAY_MS * index,
+              DELAY_MS * index * 4,
               this,
             );
           });
@@ -175,100 +176,141 @@ export class YoutrackService {
     newAlways = false,
     BDIssueId = 0,
   ): Promise<void> {
-    let newItemEntity: ItemEntity;
-    if (BDIssueId > 0) {
-      newItemEntity = await this.itemRepository.findByIdOrCreateNew(BDIssueId);
-      newItemEntity.youtrackId = issue.id;
-    } else {
-      newItemEntity = await this.itemRepository.findByYoutrackIdOrCreateNew(
-        issue.id,
-      );
-    }
-    if (isNil(newItemEntity) || newAlways) {
-      newItemEntity = new ItemEntity();
-      newItemEntity.youtrackId = issue.id;
-    }
-    newItemEntity.name = issue.summary;
-    await Promise.all(
-      issue.customFields.map(
-        async (field): Promise<void> => {
-          if (get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value)) {
-            const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
-            switch (field.name) {
-              case 'Week':
-                if (isArray(field.value) && field.value.length > 0) {
-                  const weeks = field.value
-                    .map((value) => value.name)
-                    .join(', ');
-                  set(newItemEntity, keyIssue, weeks);
-                }
-                break;
-              case 'Direction':
-                if (!isArray(field.value)) {
-                  newItemEntity.directionId = await this.directionRepository.getIdFoundedByYoutrackIdOrCreated(
-                    field.value.name,
-                    field.value.id,
-                  );
-                }
-                break;
-              case 'Estimation':
-              case 'Spent time':
-                if (!isArray(field.value) && !isNil(field.value.presentation)) {
-                  set(newItemEntity, keyIssue, field.value.presentation);
-                }
-                break;
-              case 'Комментарий по % выполнению':
-              case '% выполнения':
-              case 'Start date':
-              case 'End Date':
-                set(newItemEntity, keyIssue, field.value);
-                break;
-              case 'Assignee':
-                if (!isArray(field.value)) {
-                  newItemEntity.assigneeUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
-                    field.value.name,
-                    field.value.id,
-                  );
-                }
-                break;
-              default:
-                if (!isArray(field.value) && !isNil(field.value.name)) {
-                  set(newItemEntity, keyIssue, field.value.name);
-                }
-            }
-          }
-        },
-      ),
-    );
-    if (issue.updater) {
-      newItemEntity.updaterUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
-        issue.updater.fullName,
-        issue.updater.id,
-      );
-    }
-    if (issue.project) {
-      newItemEntity.projectId = await this.projectRepository.getIdFoundedByYoutrackIdOrCreated(
-        issue.project.name,
-        issue.project.id,
-        issue.project.hubResourceId,
-      );
-    }
-    if (
-      issue.parent.issues.length > 0 &&
-      issue.parent.issues[0].id !== issue.id
-    ) {
-      newItemEntity.parentItemId = await this.itemRepository.getIdFoundedByYoutrackIdOrCreated(
-        issue.parent.issues[0].summary,
-        issue.parent.issues[0].id,
-      );
-    }
     try {
-      const saveItem = await this.itemRepository.save(newItemEntity);
-      if (!isNil(saveItem)) {
-        await this.addListIssueTimeTrack(saveItem);
+      let newItemEntity: ItemEntity;
+      if (BDIssueId > 0) {
+        newItemEntity = await this.itemRepository.findByIdOrCreateNew(
+          BDIssueId,
+        );
+        newItemEntity.youtrackId = issue.id;
+      } else {
+        newItemEntity = await this.itemRepository.findByYoutrackIdOrCreateNew(
+          issue.id,
+        );
+      }
+      if (isNil(newItemEntity) || newAlways) {
+        newItemEntity = new ItemEntity();
+        newItemEntity.youtrackId = issue.id;
+      }
+      this.logger.log('idyou = ' + issue.id);
+      this.logger.log('idname = ' + issue.id);
+      newItemEntity.name = issue.summary;
+      await Promise.all(
+        issue.customFields.map(
+          async (field): Promise<void> => {
+            if (get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value)) {
+              const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
+              try {
+                switch (field.name) {
+                  case 'Week':
+                    if (isArray(field.value) && field.value.length > 0) {
+                      const weeks = field.value
+                        .map((value) => value.name)
+                        .join(', ');
+                      set(newItemEntity, keyIssue, weeks);
+                    }
+                    break;
+                  case 'Direction':
+                    if (!isArray(field.value)) {
+                      newItemEntity.directionId = await this.directionRepository.getIdFoundedByYoutrackIdOrCreated(
+                        field.value.name,
+                        field.value.id,
+                      );
+                    }
+                    break;
+                  case 'Estimation':
+                  case 'Spent time':
+                    if (!isArray(field.value) && !isNil(field.value.minutes)) {
+                      set(newItemEntity, keyIssue, field.value.minutes);
+                    }
+                    break;
+                  case 'Комментарий по % выполнению':
+                  case '% выполнения':
+                    set(newItemEntity, keyIssue, field.value);
+                    break;
+                  case 'Start date':
+                  case 'End Date':
+                    const value = +field.value;
+                    if (isNumeric(value))
+                      set(newItemEntity, keyIssue, new Date(value));
+                    break;
+                  case 'Assignee':
+                    if (!isArray(field.value)) {
+                      newItemEntity.assigneeUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
+                        field.value.name,
+                        field.value.id,
+                      );
+                    }
+                    break;
+                  default:
+                    if (!isArray(field.value) && !isNil(field.value.name)) {
+                      set(newItemEntity, keyIssue, field.value.name);
+                    }
+                }
+              } catch (error) {
+                this.logger.log('field');
+                this.logger.error(error);
+              }
+            }
+          },
+        ),
+      );
+      if (issue.updater) {
+        try {
+          newItemEntity.updaterUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
+            issue.updater.fullName,
+            issue.updater.id,
+          );
+        } catch (error) {
+          this.logger.log('user');
+          this.logger.error(error);
+        }
+      }
+      if (issue.project) {
+        try {
+          newItemEntity.projectId = await this.projectRepository.getIdFoundedByYoutrackIdOrCreated(
+            issue.project.name,
+            issue.project.id,
+            issue.project.hubResourceId,
+          );
+        } catch (error) {
+          this.logger.log('project');
+          this.logger.error(error);
+        }
+      }
+      if (
+        issue.parent.issues.length > 0 &&
+        issue.parent.issues[0].id !== issue.id
+      ) {
+        try {
+          newItemEntity.parentItemId = await this.itemRepository.getIdFoundedByYoutrackIdOrCreated(
+            issue.parent.issues[0].summary,
+            issue.parent.issues[0].id,
+          );
+        } catch (error) {
+          this.logger.log('item');
+          this.logger.error(error);
+        }
+      }
+      if (isNil(issue.project) || isNil(issue.project.id)) {
+        this.logger.log(issue);
+        this.logger.error('null proj http');
+      }
+      if (isNil(newItemEntity.projectId)) {
+        this.logger.log(newItemEntity);
+        this.logger.error('null proj');
+      }
+      try {
+        const saveItem = await this.itemRepository.save(newItemEntity);
+        if (!isNil(saveItem)) {
+          await this.addListIssueTimeTrack(saveItem);
+        }
+      } catch (error) {
+        this.logger.error(error);
       }
     } catch (error) {
-      this.logger.log(error);
+      this.logger.log('user');
+      this.logger.error(error);
     }
   }
 
