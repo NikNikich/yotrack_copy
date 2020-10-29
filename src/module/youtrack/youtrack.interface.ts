@@ -40,7 +40,7 @@ export interface IParent {
 export interface IIssue {
   id: string;
   summary?: string;
-  project?: IIdName;
+  project?: IProject;
   parent?: IParent;
   updater: IUser;
   customFields: ICustomFields[];

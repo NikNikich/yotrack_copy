@@ -9,10 +9,10 @@ export class ProjectEntity extends RowEntity<ProjectEntity> {
   @Column({ type: 'varchar', nullable: false, length: 255 })
   name?: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 50, unique: true })
+  @Column({ type: 'varchar', nullable: false, length: 50 })
   youtrackId: string;
 
-  @Column({ type: 'varchar', nullable: true, length: 50, unique: true })
+  @Column({ type: 'varchar', nullable: true, length: 50 })
   hubResourceId?: string;
 
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.project)
