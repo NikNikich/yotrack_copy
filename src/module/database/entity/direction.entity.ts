@@ -1,6 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
-import { UserEntity } from './user.entity';
 import { ItemEntity } from './item.entity';
 import { ProjectInformationEntity } from './project-information.entity';
 
