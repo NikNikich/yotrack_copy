@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IIssue, ITimeTracking } from './youtrack.interface';
-import { set, get, isNil, isArray } from 'lodash';
+import {
+  ICustomFields,
+  IIssue,
+  IIssueFieldValue,
+  ITimeTracking,
+} from './youtrack.interface';
+import { set, get, isNil, isArray, isString, isNumber } from 'lodash';
 import { ItemEntity } from '../database/entity/item.entity';
 import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from './youtrack.const';
 import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
@@ -13,6 +18,7 @@ import { TimeTrackingEntity } from '../database/entity/time-tracking.entity';
 import { TimeTrackingRepository } from '../database/repository/time-tracking.repository';
 import { IsNull } from 'typeorm';
 import { isNumeric } from 'rxjs/internal-compatibility';
+import { isIIssueFieldValue } from './youtrack.type-guard';
 
 @Injectable()
 export class YoutrackService {
@@ -126,20 +132,34 @@ export class YoutrackService {
       ISSUE_LIST_QUERY,
     );
     if (issuesYoutrack.length > 0) {
-      await Promise.all(
+      const items = await Promise.all(
         issuesYoutrack.map(async (issue, index) => {
-          await new Promise((resolve) => {
+          /*new Promise(async (resolve) => {
             setTimeout(
-              () => {
-                this.addNewIssueOne(issue, true);
-                resolve();
-              },
-              DELAY_MS * index * 4,
+              async () => {*/
+          if (isNil(issue.project) || isNil(issue.project.id)) {
+            this.logger.log(issue);
+            this.logger.error('null proj http11111');
+          }
+          //   try {
+          this.logger.log('idyou = ' + issue.id);
+          return this.addNewIssueOne(issue, true);
+          //  resolve();
+          /* } catch (error) {
+                  this.logger.log('field');
+                  this.logger.error(error);
+                }*/
+          /*},
+              DELAY_MS * index * 10,
               this,
-            );
-          });
+            );*/
+          //  });
         }),
       );
+      this.logger.log(items);
+      if (items.length > 0) {
+        await this.itemRepository.save(items);
+      }
     }
     if (issuesYoutrack.length === this.top) {
       await this.updateIssues(++page);
@@ -175,143 +195,129 @@ export class YoutrackService {
     issue: IIssue,
     newAlways = false,
     BDIssueId = 0,
-  ): Promise<void> {
-    try {
-      let newItemEntity: ItemEntity;
+  ): Promise<ItemEntity> {
+    let newItemEntity: ItemEntity;
+    if (newAlways) {
+      newItemEntity = await this.itemRepository.createNewAndSave(
+        issue.id,
+        issue.summary,
+      );
+    } else {
       if (BDIssueId > 0) {
         newItemEntity = await this.itemRepository.findByIdOrCreateNew(
           BDIssueId,
+          issue.id,
+          issue.summary,
         );
-        newItemEntity.youtrackId = issue.id;
       } else {
         newItemEntity = await this.itemRepository.findByYoutrackIdOrCreateNew(
           issue.id,
+          issue.summary,
         );
       }
-      if (isNil(newItemEntity) || newAlways) {
-        newItemEntity = new ItemEntity();
-        newItemEntity.youtrackId = issue.id;
-      }
-      this.logger.log('idyou = ' + issue.id);
-      this.logger.log('idname = ' + issue.id);
-      newItemEntity.name = issue.summary;
-      await Promise.all(
-        issue.customFields.map(
-          async (field): Promise<void> => {
-            if (get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value)) {
-              const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
-              try {
-                switch (field.name) {
-                  case 'Week':
-                    if (isArray(field.value) && field.value.length > 0) {
-                      const weeks = field.value
-                        .map((value) => value.name)
-                        .join(', ');
-                      set(newItemEntity, keyIssue, weeks);
-                    }
-                    break;
-                  case 'Direction':
-                    if (!isArray(field.value)) {
-                      newItemEntity.directionId = await this.directionRepository.getIdFoundedByYoutrackIdOrCreated(
-                        field.value.name,
-                        field.value.id,
-                      );
-                    }
-                    break;
-                  case 'Estimation':
-                  case 'Spent time':
-                    if (!isArray(field.value) && !isNil(field.value.minutes)) {
-                      set(newItemEntity, keyIssue, field.value.minutes);
-                    }
-                    break;
-                  case 'Комментарий по % выполнению':
-                  case '% выполнения':
-                    set(newItemEntity, keyIssue, field.value);
-                    break;
-                  case 'Start date':
-                  case 'End Date':
-                    const value = +field.value;
-                    if (isNumeric(value))
-                      set(newItemEntity, keyIssue, new Date(value));
-                    break;
-                  case 'Assignee':
-                    if (!isArray(field.value)) {
-                      newItemEntity.assigneeUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
-                        field.value.name,
-                        field.value.id,
-                      );
-                    }
-                    break;
-                  default:
-                    if (!isArray(field.value) && !isNil(field.value.name)) {
-                      set(newItemEntity, keyIssue, field.value.name);
-                    }
-                }
-              } catch (error) {
-                this.logger.log('field');
-                this.logger.error(error);
-              }
-            }
-          },
-        ),
-      );
-      if (issue.updater) {
-        try {
-          newItemEntity.updaterUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
-            issue.updater.fullName,
-            issue.updater.id,
-          );
-        } catch (error) {
-          this.logger.log('user');
-          this.logger.error(error);
-        }
-      }
-      if (issue.project) {
-        try {
-          newItemEntity.projectId = await this.projectRepository.getIdFoundedByYoutrackIdOrCreated(
-            issue.project.name,
-            issue.project.id,
-            issue.project.hubResourceId,
-          );
-        } catch (error) {
-          this.logger.log('project');
-          this.logger.error(error);
-        }
-      }
-      if (
-        issue.parent.issues.length > 0 &&
-        issue.parent.issues[0].id !== issue.id
-      ) {
-        try {
-          newItemEntity.parentItemId = await this.itemRepository.getIdFoundedByYoutrackIdOrCreated(
-            issue.parent.issues[0].summary,
-            issue.parent.issues[0].id,
-          );
-        } catch (error) {
-          this.logger.log('item');
-          this.logger.error(error);
-        }
-      }
-      if (isNil(issue.project) || isNil(issue.project.id)) {
-        this.logger.log(issue);
-        this.logger.error('null proj http');
-      }
-      if (isNil(newItemEntity.projectId)) {
-        this.logger.log(newItemEntity);
-        this.logger.error('null proj');
-      }
-      try {
-        const saveItem = await this.itemRepository.save(newItemEntity);
-        if (!isNil(saveItem)) {
-          await this.addListIssueTimeTrack(saveItem);
-        }
-      } catch (error) {
-        this.logger.error(error);
-      }
-    } catch (error) {
-      this.logger.log('user');
-      this.logger.error(error);
     }
+    newItemEntity.name = issue.summary;
+    newItemEntity = await this.setCustomFieldsIssue(
+      issue.customFields,
+      newItemEntity,
+    );
+    if (issue.updater) {
+      newItemEntity.updaterUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
+        issue.updater.fullName,
+        issue.updater.id,
+      );
+    }
+    if (issue.project) {
+      newItemEntity.projectId = await this.projectRepository.getIdFoundedByYoutrackIdOrCreated(
+        issue.project.name,
+        issue.project.id,
+        issue.project.hubResourceId,
+      );
+    }
+    if (
+      issue.parent.issues.length > 0 &&
+      issue.parent.issues[0].id !== issue.id
+    ) {
+      newItemEntity.parentItemId = await this.itemRepository.getIdFoundedByYoutrackIdOrCreated(
+        issue.parent.issues[0].summary,
+        issue.parent.issues[0].id,
+        newAlways,
+      );
+    }
+    return newItemEntity;
+  }
+
+  async setCustomFieldsIssue(
+    customFields: ICustomFields[],
+    item: ItemEntity,
+  ): Promise<ItemEntity> {
+    await Promise.all(
+      customFields.map(
+        async (field): Promise<void> => {
+          if (get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value)) {
+            switch (field.name) {
+              case 'Week':
+                if (isArray(field.value) && field.value.length > 0) {
+                  item.week = field.value.map((value) => value.name).join(', ');
+                }
+                break;
+              case 'Direction':
+                if (isIIssueFieldValue(field.value)) {
+                  item.directionId = await this.directionRepository.getIdFoundedByYoutrackIdOrCreated(
+                    field.value.name,
+                    field.value.id,
+                  );
+                }
+                break;
+              case 'Estimation':
+                if (
+                  isIIssueFieldValue(field.value) &&
+                  !isNil(field.value.minutes)
+                ) {
+                  item.estimationTime = field.value.minutes;
+                }
+                break;
+              case 'Spent time':
+                if (
+                  isIIssueFieldValue(field.value) &&
+                  !isNil(field.value.minutes)
+                ) {
+                  item.spentTime = field.value.minutes;
+                }
+                break;
+              case 'Комментарий по % выполнению':
+                if (isString(field.value)) {
+                  item.comment = field.value;
+                }
+                break;
+              case '% выполнения':
+                if (isNumber(field.value)) {
+                  item.percent = field.value;
+                }
+                break;
+              case 'Start date':
+                if (isNumber(field.value))
+                  item.startDate = new Date(field.value);
+                break;
+              case 'End Date':
+                if (isNumber(field.value)) item.endDate = new Date(field.value);
+                break;
+              case 'Assignee':
+                if (isIIssueFieldValue(field.value)) {
+                  item.assigneeUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
+                    field.value.name,
+                    field.value.id,
+                  );
+                }
+                break;
+              default:
+                break;
+            }
+          }
+        },
+      ),
+    );
+    return item;
   }
 
   async addIssueTimeTrack(

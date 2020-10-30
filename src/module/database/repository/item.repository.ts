@@ -4,21 +4,35 @@ import { ItemEntity } from '../entity/item.entity';
 
 @EntityRepository(ItemEntity)
 export class ItemRepository extends BaseRepository<ItemEntity> {
-  async findByIdOrCreateNew(id: number): Promise<ItemEntity> {
+  async findByIdOrCreateNew(
+    id: number,
+    youtrackId: string,
+    name: string,
+  ): Promise<ItemEntity> {
     let item = await this.findOne(id);
     if (!item) {
-      item = new ItemEntity();
+      item = await this.createNewAndSave(youtrackId, name);
     }
     return item;
   }
 
-  async findByYoutrackIdOrCreateNew(youtrackId: string): Promise<ItemEntity> {
+  async findByYoutrackIdOrCreateNew(
+    youtrackId: string,
+    name: string,
+  ): Promise<ItemEntity> {
     let item = await this.findOne({ where: { youtrackId } });
     if (!item) {
-      item = new ItemEntity();
-      item.youtrackId = youtrackId;
+      item = await this.createNewAndSave(youtrackId, name);
     }
     return item;
+  }
+
+  async createNewAndSave(
+    youtrackId: string,
+    name: string,
+  ): Promise<ItemEntity> {
+    const item = new ItemEntity({ youtrackId, name });
+    return this.save(item);
   }
 
   async getIdFoundedByYoutrackIdOrCreated(

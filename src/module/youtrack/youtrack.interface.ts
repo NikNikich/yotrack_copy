@@ -31,7 +31,7 @@ export interface IIssueFieldValue {
 export interface ICustomFields {
   id: string;
   name?: string;
-  value?: IIssueFieldValue | IIssueFieldValue[];
+  value?: IIssueFieldValue | IIssueFieldValue[] | string | number;
 }
 
 export interface IParent {
