@@ -86,20 +86,22 @@ export class YoutrackService {
       this.top,
     );
     if (issuesYoutrack.length > 0) {
-      await Promise.all(
+      const items = await Promise.all(
         issuesYoutrack.map(async (issue, index) => {
-          await new Promise((resolve) => {
-            setTimeout(
-              () => {
-                this.addNewIssueOne(issue);
-                resolve();
-              },
-              DELAY_MS * index,
-              this,
-            );
+          return await new Promise((resolve) => {
+            setTimeout(async () => {
+              this.logger.log('processing add new item id = ' + issue.id);
+              const newIssue = await this.addNewIssueOne(issue);
+              resolve(newIssue);
+            }, DELAY_MS * index);
           });
         }),
       );
+      try {
+        await this.itemRepository.save(items);
+      } catch (error) {
+        this.logger.log(error);
+      }
     }
     if (issuesYoutrack.length === this.top) {
       await this.addNewIssues(++page);
@@ -132,33 +134,22 @@ export class YoutrackService {
       ISSUE_LIST_QUERY,
     );
     if (issuesYoutrack.length > 0) {
+      this.logger.log('length = ' + issuesYoutrack.length);
       const items = await Promise.all(
         issuesYoutrack.map(async (issue, index) => {
-          /*new Promise(async (resolve) => {
-            setTimeout(
-              async () => {*/
-          if (isNil(issue.project) || isNil(issue.project.id)) {
-            this.logger.log(issue);
-            this.logger.error('null proj http11111');
-          }
-          //   try {
-          this.logger.log('idyou = ' + issue.id);
-          return this.addNewIssueOne(issue, true);
-          //  resolve();
-          /* } catch (error) {
-                  this.logger.log('field');
-                  this.logger.error(error);
-                }*/
-          /*},
-              DELAY_MS * index * 10,
-              this,
-            );*/
-          //  });
+          return new Promise(async (resolve) => {
+            setTimeout(async () => {
+              this.logger.log('processing updating item id = ' + issue.id);
+              const newIssue = await this.addNewIssueOne(issue, true);
+              resolve(newIssue);
+            }, DELAY_MS * index);
+          });
         }),
       );
-      this.logger.log(items);
-      if (items.length > 0) {
+      try {
         await this.itemRepository.save(items);
+      } catch (error) {
+        this.logger.log(error);
       }
     }
     if (issuesYoutrack.length === this.top) {
@@ -171,23 +162,34 @@ export class YoutrackService {
       where: { projectId: IsNull() },
     });
     if (issuesNullProject.length > 0) {
-      await Promise.all(
+      const items = await Promise.all(
         issuesNullProject.map(async (issueBD, index) => {
-          await new Promise((resolve) => {
+          return new Promise((resolve) => {
             setTimeout(
               async () => {
                 const issue = await this.youtrackHTTP.getIssueHttp(
                   issueBD.youtrackId,
                 );
-                await this.addNewIssueOne(issue, false, issueBD.id);
-                resolve();
+                this.logger.log('processing update Null item id = ' + issue.id);
+                const newIssue = await this.addNewIssueOne(
+                  issue,
+                  false,
+                  issueBD.id,
+                );
+                resolve(newIssue);
               },
-              DELAY_MS * index * 3,
+              DELAY_MS * index,
               this,
             );
           });
         }),
       );
+      try {
+        await this.itemRepository.save(items);
+      } catch (error) {
+        this.logger.log(error);
+      }
+      await this.updateNullProjectIssues();
     }
   }
 
@@ -241,9 +243,9 @@ export class YoutrackService {
       newItemEntity.parentItemId = await this.itemRepository.getIdFoundedByYoutrackIdOrCreated(
         issue.parent.issues[0].summary,
         issue.parent.issues[0].id,
-        newAlways,
       );
     }
+    await this.addListIssueTimeTrack(newItemEntity);
     return newItemEntity;
   }
 

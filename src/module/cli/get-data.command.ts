@@ -32,7 +32,7 @@ export class GetDataCommands {
     //await this.youtrackService.addNewIssues();
     await this.hubService.addNewProjectTeams();
     // await this.spreadSheetService.updateProjectInfo();
-    // await this.youtrackService.updateNullProjectIssues()
+    await this.youtrackService.updateNullProjectIssues();
     this.commandService.exit(0);
   }
 }

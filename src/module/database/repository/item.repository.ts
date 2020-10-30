@@ -38,19 +38,14 @@ export class ItemRepository extends BaseRepository<ItemEntity> {
   async getIdFoundedByYoutrackIdOrCreated(
     name: string,
     youtrackItemId: string,
-    newAlways = false,
   ): Promise<number> {
     let findItem = await this.findOne({
       where: { youtrackId: youtrackItemId },
     });
     if (!findItem) {
-      if (newAlways) {
-        return null;
-      } else {
-        findItem = await this.save(
-          new ItemEntity({ name, youtrackId: youtrackItemId }),
-        );
-      }
+      findItem = await this.save(
+        new ItemEntity({ name, youtrackId: youtrackItemId }),
+      );
     }
     return findItem.id;
   }
