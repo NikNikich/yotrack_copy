@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { get, isNil, toNumber } from 'lodash';
 import { ConfigService } from '../config/config.service';

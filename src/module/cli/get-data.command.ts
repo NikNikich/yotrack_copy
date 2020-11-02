@@ -1,16 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Command, CommandService } from 'nestjs-command';
-import { ObserverScheduleService } from '../observer/observer-schedule.service';
 import { YoutrackService } from '../youtrack/youtrack.service';
 import { ConfigService } from '../config/config.service';
 import { HubService } from '../hub/hub.service';
-import { SpreadSheetModule } from '../spread-sheet/spread-sheet.module';
 import { SpreadSheetService } from '../spread-sheet/spread-sheet.service';
 import { Youtrack } from 'youtrack-rest-client';
 
 @Injectable()
 export class GetDataCommands {
   private readonly logger: Logger = new Logger(GetDataCommands.name);
+
   constructor(
     private readonly hubService: HubService,
     private readonly youtrackService: YoutrackService,

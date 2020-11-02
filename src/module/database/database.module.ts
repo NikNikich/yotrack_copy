@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { resolve } from 'path';
 import { DatabaseService } from './database.service';
 
 @Module({
@@ -10,5 +9,4 @@ import { DatabaseService } from './database.service';
     }),
   ],
 })
-export class DatabaseModule {
-}
+export class DatabaseModule {}

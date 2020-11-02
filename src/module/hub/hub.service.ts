@@ -9,7 +9,6 @@ import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { ProjectTeamRepository } from '../database/repository/project-team.repository';
 import { IIdName } from '../youtrack/youtrack.interface';
-import { UserEntity } from '../database/entity/user.entity';
 
 @Injectable()
 export class HubService {
@@ -91,22 +90,8 @@ export class HubService {
       team.project.resource.length > 0;
     if (isExistProjectResource) {
       await Promise.all(
-        team.project.resource.map(
-          async (resourceOne: IIdName, index: number) => {
-            await new Promise((resolve) => {
-              setTimeout(
-                () => {
-                  this.addProjectTeamIdInProject(
-                    resourceOne.id,
-                    newTeamEntity.id,
-                  );
-                  resolve();
-                },
-                DELAY_MS * index,
-                this,
-              );
-            });
-          },
+        team.project.resource.map((resourceOne: IIdName, index: number) =>
+          this.handleProjectResource(resourceOne, newTeamEntity, index),
         ),
       );
     }
@@ -119,9 +104,28 @@ export class HubService {
     const findProject = await this.projectRepository.findOne({
       where: { hubId },
     });
-    if (!isNil(findProject) && findProject.projectTeamId !== projectTeamId) {
+    const isExistProjectTeamId =
+      !isNil(findProject) && findProject.projectTeamId !== projectTeamId;
+    if (isExistProjectTeamId) {
       findProject.projectTeamId = projectTeamId;
       await this.projectRepository.save(findProject);
     }
+  }
+
+  private async handleProjectResource(
+    resourceOne: IIdName,
+    newTeamEntity: ProjectTeamEntity,
+    index: number,
+  ): Promise<void> {
+    await new Promise((resolve) => {
+      setTimeout(
+        () => {
+          this.addProjectTeamIdInProject(resourceOne.id, newTeamEntity.id);
+          resolve();
+        },
+        DELAY_MS * index,
+        this,
+      );
+    });
   }
 }

@@ -1,5 +1,5 @@
 import { HttpService, Injectable } from '@nestjs/common';
-import { IProjectTeam} from '../hub/hub.interface';
+import { IProjectTeam } from '../hub/hub.interface';
 import { getParamQuery } from '../shared/http.function';
 import { IProject } from '../youtrack/youtrack.interface';
 import { ConfigService } from '../config/config.service';
@@ -14,11 +14,12 @@ export class HttpHubService {
   constructor(
     private readonly hubHTTP: HttpService,
     private readonly configService: ConfigService,
-  ) {
-  }
+  ) {}
 
-
-  async getListProjectTeam(skip?: number, top?: number): Promise<IProjectTeam[]> {
+  async getListProjectTeam(
+    skip?: number,
+    top?: number,
+  ): Promise<IProjectTeam[]> {
     let response = undefined;
     try {
       const params = getParamQuery(PROJECT_TEAMS_LIST_FIELDS, skip, top);

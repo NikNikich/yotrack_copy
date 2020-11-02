@@ -1,9 +1,8 @@
-import { CommandModule, CommandService } from 'nestjs-command';
+import { CommandModule } from 'nestjs-command';
 import { YoutrackModule } from '../youtrack/youtrack.module';
 import { HubModule } from '../hub/hub.module';
 import { Module } from '@nestjs/common';
 import { GetDataCommands } from './get-data.command';
-import { ObserverModule } from '../observer/observer.module';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
 import { HttpYoutrackModule } from '../http-youtrack/http-youtrack.module';
@@ -15,11 +14,11 @@ import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
     YoutrackSdkModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         token: configService.config.YOUTRACK_TOKEN,
-        baseUrl: configService.config.YOUTRACK_BASE_URL
+        baseUrl: configService.config.YOUTRACK_BASE_URL,
       }),
       inject: [ConfigService],
     }),
-      SpreadSheetModule,
+    SpreadSheetModule,
     ConfigModule,
     YoutrackModule,
     CommandModule,
@@ -33,5 +32,4 @@ import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
   ],
   providers: [GetDataCommands],
 })
-export class CommandsModule {
-}
+export class CommandsModule {}

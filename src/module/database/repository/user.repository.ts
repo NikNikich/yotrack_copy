@@ -33,4 +33,6 @@ export class UserRepository extends BaseRepository<UserEntity> {
     }
     return user.id;
   }
+
+  async;
 }
