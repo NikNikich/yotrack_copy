@@ -3,9 +3,11 @@ import {
   ICustomFields,
   IIssue,
   IIssueFieldValue,
+  IProject,
   ITimeTracking,
+  IUser,
 } from './youtrack.interface';
-import { set, get, isNil, isArray, isString, isNumber } from 'lodash';
+import { get, isNil, isArray, isString, isNumber } from 'lodash';
 import { ItemEntity } from '../database/entity/item.entity';
 import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from './youtrack.const';
 import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
@@ -18,6 +20,8 @@ import { TimeTrackingEntity } from '../database/entity/time-tracking.entity';
 import { TimeTrackingRepository } from '../database/repository/time-tracking.repository';
 import { IsNull } from 'typeorm';
 import { isIIssueFieldValue } from './youtrack.type-guard';
+import { UserEntity } from '../database/entity/user.entity';
+import { ProjectEntity } from '../database/entity/project.entity';
 
 @Injectable()
 export class YoutrackService {
@@ -39,22 +43,28 @@ export class YoutrackService {
       this.top,
     );
     if (usersYoutrack.length > 0) {
-      const users = await Promise.all(
-        usersYoutrack.map(async (user) => {
+      await this.processingHttpQueryByUsers(usersYoutrack);
+    }
+    const isAchieveMaxLimitUser = usersYoutrack.length === this.top;
+    if (isAchieveMaxLimitUser) {
+      await this.addNewUsers(++page);
+    }
+  }
+
+  async processingHttpQueryByUsers(usersYoutrack: IUser[]): Promise<void> {
+    const users = await Promise.all(
+      usersYoutrack.map(
+        async (user: IUser): Promise<UserEntity> => {
           const findUser = await this.userRepository.findByYoutrackIdOrCreateNew(
             user.id,
             user.fullName,
           );
           findUser.hubId = user.ringId;
           return findUser;
-        }),
-      );
-      await this.userRepository.save(users);
-    }
-    const isAchieveMaxLimitUser = usersYoutrack.length === this.top;
-    if (isAchieveMaxLimitUser) {
-      await this.addNewUsers(++page);
-    }
+        },
+      ),
+    );
+    await this.userRepository.save(users);
   }
 
   async addNewProjects(page = 1): Promise<void> {
@@ -63,22 +73,30 @@ export class YoutrackService {
       this.top,
     );
     if (projectsYoutrack.length > 0) {
-      const projects = await Promise.all(
-        projectsYoutrack.map(async (project) => {
+      await this.processingHttpQueryByProjects(projectsYoutrack);
+    }
+    const isAchieveMaxLimitProjects = projectsYoutrack.length === this.top;
+    if (isAchieveMaxLimitProjects) {
+      await this.addNewProjects(++page);
+    }
+  }
+
+  async processingHttpQueryByProjects(
+    projectsYoutrack: IProject[],
+  ): Promise<void> {
+    const projects = await Promise.all(
+      projectsYoutrack.map(
+        async (project: IProject): Promise<ProjectEntity> => {
           const findProject = await this.projectRepository.findByYoutrackIdOrCreateNew(
             project.id,
           );
           findProject.name = project.name;
           findProject.hubResourceId = project.hubResourceId;
           return findProject;
-        }),
-      );
-      await this.projectRepository.save(projects);
-    }
-    const isAchieveMaxLimitProjects = projectsYoutrack.length === this.top;
-    if (isAchieveMaxLimitProjects) {
-      await this.addNewProjects(++page);
-    }
+        },
+      ),
+    );
+    await this.projectRepository.save(projects);
   }
 
   async addNewIssues(page = 1): Promise<void> {
@@ -87,26 +105,39 @@ export class YoutrackService {
       this.top,
     );
     if (issuesYoutrack.length > 0) {
-      const items = await Promise.all(
-        issuesYoutrack.map(async (issue, index) => {
-          return await new Promise((resolve) => {
-            setTimeout(async () => {
-              this.logger.log('processing add new item id = ' + issue.id);
-              const newIssue = await this.addNewIssueOne(issue);
-              resolve(newIssue);
-            }, DELAY_MS * index);
-          });
-        }),
-      );
-      try {
-        await this.itemRepository.save(items);
-      } catch (error) {
-        this.logger.log(error);
-      }
+      await this.processingHttpQueryByIssues(issuesYoutrack);
     }
     const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
     if (isAchieveMaxLimitIssues) {
       await this.addNewIssues(++page);
+    }
+  }
+
+  async processingHttpQueryByIssues(
+    issuesYoutrack: IIssue[],
+    updated = false,
+  ): Promise<void> {
+    const items = await Promise.all(
+      issuesYoutrack.map(
+        async (issue: IIssue, index: number): Promise<ItemEntity> => {
+          return await new Promise((resolve) => {
+            setTimeout(async () => {
+              if (updated) {
+                this.logger.log('processing updating item id = ' + issue.id);
+              } else {
+                this.logger.log('processing add new item id = ' + issue.id);
+              }
+              const newIssue = await this.addNewIssueOne(issue, updated);
+              resolve(newIssue);
+            }, DELAY_MS * index);
+          });
+        },
+      ),
+    );
+    try {
+      await this.itemRepository.save(items);
+    } catch (error) {
+      this.logger.log(error);
     }
   }
 
@@ -120,9 +151,11 @@ export class YoutrackService {
       !isNil(listTrackTime) && listTrackTime.length > 0;
     if (isExistListTrackTime) {
       const tracks = await Promise.all(
-        listTrackTime.map(async (track) => {
-          return this.addIssueTimeTrack(issue, track);
-        }),
+        listTrackTime.map(
+          async (track: ITimeTracking): Promise<TimeTrackingEntity> => {
+            return this.addIssueTimeTrack(issue, track);
+          },
+        ),
       );
       await this.timeTrackingRepository.save(tracks);
     }
@@ -139,23 +172,7 @@ export class YoutrackService {
       ISSUE_LIST_QUERY,
     );
     if (issuesYoutrack.length > 0) {
-      this.logger.log('length = ' + issuesYoutrack.length);
-      const items = await Promise.all(
-        issuesYoutrack.map(async (issue, index) => {
-          return new Promise(async (resolve) => {
-            setTimeout(async () => {
-              this.logger.log('processing updating item id = ' + issue.id);
-              const newIssue = await this.addNewIssueOne(issue, true);
-              resolve(newIssue);
-            }, DELAY_MS * index);
-          });
-        }),
-      );
-      try {
-        await this.itemRepository.save(items);
-      } catch (error) {
-        this.logger.log(error);
-      }
+      await this.processingHttpQueryByIssues(issuesYoutrack, true);
     }
     const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
     if (isAchieveMaxLimitIssues) {
@@ -169,26 +186,11 @@ export class YoutrackService {
     });
     if (issuesNullProject.length > 0) {
       const items = await Promise.all(
-        issuesNullProject.map(async (issueBD, index) => {
-          return new Promise((resolve) => {
-            setTimeout(
-              async () => {
-                const issue = await this.youtrackHTTP.getIssueHttp(
-                  issueBD.youtrackId,
-                );
-                this.logger.log('processing update Null item id = ' + issue.id);
-                const newIssue = await this.addNewIssueOne(
-                  issue,
-                  false,
-                  issueBD.id,
-                );
-                resolve(newIssue);
-              },
-              DELAY_MS * index,
-              this,
-            );
-          });
-        }),
+        issuesNullProject.map(
+          async (issueBD: ItemEntity, index: number): Promise<ItemEntity> => {
+            return this.processingHttpQueryByUpdatingIssues(issueBD, index);
+          },
+        ),
       );
       try {
         await this.itemRepository.save(items);
@@ -197,6 +199,26 @@ export class YoutrackService {
       }
       await this.updateNullProjectIssues();
     }
+  }
+
+  async processingHttpQueryByUpdatingIssues(
+    issueBD: ItemEntity,
+    index: number,
+  ): Promise<ItemEntity> {
+    return new Promise((resolve) => {
+      setTimeout(
+        async () => {
+          const issue = await this.youtrackHTTP.getIssueHttp(
+            issueBD.youtrackId,
+          );
+          this.logger.log('processing update Null item id = ' + issue.id);
+          const newIssue = await this.addNewIssueOne(issue, false, issueBD.id);
+          resolve(newIssue);
+        },
+        DELAY_MS * index,
+        this,
+      );
+    });
   }
 
   async addNewIssueOne(
@@ -261,14 +283,16 @@ export class YoutrackService {
   ): Promise<ItemEntity> {
     await Promise.all(
       customFields.map(
-        async (field): Promise<void> => {
+        async (field: ICustomFields): Promise<void> => {
           const isExistCustomField =
             get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value);
           if (isExistCustomField) {
             switch (field.name) {
               case 'Week':
                 if (isArray(field.value) && field.value.length > 0) {
-                  item.week = field.value.map((value) => value.name).join(', ');
+                  item.week = field.value
+                    .map((value: IIssueFieldValue): string => value.name)
+                    .join(', ');
                 }
                 break;
               case 'Direction':
@@ -345,7 +369,7 @@ export class YoutrackService {
       );
     }
     if (!isNil(youtrackTrack.duration)) {
-      timeTrack.duration = youtrackTrack.duration.presentation;
+      timeTrack.minutes = youtrackTrack.duration.minutes;
     }
     if (!isNil(youtrackTrack.date)) {
       timeTrack.date = new Date(youtrackTrack.date);

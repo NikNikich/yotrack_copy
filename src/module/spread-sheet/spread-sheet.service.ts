@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { get, isNil, toNumber } from 'lodash';
 import { ConfigService } from '../config/config.service';
@@ -8,6 +8,7 @@ import { ISheetInformation } from './spreed-sheet.interface';
 import { SPREED_HEADERS } from './spreed-sheet.const';
 import { ProjectInformationEntity } from '../database/entity/project-information.entity';
 import { GoogleExcelClient } from '../google-excel/google-excel.client';
+import { GoogleSpreadsheetRow } from 'google-spreadsheet';
 
 @Injectable()
 export class SpreadSheetService {
@@ -20,10 +21,7 @@ export class SpreadSheetService {
   ) {}
 
   async updateProjectInfo(): Promise<void> {
-    const tableName = this.projectInformationRepository.metadata.tableName;
-    await this.projectInformationRepository.query(
-      `TRUNCATE TABLE "${tableName}" CASCADE `,
-    );
+    await this.projectInformationRepository.truncateTable();
     await this.getProjectInfo();
   }
 
@@ -31,7 +29,7 @@ export class SpreadSheetService {
     const sheetInfos = await this.getSheetInfo();
     if (sheetInfos.length > 0) {
       const projectInforms = await Promise.all(
-        sheetInfos.map(async (sheetInfo) => {
+        sheetInfos.map(async (sheetInfo: ISheetInformation) => {
           return new ProjectInformationEntity({
             projectId: await this.getIdProject(sheetInfo.project),
             directionId: await this.getIdDirection(sheetInfo.direction),
@@ -51,7 +49,7 @@ export class SpreadSheetService {
     await this.googleExcelClient.loadInfo();
     const sheet = this.googleExcelClient.sheetsByIndex[0];
     const rows = await sheet.getRows();
-    return rows.map((row) => {
+    return rows.map((row: GoogleSpreadsheetRow) => {
       return {
         direction: !isNil(get(row, SPREED_HEADERS.direction))
           ? get(row, SPREED_HEADERS.direction)

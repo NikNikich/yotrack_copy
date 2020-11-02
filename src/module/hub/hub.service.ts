@@ -3,7 +3,6 @@ import { ConfigService } from '../config/config.service';
 import { IProjectTeam } from './hub.interface';
 import { DELAY_MS } from '../youtrack/youtrack.const';
 import { isNil } from 'lodash';
-import { ProjectTeamEntity } from '../database/entity/project-team.entity';
 import { HttpHubService } from '../http-hub/http-hub.service';
 import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
@@ -69,7 +68,7 @@ export class HubService {
               newTeamEntity.users = [findUser];
             } else {
               const existNewTeam = newTeamEntity.users.find(
-                (user) => user.id === findUser.id,
+                (user: UserEntity) => user.id === findUser.id,
               );
               if (!existNewTeam) {
                 newTeamEntity.users.push(findUser);

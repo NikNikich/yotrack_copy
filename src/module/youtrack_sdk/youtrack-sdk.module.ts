@@ -59,7 +59,6 @@ export class YoutrackSdkModule {
           inject: options.inject || [],
         };
       } else {
-        // For useClass and useExisting...
         return {
           provide: YOUTRACK_MODULE_OPTIONS,
           useFactory: async (

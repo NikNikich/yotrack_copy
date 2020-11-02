@@ -1,4 +1,4 @@
-import { ICustomFields, IIdName, IParent, IUser } from '../youtrack/youtrack.interface';
+import { IIdName } from '../youtrack/youtrack.interface';
 
 export interface IProjectHub {
   id: string;

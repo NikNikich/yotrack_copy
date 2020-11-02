@@ -1,6 +1,10 @@
-import { DynamicModule, HttpModule, HttpModuleOptions, Module } from '@nestjs/common';
+import {
+  DynamicModule,
+  HttpModule,
+  HttpModuleOptions,
+  Module,
+} from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
-import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
 import { HttpModuleAsyncOptions } from '@nestjs/common/http/interfaces';
 import { HttpHubService } from './http-hub.service';
 
@@ -9,12 +13,14 @@ export class HttpHubModule {
   static forRoot(options: HttpModuleOptions): DynamicModule {
     return {
       module: HttpHubModule,
-      imports: [HttpModule.registerAsync({
-        useFactory: async (configService: ConfigService) => ({
-          baseURL: options.baseURL || configService.config.HUB_BASE_URL,
+      imports: [
+        HttpModule.registerAsync({
+          useFactory: async (configService: ConfigService) => ({
+            baseURL: options.baseURL || configService.config.HUB_BASE_URL,
+          }),
+          inject: [ConfigService],
         }),
-        inject: [ConfigService],
-      })],
+      ],
       providers: [HttpHubService],
       exports: [HttpHubService],
     };
@@ -23,7 +29,9 @@ export class HttpHubModule {
   static forRootAsync(options?: HttpModuleAsyncOptions): DynamicModule {
     return {
       module: HttpHubModule,
-      imports: [HttpModule.registerAsync(this.createConfigAsyncProviders(options))],
+      imports: [
+        HttpModule.registerAsync(this.createConfigAsyncProviders(options)),
+      ],
       providers: [HttpHubService],
       exports: [HttpHubService],
     };
