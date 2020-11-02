@@ -17,7 +17,6 @@ import { ItemRepository } from '../database/repository/item.repository';
 import { TimeTrackingEntity } from '../database/entity/time-tracking.entity';
 import { TimeTrackingRepository } from '../database/repository/time-tracking.repository';
 import { IsNull } from 'typeorm';
-import { isNumeric } from 'rxjs/internal-compatibility';
 import { isIIssueFieldValue } from './youtrack.type-guard';
 
 @Injectable()
