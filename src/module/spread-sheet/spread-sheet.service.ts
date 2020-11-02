@@ -3,18 +3,16 @@ import { ProjectRepository } from '../database/repository/project.repository';
 import { get, isNil, toNumber } from 'lodash';
 import { ConfigService } from '../config/config.service';
 import { DirectionRepository } from '../database/repository/direction.repository';
-import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { ProjectInformationRepository } from '../database/repository/project-information.repository';
 import { ISheetInformation } from './spreed-sheet.interface';
 import { SPREED_HEADERS } from './spreed-sheet.const';
 import { ProjectInformationEntity } from '../database/entity/project-information.entity';
-import { GOOGLE_EXCEL_MODULE_OPTIONS } from '../google-excel/constant/google-excel.constant';
-import { IGoogleExcelOptions } from '../google-excel/interface/google-excel-options-factory';
+import { GoogleExcelClient } from '../google-excel/google-excel.client';
 
 @Injectable()
 export class SpreadSheetService {
   constructor(
-    private readonly googleSpreadsheet: GoogleSpreadsheet,
+    private readonly googleExcelClient: GoogleExcelClient,
     private readonly directionRepository: DirectionRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly projectInformationRepository: ProjectInformationRepository,
@@ -47,11 +45,11 @@ export class SpreadSheetService {
   }
 
   async getSheetInfo(): Promise<ISheetInformation[]> {
-    await this.googleSpreadsheet.useApiKey(
+    await this.googleExcelClient.useApiKey(
       this.configService.config.GOOGLE_API_KEY,
     );
-    await this.googleSpreadsheet.loadInfo();
-    const sheet = this.googleSpreadsheet.sheetsByIndex[0];
+    await this.googleExcelClient.loadInfo();
+    const sheet = this.googleExcelClient.sheetsByIndex[0];
     const rows = await sheet.getRows();
     return rows.map((row) => {
       return {

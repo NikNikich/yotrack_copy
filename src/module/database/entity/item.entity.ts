@@ -4,34 +4,37 @@ import { DirectionEntity } from './direction.entity';
 import { ProjectEntity } from './project.entity';
 import { UserEntity } from './user.entity';
 import { TimeTrackingEntity } from './time-tracking.entity';
+import { Type } from 'class-transformer';
 
 @Entity('item')
 export class ItemEntity extends RowEntity<ItemEntity> {
-  @Column({ type: 'varchar', nullable: false, length: 255 })
+  @Column({ type: 'varchar', nullable: false, length: 10000 })
   name: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 50 })
+  @Column({ type: 'varchar', nullable: false, length: 255 })
   youtrackId: string;
 
-  @Column({ type: 'varchar', nullable: true, length: 255 })
-  estimationTime?: string;
-
-  @Column({ type: 'varchar', nullable: true, length: 255 })
-  spentTime?: string;
+  @Column({ type: 'numeric', nullable: true })
+  estimationTime?: number;
 
   @Column({ type: 'numeric', nullable: true })
-  startDate?: number;
+  spentTime?: number;
 
-  @Column({ type: 'numeric', nullable: true })
-  endDate?: number;
+  @Column({ type: 'timestamp', nullable: true })
+  @Type(() => Date)
+  startDate?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  @Type(() => Date)
+  endDate?: Date;
 
   @Column({ type: 'numeric', nullable: true })
   percent?: number;
 
-  @Column({ type: 'varchar', nullable: true, length: 255 })
+  @Column({ type: 'varchar', nullable: true, length: 400 })
   week?: string;
 
-  @Column({ type: 'varchar', nullable: true, length: 255 })
+  @Column({ type: 'varchar', nullable: true, length: 2000 })
   comment?: string;
 
   @RelationId((item: ItemEntity) => item.direction)

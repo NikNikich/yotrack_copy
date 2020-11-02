@@ -20,6 +20,7 @@ export interface IIssueFieldValue {
   id?: string;
   name?: string;
   localizedName?: string;
+  minutes?: number;
   fullName?: string;
   login?: string;
   avatarUrl?: string;
@@ -30,7 +31,7 @@ export interface IIssueFieldValue {
 export interface ICustomFields {
   id: string;
   name?: string;
-  value?: IIssueFieldValue | IIssueFieldValue[];
+  value?: IIssueFieldValue | IIssueFieldValue[] | string | number;
 }
 
 export interface IParent {
@@ -40,7 +41,7 @@ export interface IParent {
 export interface IIssue {
   id: string;
   summary?: string;
-  project?: IIdName;
+  project?: IProject;
   parent?: IParent;
   updater: IUser;
   customFields: ICustomFields[];

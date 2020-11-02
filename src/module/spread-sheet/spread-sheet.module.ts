@@ -6,7 +6,6 @@ import { ProjectInformationRepository } from '../database/repository/project-inf
 import { SpreadSheetService } from './spread-sheet.service';
 import { ConfigService } from '../config/config.service';
 import { GoogleExcelModule } from '../google-excel/google-excel.module';
-import { GOOGLE_EXCEL_MODULE_OPTIONS } from '../google-excel/constant/google-excel.constant';
 
 @Module({
   imports: [
@@ -23,7 +22,7 @@ import { GOOGLE_EXCEL_MODULE_OPTIONS } from '../google-excel/constant/google-exc
       ProjectInformationRepository,
     ]),
   ],
-  providers: [SpreadSheetService],
+  providers: [SpreadSheetService, ConfigService],
   exports: [SpreadSheetService],
 })
 export class SpreadSheetModule {}

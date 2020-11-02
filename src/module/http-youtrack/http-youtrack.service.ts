@@ -68,6 +68,14 @@ export class HttpYoutrackService {
     );
   }
 
+  async getIssueHttp(issueId: string, query?: string): Promise<IIssue> {
+    const params = getParamQuery(ISSUE_LIST_FIELDS, null, null, query);
+    return this.setGetQueryYoutrack<IIssue>(`/issues/${issueId}/`, {
+      headers: this.headers,
+      params: params,
+    });
+  }
+
   async setGetQueryYoutrack<T>(
     url: string,
     config: Record<string, unknown>,
