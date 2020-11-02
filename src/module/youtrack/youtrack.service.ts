@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ICustomFields, IIssue, ITimeTracking } from './youtrack.interface';
-import { get, isNil, isArray, isString, isNumber } from 'lodash';
+import {
+  ICustomFields,
+  IIssue,
+  IIssueFieldValue,
+  ITimeTracking,
+} from './youtrack.interface';
+import { set, get, isNil, isArray, isString, isNumber } from 'lodash';
 import { ItemEntity } from '../database/entity/item.entity';
 import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from './youtrack.const';
 import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
