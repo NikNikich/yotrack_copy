@@ -1,11 +1,11 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { GoogleSpreadsheet } from 'google-spreadsheet';
 import {
   IGoogleExcelOptions,
   IGoogleExcelOptionsFactory,
 } from './interface/google-excel-options-factory';
 import { GOOGLE_EXCEL_MODULE_OPTIONS } from './constant/google-excel.constant';
 import { IGoogleExcelAsyncOptions } from './interface/google-excel-async-options.interface';
+import { GoogleExcelClient } from './google-excel.client';
 
 @Module({})
 export class GoogleExcelModule {
@@ -13,21 +13,17 @@ export class GoogleExcelModule {
     return {
       module: GoogleExcelModule,
       providers: [...GoogleExcelModule.createGoogleExcelProvider(options)],
-      exports: [GoogleSpreadsheet],
+      exports: [GoogleExcelClient],
     };
   }
 
   static forRootAsync(options: IGoogleExcelAsyncOptions): DynamicModule {
     const connectionProvider = {
-      provide: GoogleSpreadsheet,
+      provide: GoogleExcelClient,
       useFactory: async (
         googleExcelOptions: IGoogleExcelOptions,
-      ): Promise<GoogleSpreadsheet> => {
-        const googleSpreadsheet = new GoogleSpreadsheet(
-          googleExcelOptions.sheetId,
-        );
-        await googleSpreadsheet.useApiKey(googleExcelOptions.useApiKey);
-        return googleSpreadsheet;
+      ): Promise<GoogleExcelClient> => {
+        return new GoogleExcelClient(googleExcelOptions);
       },
       inject: [GOOGLE_EXCEL_MODULE_OPTIONS],
     };
@@ -35,22 +31,21 @@ export class GoogleExcelModule {
       module: GoogleExcelModule,
       imports: options.imports || [],
       providers: [this.createConfigAsyncProviders(options), connectionProvider],
-      exports: [GoogleSpreadsheet],
+      exports: [GoogleExcelClient],
     };
   }
 
   private static createGoogleExcelProvider(
     options: IGoogleExcelOptions,
   ): Provider[] {
-    const googleSpreadsheet = new GoogleSpreadsheet(options.sheetId);
     return [
       {
         provide: GOOGLE_EXCEL_MODULE_OPTIONS,
         useValue: options || {},
       },
       {
-        provide: GoogleSpreadsheet,
-        useValue: googleSpreadsheet,
+        provide: GoogleExcelClient,
+        useValue: new GoogleExcelClient(options),
       },
     ];
   }
