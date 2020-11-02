@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  RelationId,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { RowEntity } from './shared/row.entity';
 import { DirectionEntity } from './direction.entity';
 import { ProjectEntity } from './project.entity';

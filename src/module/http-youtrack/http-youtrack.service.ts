@@ -20,6 +20,7 @@ export class HttpYoutrackService {
     private readonly youtrackHTTP: HttpService,
     private readonly configService: ConfigService,
   ) {}
+
   private headers = {
     Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
   };

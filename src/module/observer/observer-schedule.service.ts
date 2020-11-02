@@ -18,6 +18,6 @@ export class ObserverScheduleService {
     await this.youtrackService.addNewUsers();
     await this.youtrackService.addNewProjects();
     await this.youtrackService.updateIssues();
-    await  this.hubService.addNewProjectTeams();
+    await this.hubService.addNewProjectTeams();
   }
 }

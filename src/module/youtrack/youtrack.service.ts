@@ -52,7 +52,8 @@ export class YoutrackService {
       );
       await this.userRepository.save(users);
     }
-    if (usersYoutrack.length === this.top) {
+    const isAchieveMaxLimitUser = usersYoutrack.length === this.top;
+    if (isAchieveMaxLimitUser) {
       await this.addNewUsers(++page);
     }
   }
@@ -75,7 +76,8 @@ export class YoutrackService {
       );
       await this.projectRepository.save(projects);
     }
-    if (projectsYoutrack.length === this.top) {
+    const isAchieveMaxLimitProjects = projectsYoutrack.length === this.top;
+    if (isAchieveMaxLimitProjects) {
       await this.addNewProjects(++page);
     }
   }
@@ -103,7 +105,8 @@ export class YoutrackService {
         this.logger.log(error);
       }
     }
-    if (issuesYoutrack.length === this.top) {
+    const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
+    if (isAchieveMaxLimitIssues) {
       await this.addNewIssues(++page);
     }
   }
@@ -114,7 +117,9 @@ export class YoutrackService {
       this.top * (page - 1),
       this.top,
     );
-    if (!isNil(listTrackTime) && listTrackTime.length > 0) {
+    const isExistListTrackTime =
+      !isNil(listTrackTime) && listTrackTime.length > 0;
+    if (isExistListTrackTime) {
       const tracks = await Promise.all(
         listTrackTime.map(async (track) => {
           return this.addIssueTimeTrack(issue, track);
@@ -122,7 +127,8 @@ export class YoutrackService {
       );
       await this.timeTrackingRepository.save(tracks);
     }
-    if (listTrackTime.length === this.top) {
+    const isAchieveMaxLimitRecord = listTrackTime.length === this.top;
+    if (isAchieveMaxLimitRecord) {
       await this.addListIssueTimeTrack(issue, ++page);
     }
   }
@@ -152,7 +158,8 @@ export class YoutrackService {
         this.logger.log(error);
       }
     }
-    if (issuesYoutrack.length === this.top) {
+    const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
+    if (isAchieveMaxLimitIssues) {
       await this.updateIssues(++page);
     }
   }
@@ -256,7 +263,9 @@ export class YoutrackService {
     await Promise.all(
       customFields.map(
         async (field): Promise<void> => {
-          if (get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value)) {
+          const isExistCustomField =
+            get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value);
+          if (isExistCustomField) {
             switch (field.name) {
               case 'Week':
                 if (isArray(field.value) && field.value.length > 0) {
