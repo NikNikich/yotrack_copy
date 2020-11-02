@@ -45,7 +45,8 @@ export class HubService {
         }),
       );
     }
-    if (TeamsHub.length === this.top) {
+    const isAchieveMaxLimitTeams = TeamsHub.length === this.top;
+    if (isAchieveMaxLimitTeams) {
       await this.addNewProjectTeams(++page);
     }
   }
@@ -61,7 +62,8 @@ export class HubService {
       newTeamEntity = new ProjectTeamEntity();
       newTeamEntity.hubId = team.id;
     }
-    if (!isNil(team.users) && team.users.length > 0) {
+    const isExistUsers = !isNil(team.users) && team.users.length > 0;
+    if (isExistUsers) {
       await Promise.all(
         team.users.map(async (user) => {
           const findUser = await this.userRepository.findOne({
@@ -71,9 +73,10 @@ export class HubService {
             if (isNil(newTeamEntity.users)) {
               newTeamEntity.users = [findUser];
             } else {
-              if (
-                !newTeamEntity.users.find((user) => user.id === findUser.id)
-              ) {
+              const existNewTeam = newTeamEntity.users.find(
+                (user) => user.id === findUser.id,
+              );
+              if (!existNewTeam) {
                 newTeamEntity.users.push(findUser);
               }
             }
@@ -87,11 +90,11 @@ export class HubService {
     } catch (error) {
       console.error(error);
     }
-    if (
+    const isExistProjectResource =
       !isNil(team.project) &&
       !isNil(team.project.resource) &&
-      team.project.resource.length > 0
-    ) {
+      team.project.resource.length > 0;
+    if (isExistProjectResource) {
       await Promise.all(
         team.project.resource.map(async (resourceOne, index) => {
           const findProject = await this.projectRepository.findOne({

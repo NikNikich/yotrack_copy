@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UserEntity } from '../database/entity/user.entity';
 import { DirectionEntity } from '../database/entity/direction.entity';
-import { IIssue, IIssueFieldValue, ITimeTracking } from './youtrack.interface';
+import { IIssue, ITimeTracking } from './youtrack.interface';
 import { set, get, isNil, isArray } from 'lodash';
 import { ProjectEntity } from '../database/entity/project.entity';
 import { ItemEntity } from '../database/entity/item.entity';
@@ -55,7 +55,8 @@ export class YoutrackService {
       );
       await this.userRepository.save(users);
     }
-    if (usersYoutrack.length === this.top) {
+    const isAchieveMaxLimitUser = usersYoutrack.length === this.top;
+    if (isAchieveMaxLimitUser) {
       await this.addNewUsers(++page);
     }
   }
@@ -86,7 +87,8 @@ export class YoutrackService {
       );
       await this.projectRepository.save(projects);
     }
-    if (projectsYoutrack.length === this.top) {
+    const isAchieveMaxLimitProjects = projectsYoutrack.length === this.top;
+    if (isAchieveMaxLimitProjects) {
       await this.addNewProjects(++page);
     }
   }
@@ -112,7 +114,8 @@ export class YoutrackService {
         }),
       );
     }
-    if (issuesYoutrack.length === this.top) {
+    const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
+    if (isAchieveMaxLimitIssues) {
       await this.addNewIssues(++page);
     }
   }
@@ -123,7 +126,9 @@ export class YoutrackService {
       this.top * (page - 1),
       this.top,
     );
-    if (!isNil(listTrackTime) && listTrackTime.length > 0) {
+    const isExistListTrackTime =
+      !isNil(listTrackTime) && listTrackTime.length > 0;
+    if (isExistListTrackTime) {
       const tracks = await Promise.all(
         listTrackTime.map(async (track) => {
           return this.addIssueTimeTrack(issue, track);
@@ -131,7 +136,8 @@ export class YoutrackService {
       );
       await this.timeTrackingRepository.save(tracks);
     }
-    if (listTrackTime.length === this.top) {
+    const isAchieveMaxLimitRecord = listTrackTime.length === this.top;
+    if (isAchieveMaxLimitRecord) {
       await this.addListIssueTimeTrack(issue, ++page);
     }
   }
@@ -158,19 +164,21 @@ export class YoutrackService {
         }),
       );
     }
-    if (issuesYoutrack.length === this.top) {
+    const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
+    if (isAchieveMaxLimitIssues) {
       await this.updateIssues(++page);
     }
   }
 
-  async addNewIssueOne(issue: IIssue, newAlways = false): Promise<void> {
+  async addNewIssueOne(issue: IIssue, isNewAlways = false): Promise<void> {
     let newItemEntity: ItemEntity;
-    if (!newAlways) {
+    if (!isNewAlways) {
       newItemEntity = await this.itemRepository.findOne({
         where: { youtrackId: issue.id },
       });
     }
-    if (isNil(newItemEntity) || newAlways) {
+    const itemIsEmpty = isNil(newItemEntity) || isNewAlways;
+    if (itemIsEmpty) {
       newItemEntity = new ItemEntity();
       newItemEntity.youtrackId = issue.id;
     }
@@ -178,7 +186,9 @@ export class YoutrackService {
     await Promise.all(
       issue.customFields.map(
         async (field): Promise<void> => {
-          if (get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value)) {
+          const isExistCustomField =
+            get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value);
+          if (isExistCustomField) {
             const keyIssue = get(ISSUE_CUSTOM_FIELDS, field.name);
             switch (field.name) {
               case 'Week':
@@ -238,10 +248,9 @@ export class YoutrackService {
         issue.project.id,
       );
     }
-    if (
-      issue.parent.issues.length > 0 &&
-      issue.parent.issues[0].id !== issue.id
-    ) {
+    const issuesParentIsExist =
+      issue.parent.issues.length > 0 && issue.parent.issues[0].id !== issue.id;
+    if (issuesParentIsExist) {
       newItemEntity.parentItemId = await this.getIdItem(
         issue.parent.issues[0].summary,
         issue.parent.issues[0].id,
