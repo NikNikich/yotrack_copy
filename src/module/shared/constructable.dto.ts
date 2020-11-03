@@ -1,7 +1,7 @@
 export abstract class ConstructableDto<
   T = ConstructableDto<Record<string, unknown>>
 > {
-  constructor(dto?: Partial<T>) {
+  constructor(dto?: T) {
     if (dto) {
       Object.assign(this, dto);
     }

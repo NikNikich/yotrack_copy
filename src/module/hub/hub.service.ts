@@ -44,11 +44,15 @@ export class HubService {
     await Promise.all(
       TeamsHub.map(
         async (team: IProjectTeam, index: number): Promise<void> => {
-          await new Promise((resolve) => {
+          await new Promise((resolve, reject) => {
             setTimeout(
               () => {
-                this.addNewProjectTeamOne(team);
-                resolve();
+                try {
+                  this.addNewProjectTeamOne(team);
+                  resolve();
+                } catch (error) {
+                  reject(error);
+                }
               },
               DELAY_MS * index,
               this,
@@ -103,11 +107,15 @@ export class HubService {
     resourceOne: IIdName,
     index: number,
   ): Promise<void> {
-    await new Promise((resolve) => {
+    await new Promise((resolve, reject) => {
       setTimeout(
         () => {
-          this.addProjectTeamIdInProject(resourceOne.id, newTeamEntity.id);
-          resolve();
+          try {
+            this.addProjectTeamIdInProject(resourceOne.id, newTeamEntity.id);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
         },
         DELAY_MS * index,
         this,
@@ -144,7 +152,9 @@ export class HubService {
     const findProject = await this.projectRepository.findOne({
       where: { hubId },
     });
-    if (!isNil(findProject) && findProject.projectTeamId !== projectTeamId) {
+    const executeProject =
+      !isNil(findProject) && findProject.projectTeamId !== projectTeamId;
+    if (executeProject) {
       findProject.projectTeamId = projectTeamId;
       await this.projectRepository.save(findProject);
     }

@@ -124,15 +124,19 @@ export class YoutrackService {
     const items = await Promise.all(
       issuesYoutrack.map(
         async (issue: IIssue, index: number): Promise<ItemEntity> => {
-          return await new Promise((resolve) => {
+          return await new Promise((resolve, reject) => {
             setTimeout(async () => {
               if (updated) {
                 this.logger.log('processing updating item id = ' + issue.id);
               } else {
                 this.logger.log('processing add new item id = ' + issue.id);
               }
-              const newIssue = await this.addNewIssueOne(issue, updated);
-              resolve(newIssue);
+              try {
+                const newIssue = await this.addNewIssueOne(issue, updated);
+                resolve(newIssue);
+              } catch (error) {
+                reject(error);
+              }
             }, DELAY_MS * index);
           });
         },
@@ -209,15 +213,23 @@ export class YoutrackService {
     issueBD: ItemEntity,
     index: number,
   ): Promise<ItemEntity> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(
         async () => {
           const issue = await this.youtrackHTTP.getIssueHttp(
             issueBD.youtrackId,
           );
           this.logger.log('processing update Null item id = ' + issue.id);
-          const newIssue = await this.addNewIssueOne(issue, false, issueBD.id);
-          resolve(newIssue);
+          try {
+            const newIssue = await this.addNewIssueOne(
+              issue,
+              false,
+              issueBD.id,
+            );
+            resolve(newIssue);
+          } catch (error) {
+            reject(error);
+          }
         },
         DELAY_MS * index,
         this,
@@ -268,10 +280,9 @@ export class YoutrackService {
         issue.project.hubResourceId,
       );
     }
-    if (
-      issue.parent.issues.length > 0 &&
-      issue.parent.issues[0].id !== issue.id
-    ) {
+    const executeParentId =
+      issue.parent.issues.length > 0 && issue.parent.issues[0].id !== issue.id;
+    if (executeParentId) {
       newItemEntity.parentItemId = await this.itemRepository.getIdFoundedByYoutrackIdOrCreated(
         issue.parent.issues[0].summary,
         issue.parent.issues[0].id,
