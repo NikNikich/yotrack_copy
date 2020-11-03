@@ -29,14 +29,18 @@ export class SpreadSheetService {
     const sheetInfos = await this.getSheetInfo();
     if (sheetInfos.length > 0) {
       const projectInforms = await Promise.all(
-        sheetInfos.map(async (sheetInfo: ISheetInformation) => {
-          return new ProjectInformationEntity({
-            projectId: await this.getIdProject(sheetInfo.project),
-            directionId: await this.getIdDirection(sheetInfo.direction),
-            rate: this.getNumber(sheetInfo.rate),
-            projectEstimation: this.getNumber(sheetInfo.projectEstimation),
-          });
-        }),
+        sheetInfos.map(
+          async (
+            sheetInfo: ISheetInformation,
+          ): Promise<ProjectInformationEntity> => {
+            return new ProjectInformationEntity({
+              projectId: await this.getIdProject(sheetInfo.project),
+              directionId: await this.getIdDirection(sheetInfo.direction),
+              rate: this.getNumber(sheetInfo.rate),
+              projectEstimation: this.getNumber(sheetInfo.projectEstimation),
+            });
+          },
+        ),
       );
       await this.projectInformationRepository.save(projectInforms);
     }
@@ -49,22 +53,24 @@ export class SpreadSheetService {
     await this.googleExcelClient.loadInfo();
     const sheet = this.googleExcelClient.sheetsByIndex[0];
     const rows = await sheet.getRows();
-    return rows.map((row: GoogleSpreadsheetRow) => {
-      return {
-        direction: !isNil(get(row, SPREED_HEADERS.direction))
-          ? get(row, SPREED_HEADERS.direction)
-          : null,
-        project: !isNil(get(row, SPREED_HEADERS.project))
-          ? get(row, SPREED_HEADERS.project)
-          : null,
-        projectEstimation: !isNil(get(row, SPREED_HEADERS.projectEstimation))
-          ? get(row, SPREED_HEADERS.projectEstimation)
-          : null,
-        rate: !isNil(get(row, SPREED_HEADERS.rate))
-          ? get(row, SPREED_HEADERS.rate)
-          : null,
-      };
-    });
+    return rows.map(
+      (row: GoogleSpreadsheetRow): ISheetInformation => {
+        return {
+          direction: !isNil(get(row, SPREED_HEADERS.direction))
+            ? get(row, SPREED_HEADERS.direction)
+            : null,
+          project: !isNil(get(row, SPREED_HEADERS.project))
+            ? get(row, SPREED_HEADERS.project)
+            : null,
+          projectEstimation: !isNil(get(row, SPREED_HEADERS.projectEstimation))
+            ? get(row, SPREED_HEADERS.projectEstimation)
+            : null,
+          rate: !isNil(get(row, SPREED_HEADERS.rate))
+            ? get(row, SPREED_HEADERS.rate)
+            : null,
+        };
+      },
+    );
   }
 
   private async getIdProject(name: string): Promise<number> {

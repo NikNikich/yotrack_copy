@@ -11,7 +11,10 @@ import { get, isNil, isArray, isString, isNumber } from 'lodash';
 import { ItemEntity } from '../database/entity/item.entity';
 import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from './youtrack.const';
 import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
-import { ISSUE_LIST_QUERY } from '../http-youtrack/http-youtrack.const';
+import {
+  ISSUE_LIST_QUERY_DAY,
+  ISSUE_LIST_QUERY_MONTH,
+} from '../http-youtrack/http-youtrack.const';
 import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { DirectionRepository } from '../database/repository/direction.repository';
@@ -103,6 +106,7 @@ export class YoutrackService {
     const issuesYoutrack = await this.youtrackHTTP.getListIssueHttp(
       this.top * (page - 1),
       this.top,
+      ISSUE_LIST_QUERY_MONTH,
     );
     if (issuesYoutrack.length > 0) {
       await this.processingHttpQueryByIssues(issuesYoutrack);
@@ -169,7 +173,7 @@ export class YoutrackService {
     const issuesYoutrack = await this.youtrackHTTP.getListIssueHttp(
       this.top * (page - 1),
       this.top,
-      ISSUE_LIST_QUERY,
+      ISSUE_LIST_QUERY_DAY,
     );
     if (issuesYoutrack.length > 0) {
       await this.processingHttpQueryByIssues(issuesYoutrack, true);
