@@ -17,15 +17,10 @@ import { SPREAD_SHEET_DS_KEY } from './spread-sheet-ds.const';
   providers: [
     {
       provide: SPREAD_SHEET_DS_KEY,
-      useValue: SpreadSheetServiceDS,
+      useClass: SpreadSheetServiceDS,
     },
     ConfigService,
   ],
-  exports: [
-    {
-      provide: SPREAD_SHEET_DS_KEY,
-      useValue: SpreadSheetServiceDS,
-    },
-  ],
+  exports: [SPREAD_SHEET_DS_KEY],
 })
 export class SpreedSheetModuleDS {}
