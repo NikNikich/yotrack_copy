@@ -3,9 +3,7 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { IGoogleExcelOptions } from './interface/google-excel-options-factory';
 
 @Injectable()
-export class GoogleExcelClient
-  extends GoogleSpreadsheet
-  implements OnApplicationBootstrap {
+export class GoogleExcelClient extends GoogleSpreadsheet implements OnApplicationBootstrap {
   private readonly ApiKey: string;
 
   constructor(options: IGoogleExcelOptions) {
