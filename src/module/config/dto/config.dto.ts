@@ -48,7 +48,7 @@ export class ConfigDto {
    */
   @IsNotEmpty()
   @IsString()
-  TYPEORM_CONNECTION: string;
+  TYPEORM_CONNECTION: 'postgres';
 
   /**
    * Адрес базы
