@@ -4,11 +4,13 @@ import { ObserverScheduleService } from './observer-schedule.service';
 import { ConfigService } from '../config/config.service';
 import { YoutrackModule } from '../youtrack/youtrack.module';
 import { HubModule } from '../hub/hub.module';
+import { SpreadSheetModule } from '../spread-sheet/spread-sheet.module';
 
 @Module({
   imports: [
     YoutrackModule,
     HubModule,
+    SpreadSheetModule,
     YoutrackSdkModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         token: configService.config.YOUTRACK_TOKEN,

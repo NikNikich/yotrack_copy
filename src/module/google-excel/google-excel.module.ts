@@ -61,7 +61,6 @@ export class GoogleExcelModule {
           inject: options.inject || [],
         };
       } else {
-        // For useClass and useExisting...
         return {
           provide: GOOGLE_EXCEL_MODULE_OPTIONS,
           useFactory: async (

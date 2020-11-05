@@ -58,4 +58,5 @@ export interface ITimeTracking {
 
 export interface IDuration {
   presentation?: string;
+  minutes?: number;
 }

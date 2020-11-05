@@ -17,7 +17,7 @@ import { GoogleExcelModule } from './google-excel/google-excel.module';
     CommandModule,
     CommandsModule,
     ScheduleModule.forRoot(),
-    ConfigModule.register(process.cwd() + '/.env'),
+    ConfigModule.register(process.cwd() + '/.env.local'),
     DatabaseModule,
     ObserverModule,
     HubModule,

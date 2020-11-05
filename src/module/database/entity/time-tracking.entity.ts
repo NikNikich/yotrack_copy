@@ -9,8 +9,8 @@ export class TimeTrackingEntity extends RowEntity<TimeTrackingEntity> {
   @Column({ type: 'varchar', nullable: true, length: 10000 })
   text?: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  duration?: string;
+  @Column({ type: 'integer', nullable: true })
+  minutes?: number;
 
   @Column({ type: 'varchar', nullable: false, length: 50 })
   youtrackId: string;
