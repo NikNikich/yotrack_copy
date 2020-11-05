@@ -1,4 +1,4 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable, Logger } from '@nestjs/common';
 import {
   IIssue,
   IProject,
@@ -16,14 +16,15 @@ import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class HttpYoutrackService {
+  private readonly logger: Logger = new Logger(HttpYoutrackService.name);
+  private readonly headers = {
+    Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
+  };
+
   constructor(
     private readonly youtrackHTTP: HttpService,
     private readonly configService: ConfigService,
   ) {}
-
-  private headers = {
-    Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
-  };
 
   async getListUserHttp(skip?: number, top?: number): Promise<IUser[]> {
     const params = getParamQuery(USER_LIST_FIELDS, skip, top);
@@ -80,13 +81,11 @@ export class HttpYoutrackService {
     url: string,
     config: Record<string, unknown>,
   ): Promise<T> {
-    let response = undefined;
     try {
-      response = await this.youtrackHTTP.get(url, config).toPromise();
-      response = response.data;
+      const response = await this.youtrackHTTP.get(url, config).toPromise();
+      return response.data;
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
     }
-    return response;
   }
 }

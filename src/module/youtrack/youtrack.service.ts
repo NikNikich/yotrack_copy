@@ -45,12 +45,14 @@ export class YoutrackService {
       this.top * (page - 1),
       this.top,
     );
-    if (usersYoutrack.length > 0) {
+    const isExistUsersYoutrack =
+      !isNil(usersYoutrack) && usersYoutrack.length > 0;
+    if (isExistUsersYoutrack) {
       await this.processingHttpQueryByUsers(usersYoutrack);
-    }
-    const isAchieveMaxLimitUser = usersYoutrack.length === this.top;
-    if (isAchieveMaxLimitUser) {
-      await this.addNewUsers(++page);
+      const isAchieveMaxLimitUser = usersYoutrack.length === this.top;
+      if (isAchieveMaxLimitUser) {
+        await this.addNewUsers(++page);
+      }
     }
   }
 
@@ -75,12 +77,14 @@ export class YoutrackService {
       this.top * (page - 1),
       this.top,
     );
-    if (projectsYoutrack.length > 0) {
+    const isExistProjectsYoutrack =
+      !isNil(projectsYoutrack) && projectsYoutrack.length > 0;
+    if (isExistProjectsYoutrack) {
       await this.processingHttpQueryByProjects(projectsYoutrack);
-    }
-    const isAchieveMaxLimitProjects = projectsYoutrack.length === this.top;
-    if (isAchieveMaxLimitProjects) {
-      await this.addNewProjects(++page);
+      const isAchieveMaxLimitProjects = projectsYoutrack.length === this.top;
+      if (isAchieveMaxLimitProjects) {
+        await this.addNewProjects(++page);
+      }
     }
   }
 
@@ -108,12 +112,14 @@ export class YoutrackService {
       this.top,
       ISSUE_LIST_QUERY_MONTH,
     );
-    if (issuesYoutrack.length > 0) {
+    const isExistIssuesYoutrack =
+      !isNil(issuesYoutrack) && issuesYoutrack.length > 0;
+    if (isExistIssuesYoutrack) {
       await this.processingHttpQueryByIssues(issuesYoutrack);
-    }
-    const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
-    if (isAchieveMaxLimitIssues) {
-      await this.addNewIssues(++page);
+      const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
+      if (isAchieveMaxLimitIssues) {
+        await this.addNewIssues(++page);
+      }
     }
   }
 
@@ -166,10 +172,10 @@ export class YoutrackService {
         ),
       );
       await this.timeTrackingRepository.save(tracks);
-    }
-    const isAchieveMaxLimitRecord = listTrackTime.length === this.top;
-    if (isAchieveMaxLimitRecord) {
-      await this.addListIssueTimeTrack(issue, ++page);
+      const isAchieveMaxLimitRecord = listTrackTime.length === this.top;
+      if (isAchieveMaxLimitRecord) {
+        await this.addListIssueTimeTrack(issue, ++page);
+      }
     }
   }
 
@@ -192,7 +198,9 @@ export class YoutrackService {
     const issuesNullProject = await this.itemRepository.find({
       where: { projectId: IsNull() },
     });
-    if (issuesNullProject.length > 0) {
+    const isExistIssuesNullProject =
+      !isNil(issuesNullProject) && issuesNullProject.length > 0;
+    if (isExistIssuesNullProject) {
       const items = await Promise.all(
         issuesNullProject.map(
           async (issueBD: ItemEntity, index: number): Promise<ItemEntity> => {
