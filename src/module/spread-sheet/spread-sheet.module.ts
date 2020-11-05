@@ -6,6 +6,10 @@ import { ProjectInformationRepository } from '../database/repository/project-inf
 import { SpreadSheetService } from './spread-sheet.service';
 import { ConfigService } from '../config/config.service';
 import { GoogleExcelModule } from '../google-excel/google-excel.module';
+import { SpreadSheetServiceDS } from '../spread-sheet-ds/spread-sheet-ds.service';
+import { Youtrack } from 'youtrack-rest-client';
+import { GoogleExcelClient } from '../google-excel/google-excel.client';
+import { SpreedSheetModuleDS } from '../spread-sheet-ds/spread-sheet-ds.module';
 
 @Module({
   imports: [
@@ -21,8 +25,9 @@ import { GoogleExcelModule } from '../google-excel/google-excel.module';
       ProjectRepository,
       ProjectInformationRepository,
     ]),
+    SpreedSheetModuleDS,
   ],
-  providers: [SpreadSheetService, ConfigService],
+  providers: [ConfigService, SpreadSheetService],
   exports: [SpreadSheetService],
 })
 export class SpreadSheetModule {}

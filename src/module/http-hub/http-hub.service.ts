@@ -30,7 +30,7 @@ export class HttpHubService {
       },
     );
     if (response) {
-      return response.projecteams;
+      return response.projectteams;
     }
   }
 

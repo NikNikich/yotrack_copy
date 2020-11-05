@@ -5,5 +5,5 @@ export interface IQueryProjectTeam {
   next?: string;
   skip?: number;
   top?: number;
-  projecteams: IProjectTeam[];
+  projectteams: IProjectTeam[];
 }

@@ -1,9 +1,12 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { IGoogleExcelOptions } from './interface/google-excel-options-factory';
+import { ISpreadSheetDS } from '../spread-sheet-ds/spread-sheet-ds.interface';
 
 @Injectable()
-export class GoogleExcelClient extends GoogleSpreadsheet implements OnApplicationBootstrap {
+export class GoogleExcelClient
+  extends GoogleSpreadsheet
+  implements OnApplicationBootstrap {
   private readonly ApiKey: string;
 
   constructor(options: IGoogleExcelOptions) {

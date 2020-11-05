@@ -11,6 +11,7 @@ import { HubModule } from './hub/hub.module';
 import { HttpYoutrackModule } from './http-youtrack/http-youtrack.module';
 import { SpreadSheetModule } from './spread-sheet/spread-sheet.module';
 import { GoogleExcelModule } from './google-excel/google-excel.module';
+import { SpreedSheetModuleDS } from './spread-sheet-ds/spread-sheet-ds.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { GoogleExcelModule } from './google-excel/google-excel.module';
     YoutrackModule,
     HttpYoutrackModule,
     SpreadSheetModule,
+    SpreedSheetModuleDS,
     GoogleExcelModule,
   ],
 })
