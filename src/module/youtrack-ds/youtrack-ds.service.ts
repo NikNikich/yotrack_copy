@@ -11,12 +11,13 @@ import {
   PROJECT_LIST_FIELDS,
   TRACK_LIST_FIELDS,
   USER_LIST_FIELDS,
-} from './http-youtrack.const';
+} from './youtrack-ds.const';
 import { ConfigService } from '../config/config.service';
+import { IYoutrackDS } from './youtrack-ds.interface';
 
 @Injectable()
-export class HttpYoutrackService {
-  private readonly logger: Logger = new Logger(HttpYoutrackService.name);
+export class YoutrackServiceDS implements IYoutrackDS {
+  private readonly logger: Logger = new Logger(YoutrackServiceDS.name);
   private readonly headers = {
     Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
   };
@@ -26,7 +27,7 @@ export class HttpYoutrackService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getListUserHttp(skip?: number, top?: number): Promise<IUser[]> {
+  async getListUserDS(skip?: number, top?: number): Promise<IUser[]> {
     const params = getParamQuery(USER_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IProject[]>('/users', {
       headers: this.headers,
@@ -34,7 +35,7 @@ export class HttpYoutrackService {
     });
   }
 
-  async getListProjectHttp(skip?: number, top?: number): Promise<IProject[]> {
+  async getListProjectDS(skip?: number, top?: number): Promise<IProject[]> {
     const params = getParamQuery(PROJECT_LIST_FIELDS, skip, top);
     return this.setGetQueryYoutrack<IProject[]>('/admin/projects', {
       headers: this.headers,
@@ -42,7 +43,7 @@ export class HttpYoutrackService {
     });
   }
 
-  async getListIssueHttp(
+  async getListIssueDS(
     skip?: number,
     top?: number,
     query?: string,
@@ -54,7 +55,7 @@ export class HttpYoutrackService {
     });
   }
 
-  async getListIssueTrackHttp(
+  async getListIssueTrackDS(
     issueId: string,
     skip?: number,
     top?: number,
@@ -69,7 +70,7 @@ export class HttpYoutrackService {
     );
   }
 
-  async getIssueHttp(issueId: string, query?: string): Promise<IIssue> {
+  async getIssueDS(issueId: string, query?: string): Promise<IIssue> {
     const params = getParamQuery(ISSUE_LIST_FIELDS, null, null, query);
     return this.setGetQueryYoutrack<IIssue>(`/issues/${issueId}/`, {
       headers: this.headers,
@@ -77,7 +78,7 @@ export class HttpYoutrackService {
     });
   }
 
-  async setGetQueryYoutrack<T>(
+  private async setGetQueryYoutrack<T>(
     url: string,
     config: Record<string, unknown>,
   ): Promise<T> {

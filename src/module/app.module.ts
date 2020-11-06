@@ -8,10 +8,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CommandModule } from 'nestjs-command';
 import { CommandsModule } from './cli/commands.module';
 import { HubModule } from './hub/hub.module';
-import { HttpYoutrackModule } from './http-youtrack/http-youtrack.module';
 import { SpreadSheetModule } from './spread-sheet/spread-sheet.module';
 import { GoogleExcelModule } from './google-excel/google-excel.module';
 import { SpreedSheetModuleDS } from './spread-sheet-ds/spread-sheet-ds.module';
+import { YoutrackModuleDS } from './youtrack-ds/youtrack-ds.module';
+import { HubModuleDS } from './hub-ds/hub-ds.module';
 
 @Module({
   imports: [
@@ -24,10 +25,11 @@ import { SpreedSheetModuleDS } from './spread-sheet-ds/spread-sheet-ds.module';
     HubModule,
     YoutrackSdkModule,
     YoutrackModule,
-    HttpYoutrackModule,
+    YoutrackModuleDS,
     SpreadSheetModule,
     SpreedSheetModuleDS,
     GoogleExcelModule,
+    HubModuleDS,
   ],
 })
 export class AppModule {}

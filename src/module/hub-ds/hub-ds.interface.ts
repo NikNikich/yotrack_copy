@@ -7,3 +7,7 @@ export interface IQueryProjectTeam {
   top?: number;
   projectteams: IProjectTeam[];
 }
+
+export interface IHubDS {
+  getListProjectTeam(skip?: number, top?: number): Promise<IProjectTeam[]>;
+}

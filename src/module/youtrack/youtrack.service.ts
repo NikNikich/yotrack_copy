@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   ICustomFields,
   IIssue,
@@ -10,11 +10,6 @@ import {
 import { get, isNil, isArray, isString, isNumber } from 'lodash';
 import { ItemEntity } from '../database/entity/item.entity';
 import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from './youtrack.const';
-import { HttpYoutrackService } from '../http-youtrack/http-youtrack.service';
-import {
-  ISSUE_LIST_QUERY_DAY,
-  ISSUE_LIST_QUERY_MONTH,
-} from '../http-youtrack/http-youtrack.const';
 import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { DirectionRepository } from '../database/repository/direction.repository';
@@ -25,30 +20,39 @@ import { IsNull } from 'typeorm';
 import { isIIssueFieldValue } from './youtrack.type-guard';
 import { UserEntity } from '../database/entity/user.entity';
 import { ProjectEntity } from '../database/entity/project.entity';
+import { YoutrackServiceDS } from '../youtrack-ds/youtrack-ds.service';
+import {
+  ISSUE_LIST_QUERY_DAY,
+  ISSUE_LIST_QUERY_MONTH,
+  YOUTRACK_DS_KEY,
+} from '../youtrack-ds/youtrack-ds.const';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class YoutrackService {
   private readonly logger: Logger = new Logger(YoutrackService.name);
-  private top = 100;
+  private top = this.configService.config.TOP_QUERY_LIST;
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly userRepository: UserRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly directionRepository: DirectionRepository,
     private readonly itemRepository: ItemRepository,
     private readonly timeTrackingRepository: TimeTrackingRepository,
-    private readonly youtrackHTTP: HttpYoutrackService,
+    @Inject(YOUTRACK_DS_KEY)
+    private readonly youtrackDS: YoutrackServiceDS,
   ) {}
 
   async addNewUsers(page = 1): Promise<void> {
-    const usersYoutrack = await this.youtrackHTTP.getListUserHttp(
+    const usersYoutrack = await this.youtrackDS.getListUserDS(
       this.top * (page - 1),
       this.top,
     );
     const isExistUsersYoutrack =
       !isNil(usersYoutrack) && usersYoutrack.length > 0;
     if (isExistUsersYoutrack) {
-      await this.processingHttpQueryByUsers(usersYoutrack);
+      await this.processingQueryByUsers(usersYoutrack);
       const isAchieveMaxLimitUser = usersYoutrack.length === this.top;
       if (isAchieveMaxLimitUser) {
         await this.addNewUsers(++page);
@@ -56,7 +60,7 @@ export class YoutrackService {
     }
   }
 
-  async processingHttpQueryByUsers(usersYoutrack: IUser[]): Promise<void> {
+  async processingQueryByUsers(usersYoutrack: IUser[]): Promise<void> {
     const users = await Promise.all(
       usersYoutrack.map(
         async (user: IUser): Promise<UserEntity> => {
@@ -73,14 +77,14 @@ export class YoutrackService {
   }
 
   async addNewProjects(page = 1): Promise<void> {
-    const projectsYoutrack = await this.youtrackHTTP.getListProjectHttp(
+    const projectsYoutrack = await this.youtrackDS.getListProjectDS(
       this.top * (page - 1),
       this.top,
     );
     const isExistProjectsYoutrack =
       !isNil(projectsYoutrack) && projectsYoutrack.length > 0;
     if (isExistProjectsYoutrack) {
-      await this.processingHttpQueryByProjects(projectsYoutrack);
+      await this.processingQueryByProjects(projectsYoutrack);
       const isAchieveMaxLimitProjects = projectsYoutrack.length === this.top;
       if (isAchieveMaxLimitProjects) {
         await this.addNewProjects(++page);
@@ -88,9 +92,7 @@ export class YoutrackService {
     }
   }
 
-  async processingHttpQueryByProjects(
-    projectsYoutrack: IProject[],
-  ): Promise<void> {
+  async processingQueryByProjects(projectsYoutrack: IProject[]): Promise<void> {
     const projects = await Promise.all(
       projectsYoutrack.map(
         async (project: IProject): Promise<ProjectEntity> => {
@@ -107,7 +109,7 @@ export class YoutrackService {
   }
 
   async addNewIssues(page = 1): Promise<void> {
-    const issuesYoutrack = await this.youtrackHTTP.getListIssueHttp(
+    const issuesYoutrack = await this.youtrackDS.getListIssueDS(
       this.top * (page - 1),
       this.top,
       ISSUE_LIST_QUERY_MONTH,
@@ -115,7 +117,7 @@ export class YoutrackService {
     const isExistIssuesYoutrack =
       !isNil(issuesYoutrack) && issuesYoutrack.length > 0;
     if (isExistIssuesYoutrack) {
-      await this.processingHttpQueryByIssues(issuesYoutrack);
+      await this.processingQueryByIssues(issuesYoutrack);
       const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
       if (isAchieveMaxLimitIssues) {
         await this.addNewIssues(++page);
@@ -123,7 +125,7 @@ export class YoutrackService {
     }
   }
 
-  async processingHttpQueryByIssues(
+  async processingQueryByIssues(
     issuesYoutrack: IIssue[],
     updated = false,
   ): Promise<void> {
@@ -156,7 +158,7 @@ export class YoutrackService {
   }
 
   async addListIssueTimeTrack(issue: ItemEntity, page = 1): Promise<void> {
-    const listTrackTime = await this.youtrackHTTP.getListIssueTrackHttp(
+    const listTrackTime = await this.youtrackDS.getListIssueTrackDS(
       issue.youtrackId,
       this.top * (page - 1),
       this.top,
@@ -180,13 +182,13 @@ export class YoutrackService {
   }
 
   async updateIssues(page = 1): Promise<void> {
-    const issuesYoutrack = await this.youtrackHTTP.getListIssueHttp(
+    const issuesYoutrack = await this.youtrackDS.getListIssueDS(
       this.top * (page - 1),
       this.top,
       ISSUE_LIST_QUERY_DAY,
     );
     if (issuesYoutrack.length > 0) {
-      await this.processingHttpQueryByIssues(issuesYoutrack, true);
+      await this.processingQueryByIssues(issuesYoutrack, true);
     }
     const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
     if (isAchieveMaxLimitIssues) {
@@ -204,7 +206,7 @@ export class YoutrackService {
       const items = await Promise.all(
         issuesNullProject.map(
           async (issueBD: ItemEntity, index: number): Promise<ItemEntity> => {
-            return this.processingHttpQueryByUpdatingIssues(issueBD, index);
+            return this.processingQueryByUpdatingIssues(issueBD, index);
           },
         ),
       );
@@ -217,16 +219,14 @@ export class YoutrackService {
     }
   }
 
-  async processingHttpQueryByUpdatingIssues(
+  async processingQueryByUpdatingIssues(
     issueBD: ItemEntity,
     index: number,
   ): Promise<ItemEntity> {
     return new Promise((resolve, reject) => {
       setTimeout(
         async () => {
-          const issue = await this.youtrackHTTP.getIssueHttp(
-            issueBD.youtrackId,
-          );
+          const issue = await this.youtrackDS.getIssueDS(issueBD.youtrackId);
           this.logger.log('processing update Null item id = ' + issue.id);
           try {
             const newIssue = await this.addNewIssueOne(

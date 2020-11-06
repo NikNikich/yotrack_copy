@@ -1,29 +1,33 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IProjectTeam } from './hub.interface';
 import { DELAY_MS } from '../youtrack/youtrack.const';
 import { isNil } from 'lodash';
-import { HttpHubService } from '../http-hub/http-hub.service';
 import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { ProjectTeamRepository } from '../database/repository/project-team.repository';
 import { IIdName } from '../youtrack/youtrack.interface';
 import { UserEntity } from '../database/entity/user.entity';
 import { ProjectTeamEntity } from '../database/entity/project-team.entity';
+import { HUB_DS_KEY } from '../hub-ds/hub-ds.const';
+import { HubServiceDS } from '../hub-ds/hub-ds.service';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class HubService {
-  private top = 100;
+  private top = this.configService.config.TOP_QUERY_LIST;
   private readonly logger: Logger = new Logger(HubService.name);
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly userRepository: UserRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly projectTeamRepository: ProjectTeamRepository,
-    private readonly hubHTTP: HttpHubService,
+    @Inject(HUB_DS_KEY)
+    private readonly hubDS: HubServiceDS,
   ) {}
 
   async addNewProjectTeams(page = 1): Promise<void> {
-    const teamsHub = await this.hubHTTP.getListProjectTeam(
+    const teamsHub = await this.hubDS.getListProjectTeam(
       this.top * (page - 1),
       this.top,
     );
