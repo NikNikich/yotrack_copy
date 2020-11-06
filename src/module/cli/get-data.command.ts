@@ -22,8 +22,7 @@ export class GetDataCommands {
     this.logger.log('start filling the table with data');
     await this.youtrackService.addNewUsers();
     await this.youtrackService.addNewProjects();
-    // await this.youtrackService.addNewIssues();
-    await this.youtrackService.updateIssues();
+    await this.youtrackService.addNewIssues();
     await this.hubService.addNewProjectTeams();
     await this.spreadSheetService.updateProjectInfo();
     await this.youtrackService.updateNullProjectIssues();

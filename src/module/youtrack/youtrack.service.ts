@@ -132,21 +132,7 @@ export class YoutrackService {
     const items = await Promise.all(
       issuesYoutrack.map(
         async (issue: IIssue, index: number): Promise<ItemEntity> => {
-          return await new Promise((resolve, reject) => {
-            setTimeout(async () => {
-              if (updated) {
-                this.logger.log('processing updating item id = ' + issue.id);
-              } else {
-                this.logger.log('processing add new item id = ' + issue.id);
-              }
-              try {
-                const newIssue = await this.addNewIssueOne(issue, updated);
-                resolve(newIssue);
-              } catch (error) {
-                reject(error);
-              }
-            }, DELAY_MS * index);
-          });
+          return this.processingIssue(updated, index, issue);
         },
       ),
     );
@@ -155,6 +141,28 @@ export class YoutrackService {
     } catch (error) {
       this.logger.log(error);
     }
+  }
+
+  async processingIssue(
+    updated = false,
+    index: number,
+    issue: IIssue,
+  ): Promise<ItemEntity> {
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        if (updated) {
+          this.logger.log('processing updating item id = ' + issue.id);
+        } else {
+          this.logger.log('processing add new item id = ' + issue.id);
+        }
+        try {
+          const newIssue = await this.addNewIssueOne(issue, updated);
+          resolve(newIssue);
+        } catch (error) {
+          reject(error);
+        }
+      }, DELAY_MS * index);
+    });
   }
 
   async addListIssueTimeTrack(issue: ItemEntity, page = 1): Promise<void> {
@@ -309,67 +317,67 @@ export class YoutrackService {
         async (field: ICustomFields): Promise<void> => {
           const isExistCustomField =
             get(ISSUE_CUSTOM_FIELDS, field.name) && !isNil(field.value);
-          if (isExistCustomField) {
-            switch (field.name) {
-              case 'Week':
-                if (isArray(field.value) && field.value.length > 0) {
-                  item.week = field.value
-                    .map((value: IIssueFieldValue): string => value.name)
-                    .join(', ');
-                }
-                break;
-              case 'Direction':
-                if (isIIssueFieldValue(field.value)) {
-                  item.directionId = await this.directionRepository.getIdFoundedByYoutrackIdOrCreated(
-                    field.value.name,
-                    field.value.id,
-                  );
-                }
-                break;
-              case 'Estimation':
-                if (
-                  isIIssueFieldValue(field.value) &&
-                  !isNil(field.value.minutes)
-                ) {
-                  item.estimationTime = field.value.minutes;
-                }
-                break;
-              case 'Spent time':
-                if (
-                  isIIssueFieldValue(field.value) &&
-                  !isNil(field.value.minutes)
-                ) {
-                  item.spentTime = field.value.minutes;
-                }
-                break;
-              case 'Комментарий по % выполнению':
-                if (isString(field.value)) {
-                  item.comment = field.value;
-                }
-                break;
-              case '% выполнения':
-                if (isNumber(field.value)) {
-                  item.percent = field.value;
-                }
-                break;
-              case 'Start date':
-                if (isNumber(field.value))
-                  item.startDate = new Date(field.value);
-                break;
-              case 'End Date':
-                if (isNumber(field.value)) item.endDate = new Date(field.value);
-                break;
-              case 'Assignee':
-                if (isIIssueFieldValue(field.value)) {
-                  item.assigneeUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
-                    field.value.name,
-                    field.value.id,
-                  );
-                }
-                break;
-              default:
-                break;
-            }
+          if (!isExistCustomField) {
+            return;
+          }
+          switch (field.name) {
+            case 'Week':
+              if (isArray(field.value) && field.value.length > 0) {
+                item.week = field.value
+                  .map((value: IIssueFieldValue): string => value.name)
+                  .join(', ');
+              }
+              break;
+            case 'Direction':
+              if (isIIssueFieldValue(field.value)) {
+                item.directionId = await this.directionRepository.getIdFoundedByYoutrackIdOrCreated(
+                  field.value.name,
+                  field.value.id,
+                );
+              }
+              break;
+            case 'Estimation':
+              if (
+                isIIssueFieldValue(field.value) &&
+                !isNil(field.value.minutes)
+              ) {
+                item.estimationTime = field.value.minutes;
+              }
+              break;
+            case 'Spent time':
+              if (
+                isIIssueFieldValue(field.value) &&
+                !isNil(field.value.minutes)
+              ) {
+                item.spentTime = field.value.minutes;
+              }
+              break;
+            case 'Комментарий по % выполнению':
+              if (isString(field.value)) {
+                item.comment = field.value;
+              }
+              break;
+            case '% выполнения':
+              if (isNumber(field.value)) {
+                item.percent = field.value;
+              }
+              break;
+            case 'Start date':
+              if (isNumber(field.value)) item.startDate = new Date(field.value);
+              break;
+            case 'End Date':
+              if (isNumber(field.value)) item.endDate = new Date(field.value);
+              break;
+            case 'Assignee':
+              if (isIIssueFieldValue(field.value)) {
+                item.assigneeUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
+                  field.value.name,
+                  field.value.id,
+                );
+              }
+              break;
+            default:
+              break;
           }
         },
       ),

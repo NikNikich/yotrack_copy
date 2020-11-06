@@ -33,4 +33,8 @@ export class UserRepository extends BaseRepository<UserEntity> {
     }
     return user.id;
   }
+
+  async findUserByHubId(hubId: string): Promise<UserEntity> {
+    return this.findOne({ where: { hubId } });
+  }
 }

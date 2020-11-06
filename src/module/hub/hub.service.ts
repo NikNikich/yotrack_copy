@@ -45,23 +45,30 @@ export class HubService {
     await Promise.all(
       TeamsHub.map(
         async (team: IProjectTeam, index: number): Promise<void> => {
-          await new Promise((resolve, reject) => {
-            setTimeout(
-              () => {
-                try {
-                  this.addNewProjectTeamOne(team);
-                  resolve();
-                } catch (error) {
-                  reject(error);
-                }
-              },
-              DELAY_MS * index,
-              this,
-            );
-          });
+          await this.promiseAddNewProjectTeamOne(team, index);
         },
       ),
     );
+  }
+
+  async promiseAddNewProjectTeamOne(
+    team: IProjectTeam,
+    index: number,
+  ): Promise<void> {
+    await new Promise((resolve, reject) => {
+      setTimeout(
+        () => {
+          try {
+            this.addNewProjectTeamOne(team);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        },
+        DELAY_MS * index,
+        this,
+      );
+    });
   }
 
   async addNewProjectTeamOne(team: IProjectTeam): Promise<void> {
@@ -128,9 +135,7 @@ export class HubService {
     newTeamEntity: ProjectTeamEntity,
     user: IIdName,
   ): Promise<ProjectTeamEntity> {
-    const findUser = await this.userRepository.findOne({
-      where: { hubId: user.id },
-    });
+    const findUser = await this.userRepository.findUserByHubId(user.id);
     if (!isNil(findUser)) {
       if (isNil(newTeamEntity.users)) {
         newTeamEntity.users = [findUser];

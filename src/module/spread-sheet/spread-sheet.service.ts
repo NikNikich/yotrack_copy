@@ -47,7 +47,7 @@ export class SpreadSheetService {
     }
   }
 
-  private async getIdProject(name: string): Promise<number> {
+  private async getIdProject(name: string): Promise<number | null> {
     const findProject = await this.projectRepository.findOne({
       where: { name },
     });
@@ -57,7 +57,7 @@ export class SpreadSheetService {
     return findProject.id;
   }
 
-  private async getIdDirection(name: string): Promise<number> {
+  private async getIdDirection(name: string): Promise<number | null> {
     const findProject = await this.directionRepository.findOne({
       where: { name },
     });
@@ -67,7 +67,7 @@ export class SpreadSheetService {
     return findProject.id;
   }
 
-  private getNumber(stringNumber: string): number {
+  private getNumber(stringNumber: string): number | null {
     if (isNil(stringNumber)) {
       return null;
     }

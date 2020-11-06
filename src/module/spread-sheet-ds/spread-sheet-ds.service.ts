@@ -1,7 +1,7 @@
 import { ISpreadSheetDS } from './spread-sheet-ds.interface';
 import { ISheetInformation } from '../spread-sheet/spreed-sheet.interface';
 import { GoogleSpreadsheetRow } from 'google-spreadsheet';
-import { get, isNil } from 'lodash';
+import { get } from 'lodash';
 import { SPREED_HEADERS } from '../spread-sheet/spreed-sheet.const';
 import { GoogleExcelClient } from '../google-excel/google-excel.client';
 import { ConfigService } from '../config/config.service';
@@ -26,21 +26,18 @@ export class SpreadSheetServiceDS implements ISpreadSheetDS {
       const rows = await sheet.getRows();
       return rows.map(
         (row: GoogleSpreadsheetRow): ISheetInformation => {
+          const directionValue = get(row, SPREED_HEADERS.direction);
+          const projectValue = get(row, SPREED_HEADERS.project);
+          const projectEstimationValue = get(
+            row,
+            SPREED_HEADERS.projectEstimation,
+          );
+          const rateValue = get(row, SPREED_HEADERS.rate);
           return {
-            direction: !isNil(get(row, SPREED_HEADERS.direction))
-              ? get(row, SPREED_HEADERS.direction)
-              : null,
-            project: !isNil(get(row, SPREED_HEADERS.project))
-              ? get(row, SPREED_HEADERS.project)
-              : null,
-            projectEstimation: !isNil(
-              get(row, SPREED_HEADERS.projectEstimation),
-            )
-              ? get(row, SPREED_HEADERS.projectEstimation)
-              : null,
-            rate: !isNil(get(row, SPREED_HEADERS.rate))
-              ? get(row, SPREED_HEADERS.rate)
-              : null,
+            direction: directionValue || null,
+            project: projectValue || null,
+            projectEstimation: projectEstimationValue || null,
+            rate: rateValue || null,
           };
         },
       );
