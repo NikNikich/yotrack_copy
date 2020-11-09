@@ -1,42 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '../config/config.service';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IProjectTeam } from './hub.interface';
 import { DELAY_MS } from '../youtrack/youtrack.const';
 import { isNil } from 'lodash';
-import { HttpHubService } from '../http-hub/http-hub.service';
 import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { ProjectTeamRepository } from '../database/repository/project-team.repository';
 import { IIdName } from '../youtrack/youtrack.interface';
 import { UserEntity } from '../database/entity/user.entity';
 import { ProjectTeamEntity } from '../database/entity/project-team.entity';
+import { HUB_DS_KEY } from '../hub-ds/hub-ds.const';
+import { HubServiceDS } from '../hub-ds/hub-ds.service';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class HubService {
-  private top = 100;
-  headers = {
-    Authorization: 'Bearer ' + this.configService.config.HUB_TOKEN,
-  };
+  private top = this.configService.config.TOP_QUERY_LIST;
+  private readonly logger: Logger = new Logger(HubService.name);
 
   constructor(
+    private readonly configService: ConfigService,
     private readonly userRepository: UserRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly projectTeamRepository: ProjectTeamRepository,
-    private readonly hubHTTP: HttpHubService,
-    private readonly configService: ConfigService,
+    @Inject(HUB_DS_KEY)
+    private readonly hubDS: HubServiceDS,
   ) {}
 
   async addNewProjectTeams(page = 1): Promise<void> {
-    const TeamsHub = await this.hubHTTP.getListProjectTeam(
+    const teamsHub = await this.hubDS.getListProjectTeam(
       this.top * (page - 1),
       this.top,
     );
-    if (TeamsHub.length > 0) {
-      await this.processingHubHttpQueryTeam(TeamsHub);
-    }
-    const isAchieveMaxLimitTeams = TeamsHub.length === this.top;
-    if (isAchieveMaxLimitTeams) {
-      await this.addNewProjectTeams(++page);
+    const isExistTeamsHubList = teamsHub && teamsHub.length > 0;
+    if (isExistTeamsHubList) {
+      await this.processingHubHttpQueryTeam(teamsHub);
+      const isAchieveMaxLimitTeams = teamsHub.length === this.top;
+      if (isAchieveMaxLimitTeams) {
+        await this.addNewProjectTeams(++page);
+      }
     }
   }
 
@@ -44,23 +45,30 @@ export class HubService {
     await Promise.all(
       TeamsHub.map(
         async (team: IProjectTeam, index: number): Promise<void> => {
-          await new Promise((resolve, reject) => {
-            setTimeout(
-              () => {
-                try {
-                  this.addNewProjectTeamOne(team);
-                  resolve();
-                } catch (error) {
-                  reject(error);
-                }
-              },
-              DELAY_MS * index,
-              this,
-            );
-          });
+          await this.promiseAddNewProjectTeamOne(team, index);
         },
       ),
     );
+  }
+
+  async promiseAddNewProjectTeamOne(
+    team: IProjectTeam,
+    index: number,
+  ): Promise<void> {
+    await new Promise((resolve, reject) => {
+      setTimeout(
+        () => {
+          try {
+            this.addNewProjectTeamOne(team);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        },
+        DELAY_MS * index,
+        this,
+      );
+    });
   }
 
   async addNewProjectTeamOne(team: IProjectTeam): Promise<void> {
@@ -81,7 +89,7 @@ export class HubService {
     try {
       await this.projectTeamRepository.save(newTeamEntity);
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
     }
     const isExistProjectResource =
       !isNil(team.project) &&
@@ -127,9 +135,7 @@ export class HubService {
     newTeamEntity: ProjectTeamEntity,
     user: IIdName,
   ): Promise<ProjectTeamEntity> {
-    const findUser = await this.userRepository.findOne({
-      where: { hubId: user.id },
-    });
+    const findUser = await this.userRepository.findUserByHubId(user.id);
     if (!isNil(findUser)) {
       if (isNil(newTeamEntity.users)) {
         newTeamEntity.users = [findUser];

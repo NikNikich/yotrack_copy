@@ -1,3 +1,4 @@
+export const YOUTRACK_DS_KEY = 'youtrack_dataserver';
 export const USER_LIST_FIELDS = 'id,fullName,ringId';
 export const PROJECT_LIST_FIELDS = 'id,name,hubResourceId';
 export const ISSUE_LIST_FIELDS =

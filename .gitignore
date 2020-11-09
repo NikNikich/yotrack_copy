@@ -4,7 +4,6 @@
 
 # configs
 .env
-.env.local.
 .env.local
 ormconfig.json
 

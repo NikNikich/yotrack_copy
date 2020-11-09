@@ -5,7 +5,6 @@ import { Module } from '@nestjs/common';
 import { GetDataCommands } from './get-data.command';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
-import { HttpYoutrackModule } from '../http-youtrack/http-youtrack.module';
 import { SpreadSheetModule } from '../spread-sheet/spread-sheet.module';
 import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
 
@@ -23,12 +22,6 @@ import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
     YoutrackModule,
     CommandModule,
     HubModule,
-    HttpYoutrackModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({
-        baseURL: configService.config.HUB_BASE_URL,
-      }),
-      inject: [ConfigService],
-    }),
   ],
   providers: [GetDataCommands],
 })

@@ -142,4 +142,12 @@ export class ConfigDto {
   @IsNotEmpty()
   @IsString()
   GOOGLE_SHEET_ID: string;
+
+  /**
+   * Количество записей в одном запросе
+   */
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsInt()
+  TOP_QUERY_LIST = 100;
 }

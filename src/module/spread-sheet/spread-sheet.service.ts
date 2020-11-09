@@ -1,23 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ProjectRepository } from '../database/repository/project.repository';
-import { get, isNil, toNumber } from 'lodash';
-import { ConfigService } from '../config/config.service';
+import { isNil, toNumber } from 'lodash';
 import { DirectionRepository } from '../database/repository/direction.repository';
 import { ProjectInformationRepository } from '../database/repository/project-information.repository';
 import { ISheetInformation } from './spreed-sheet.interface';
-import { SPREED_HEADERS } from './spreed-sheet.const';
 import { ProjectInformationEntity } from '../database/entity/project-information.entity';
-import { GoogleExcelClient } from '../google-excel/google-excel.client';
-import { GoogleSpreadsheetRow } from 'google-spreadsheet';
+import { ISpreadSheetDS } from '../spread-sheet-ds/spread-sheet-ds.interface';
+import { SPREAD_SHEET_DS_KEY } from '../spread-sheet-ds/spread-sheet-ds.const';
 
 @Injectable()
 export class SpreadSheetService {
+  private readonly logger = new Logger(SpreadSheetService.name);
+
   constructor(
-    private readonly googleExcelClient: GoogleExcelClient,
+    @Inject(SPREAD_SHEET_DS_KEY)
+    private readonly spreadSheetDs: ISpreadSheetDS,
     private readonly directionRepository: DirectionRepository,
     private readonly projectRepository: ProjectRepository,
     private readonly projectInformationRepository: ProjectInformationRepository,
-    private readonly configService: ConfigService,
   ) {}
 
   async updateProjectInfo(): Promise<void> {
@@ -26,8 +26,9 @@ export class SpreadSheetService {
   }
 
   async getProjectInfo(): Promise<void> {
-    const sheetInfos = await this.getSheetInfo();
-    if (sheetInfos.length > 0) {
+    const sheetInfos = await this.spreadSheetDs.getSheetInfo();
+    const isExistSheetInfos = sheetInfos && sheetInfos.length > 0;
+    if (isExistSheetInfos) {
       const projectInforms = await Promise.all(
         sheetInfos.map(
           async (
@@ -46,34 +47,7 @@ export class SpreadSheetService {
     }
   }
 
-  async getSheetInfo(): Promise<ISheetInformation[]> {
-    await this.googleExcelClient.useApiKey(
-      this.configService.config.GOOGLE_API_KEY,
-    );
-    await this.googleExcelClient.loadInfo();
-    const sheet = this.googleExcelClient.sheetsByIndex[0];
-    const rows = await sheet.getRows();
-    return rows.map(
-      (row: GoogleSpreadsheetRow): ISheetInformation => {
-        return {
-          direction: !isNil(get(row, SPREED_HEADERS.direction))
-            ? get(row, SPREED_HEADERS.direction)
-            : null,
-          project: !isNil(get(row, SPREED_HEADERS.project))
-            ? get(row, SPREED_HEADERS.project)
-            : null,
-          projectEstimation: !isNil(get(row, SPREED_HEADERS.projectEstimation))
-            ? get(row, SPREED_HEADERS.projectEstimation)
-            : null,
-          rate: !isNil(get(row, SPREED_HEADERS.rate))
-            ? get(row, SPREED_HEADERS.rate)
-            : null,
-        };
-      },
-    );
-  }
-
-  private async getIdProject(name: string): Promise<number> {
+  private async getIdProject(name: string): Promise<number | null> {
     const findProject = await this.projectRepository.findOne({
       where: { name },
     });
@@ -83,7 +57,7 @@ export class SpreadSheetService {
     return findProject.id;
   }
 
-  private async getIdDirection(name: string): Promise<number> {
+  private async getIdDirection(name: string): Promise<number | null> {
     const findProject = await this.directionRepository.findOne({
       where: { name },
     });
@@ -93,7 +67,7 @@ export class SpreadSheetService {
     return findProject.id;
   }
 
-  private getNumber(stringNumber: string): number {
+  private getNumber(stringNumber: string): number | null {
     if (isNil(stringNumber)) {
       return null;
     }
