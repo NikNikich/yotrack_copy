@@ -45,7 +45,6 @@ describe('HttpYoutrackService', () => {
     ): Promise<TimeTrackingEntity> => {
       return new TimeTrackingEntity({
         text: TimeTrackingEntityFake.TEXT,
-        duration: TimeTrackingEntityFake.DURATION,
         youtrackId: TimeTrackingEntityFake.YOUTRACK_ID,
       });
     },
@@ -143,7 +142,6 @@ describe('HttpYoutrackService', () => {
     );
     const expectResult = new TimeTrackingEntity({
       text: TimeTrackingEntityFake.TEXT,
-      duration: TimeTrackingEntityFake.DURATION,
       youtrackId: TimeTrackingEntityFake.YOUTRACK_ID,
     });
     expect(actualResult).toEqual(expectResult);
