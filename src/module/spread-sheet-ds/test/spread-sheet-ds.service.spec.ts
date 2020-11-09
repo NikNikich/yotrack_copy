@@ -1,16 +1,17 @@
 import { Test } from '@nestjs/testing';
-import { SpreadSheetModule } from '../spread-sheet.module';
-import { SpreadSheetService } from '../spread-sheet.service';
-import { ISheetInformation } from '../spreed-sheet.interface';
 import { SheetInformationFake } from './test.constant';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '../../config/config.service';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
 import { ConfigModule } from '../../config/config.module';
+import { SpreadSheetServiceDS } from '../spread-sheet-ds.service';
+import { SpreedSheetModuleDS } from '../spread-sheet-ds.module';
+import { ISheetInformation } from '../../spread-sheet/spreed-sheet.interface';
+import { SPREAD_SHEET_DS_KEY } from '../spread-sheet-ds.const';
 
-describe('SpreadSheetService', () => {
-  let spreadSheetService: SpreadSheetService;
-  const spreadSheetServiceMock = {
+describe('SpreadSheetServiceDS', () => {
+  let spreadSheetServiceDS: SpreadSheetServiceDS;
+  const spreadSheetServiceDSMock = {
     getSheetInfo: async (): Promise<ISheetInformation[]> => {
       return [
         {
@@ -26,7 +27,7 @@ describe('SpreadSheetService', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        SpreadSheetModule,
+        SpreedSheetModuleDS,
         TypeOrmModule.forRootAsync({
           useFactory: async (
             configService: ConfigService,
@@ -47,15 +48,17 @@ describe('SpreadSheetService', () => {
         ConfigModule.register(process.cwd() + '/.env'),
       ],
     })
-      .overrideProvider(SpreadSheetService)
-      .useValue(spreadSheetServiceMock)
+      .overrideProvider(SPREAD_SHEET_DS_KEY)
+      .useValue(spreadSheetServiceDSMock)
       .compile();
 
-    spreadSheetService = moduleRef.get<SpreadSheetService>(SpreadSheetService);
+    spreadSheetServiceDS = moduleRef.get<SpreadSheetServiceDS>(
+      SPREAD_SHEET_DS_KEY,
+    );
   });
 
   it('get sheet info', async () => {
-    const actualResult = await spreadSheetService.getSheetInfo();
+    const actualResult = await spreadSheetServiceDS.getSheetInfo();
     const sortedActualResult = actualResult.sort();
     const iSheetInformation: ISheetInformation = {
       project: SheetInformationFake.PROJECT,

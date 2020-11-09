@@ -1,5 +1,3 @@
-export const ISSUE_ID = '1';
-
 export const UserFake = {
   ID: '1',
   FULL_NAME: 'Ivanov I.I.',

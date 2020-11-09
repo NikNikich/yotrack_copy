@@ -1,15 +1,16 @@
-import { HttpHubService } from '../http-hub.service';
-import { IProjectTeam } from '../../hub/hub.interface';
 import { Test } from '@nestjs/testing';
 import { ProjectTeamFake } from './test.constant';
-import { HttpHubModule } from '../http-hub.module';
 import { ConfigService } from '../../config/config.service';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule } from '../../config/config.module';
+import { HubServiceDS } from '../hub-ds.service';
+import { HubModuleDS } from '../hub-ds.module';
+import { IProjectTeam } from '../../hub/hub.interface';
+import { HUB_DS_KEY } from '../hub-ds.const';
 
-describe('HttpHubService', () => {
-  let httpHubService: HttpHubService;
-  const httpHubServiceMock = {
+describe('HubServiceDS', () => {
+  let hubServiceDS: HubServiceDS;
+  const hubServiceDSMock = {
     getListProjectTeam: async (
       skip?: number,
       top?: number,
@@ -28,7 +29,7 @@ describe('HttpHubService', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        HttpHubModule.forRootAsync({
+        HubModuleDS.forRootAsync({
           useFactory: async (configService: ConfigService) => ({
             baseURL: configService.config.HUB_BASE_URL,
           }),
@@ -54,15 +55,15 @@ describe('HttpHubService', () => {
         ConfigModule.register(process.cwd() + '/.env'),
       ],
     })
-      .overrideProvider(HttpHubService)
-      .useValue(httpHubServiceMock)
+      .overrideProvider(HUB_DS_KEY)
+      .useValue(hubServiceDSMock)
       .compile();
 
-    httpHubService = moduleRef.get<HttpHubService>(HttpHubService);
+    hubServiceDS = moduleRef.get<HubServiceDS>(HUB_DS_KEY);
   });
 
   it('get a list of users http', async () => {
-    const actualResult = await httpHubService.getListProjectTeam();
+    const actualResult = await hubServiceDS.getListProjectTeam();
     const sortedActualResult = actualResult.sort();
     const iProjectTeam: IProjectTeam = {
       id: ProjectTeamFake.ID,

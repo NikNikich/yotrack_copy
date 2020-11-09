@@ -1,29 +1,29 @@
-import { HttpYoutrackService } from '../http-youtrack.service';
 import { Test } from '@nestjs/testing';
-import { HttpYoutrackModule } from '../http-youtrack.module';
+
+import { ConfigModule } from '../../config/config.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigService } from '../../config/config.service';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
+import {
+  IssuesFake,
+  IssuesTrackFake,
+  ProjectFake,
+  UserFake,
+} from './test.constant';
+import { YoutrackServiceDS } from '../youtrack-ds.service';
+import { YoutrackModuleDS } from '../youtrack-ds.module';
+import { YOUTRACK_DS_KEY } from '../youtrack-ds.const';
 import {
   IIssue,
   IProject,
   ITimeTracking,
   IUser,
 } from '../../youtrack/youtrack.interface';
-import { ConfigModule } from '../../config/config.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigService } from '../../config/config.service';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
-import {
-  ConfigFake,
-  ISSUE_ID,
-  IssuesFake,
-  IssuesTrackFake,
-  ProjectFake,
-  UserFake,
-} from './test.constant';
 
 describe('HttpYoutrackService', () => {
-  let httpYoutrackService: HttpYoutrackService;
-  const httpYoutrackServiceMock = {
-    getListUserHttp: async (skip?: number, top?: number): Promise<IUser[]> => {
+  let youtrackServiceDS: YoutrackServiceDS;
+  const youtrackServiceDSMock = {
+    getListUserDS: async (skip?: number, top?: number): Promise<IUser[]> => {
       return [
         {
           id: UserFake.ID,
@@ -32,7 +32,7 @@ describe('HttpYoutrackService', () => {
         } as IUser,
       ];
     },
-    getListProjectHttp: async (
+    getListProjectDS: async (
       skip?: number,
       top?: number,
     ): Promise<IProject[]> => {
@@ -44,7 +44,7 @@ describe('HttpYoutrackService', () => {
         } as IProject,
       ];
     },
-    getListIssueHttp: async (
+    getListIssueDS: async (
       skip?: number,
       top?: number,
       query?: string,
@@ -60,7 +60,7 @@ describe('HttpYoutrackService', () => {
         } as IIssue,
       ];
     },
-    getListIssueTrackHttp: async (
+    getListIssueTrackDS: async (
       issueId: string,
       skip?: number,
       top?: number,
@@ -76,7 +76,7 @@ describe('HttpYoutrackService', () => {
         } as ITimeTracking,
       ];
     },
-    getIssueHttp: async (issueId: string, query?: string): Promise<IIssue> => {
+    getIssueDS: async (issueId: string, query?: string): Promise<IIssue> => {
       return {
         id: IssuesFake.ID,
         summary: IssuesFake.SUMMARY,
@@ -86,26 +86,14 @@ describe('HttpYoutrackService', () => {
         customFields: [IssuesFake.CUSTOM_FIELDS],
       } as IIssue;
     },
-    setGetQueryYoutrack: async (
-      url: string,
-      config: Record<string, unknown>,
-    ): Promise<IProject[]> => {
-      return [
-        {
-          id: ProjectFake.ID,
-          name: ProjectFake.NAME,
-          hubResourceId: ProjectFake.HUB_RESOURCE_ID,
-        } as IProject,
-      ];
-    },
   };
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        HttpYoutrackModule.forRootAsync({
+        YoutrackModuleDS.forRootAsync({
           useFactory: async (configService: ConfigService) => ({
-            baseURL: configService.config.HUB_BASE_URL,
+            baseURL: configService.config.YOUTRACK_BASE_URL + '/api',
           }),
           inject: [ConfigService],
         }),
@@ -129,17 +117,15 @@ describe('HttpYoutrackService', () => {
         ConfigModule.register(process.cwd() + '/.env'),
       ],
     })
-      .overrideProvider(HttpYoutrackService)
-      .useValue(httpYoutrackServiceMock)
+      .overrideProvider(YOUTRACK_DS_KEY)
+      .useValue(youtrackServiceDSMock)
       .compile();
 
-    httpYoutrackService = moduleRef.get<HttpYoutrackService>(
-      HttpYoutrackService,
-    );
+    youtrackServiceDS = moduleRef.get<YoutrackServiceDS>(YOUTRACK_DS_KEY);
   });
 
   it('get a list of users http', async () => {
-    const actualResult = await httpYoutrackService.getListUserHttp();
+    const actualResult = await youtrackServiceDS.getListUserDS();
     const sortedActualResult = actualResult.sort();
     const iUser: IUser = {
       id: UserFake.ID,
@@ -152,7 +138,7 @@ describe('HttpYoutrackService', () => {
   });
 
   it('get a list of project http', async () => {
-    const actualResult = await httpYoutrackService.getListProjectHttp();
+    const actualResult = await youtrackServiceDS.getListProjectDS();
     const sortedActualResult = actualResult.sort();
     const iProject: IProject = {
       id: ProjectFake.ID,
@@ -165,7 +151,7 @@ describe('HttpYoutrackService', () => {
   });
 
   it('get a list issues http', async () => {
-    const actualResult = await httpYoutrackService.getListIssueHttp();
+    const actualResult = await youtrackServiceDS.getListIssueDS();
     const sortedActualResult = actualResult.sort();
     const iIssue: IIssue = {
       id: IssuesFake.ID,
@@ -181,9 +167,8 @@ describe('HttpYoutrackService', () => {
   });
 
   it('get a list issues track http', async () => {
-    const actualResult = await httpYoutrackService.getListIssueTrackHttp(
-      ISSUE_ID,
-    );
+    const ISSUE_ID = '1';
+    const actualResult = await youtrackServiceDS.getListIssueTrackDS(ISSUE_ID);
     const sortedActualResult = actualResult.sort();
     const iTimeTracking: ITimeTracking = {
       id: IssuesTrackFake.ID,
@@ -199,7 +184,8 @@ describe('HttpYoutrackService', () => {
   });
 
   it('get issues http', async () => {
-    const actualResult = await httpYoutrackService.getIssueHttp(ISSUE_ID);
+    const ISSUE_ID = '1';
+    const actualResult = await youtrackServiceDS.getIssueDS(ISSUE_ID);
     const expectResult: IIssue = {
       id: IssuesFake.ID,
       summary: IssuesFake.SUMMARY,
@@ -209,23 +195,5 @@ describe('HttpYoutrackService', () => {
       customFields: [IssuesFake.CUSTOM_FIELDS],
     };
     expect(actualResult).toEqual(expectResult);
-  });
-
-  it('get query youtrack', async () => {
-    const actualResult = await httpYoutrackService.setGetQueryYoutrack<
-      IProject[]
-    >('/admin/projects', {
-      headers: ConfigFake.HEADERS,
-      params: ConfigFake.PARAMS,
-    });
-    const sortedActualResult = actualResult.sort();
-    const iProject: IProject = {
-      id: ProjectFake.ID,
-      name: ProjectFake.NAME,
-      hubResourceId: ProjectFake.HUB_RESOURCE_ID,
-    };
-    const expectResult: IProject[] = [iProject];
-    const sortedExpectResult = expectResult.sort();
-    expect(sortedActualResult).toEqual(sortedExpectResult);
   });
 });

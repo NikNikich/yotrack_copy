@@ -17,7 +17,7 @@ import {
   TimeTrackingFake,
 } from './test.constant';
 
-describe('HttpYoutrackService', () => {
+describe('YoutrackService', () => {
   let youtrackService: YoutrackService;
   const youtrackServiceMock = {
     addNewIssueOne: async (
