@@ -3,7 +3,7 @@ import { IProjectTeam } from '../hub/hub.interface';
 import { getParamQuery } from '../shared/http.function';
 import { IProject } from '../youtrack/youtrack.interface';
 import { ConfigService } from '../config/config.service';
-import { PROJECT_TEAMS_LIST_FIELDS } from './http-hub.const';
+import { PROJECT_TEAMS_LIST_FIELDS } from '../hub-ds/hub-ds.const';
 
 @Injectable()
 export class HttpHubService {
