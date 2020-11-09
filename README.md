@@ -54,6 +54,17 @@ TYPEORM_PORT = 6000
 TYPEORM_SYNCHRONIZE = true
 TYPEORM_LOGGING = true
 TYPEORM_ENTITIES = dist/**/*.entity{.ts,.js}
+
+# Hub
+HUB_BASE_URL = https://ytr.omega-r.club/hub/api/rest
+HUB_TOKEN = <постоянный токен>
+
+# google
+GOOGLE_API_KEY = <GOOGLE_API_KEY>
+GOOGLE_SHEET_ID = 1RYabRn005y0v_hUvVUNT4GHyIs5xJT_F602hfVj0Ku8
+
+# httpQuery
+TOP_QUERY_LIST = 100
 ```
 
 ## Запуск приложения
