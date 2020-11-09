@@ -1,19 +1,25 @@
 import { Module } from '@nestjs/common';
-import { YoutrackModule } from '../youtrack/youtrack.module';
-import { ObserverScheduleService } from './observer-schedule-service';
+import { YoutrackSdkModule } from '../youtrack_sdk/youtrack-sdk.module';
+import { ObserverScheduleService } from './observer-schedule.service';
 import { ConfigService } from '../config/config.service';
+import { YoutrackModule } from '../youtrack/youtrack.module';
+import { HubModule } from '../hub/hub.module';
+import { SpreadSheetModule } from '../spread-sheet/spread-sheet.module';
 
 @Module({
   imports: [
-    YoutrackModule.forRootAsync({
+    YoutrackModule,
+    HubModule,
+    SpreadSheetModule,
+    YoutrackSdkModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         token: configService.config.YOUTRACK_TOKEN,
-        baseUrl: configService.config.YOUTRACK_BASE_URL
+        baseUrl: configService.config.YOUTRACK_BASE_URL,
       }),
       inject: [ConfigService],
-    })
+    }),
   ],
-  providers: [ObserverScheduleService]
+  providers: [ObserverScheduleService],
+  exports: [ObserverScheduleService],
 })
-export class ObserverModule {
-}
+export class ObserverModule {}

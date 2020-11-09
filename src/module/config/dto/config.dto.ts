@@ -1,5 +1,11 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export class ConfigDto {
   /**
@@ -24,11 +30,25 @@ export class ConfigDto {
   YOUTRACK_TOKEN: string;
 
   /**
+   * Адрес, по которому будут отсылаться запросы в хаб ютрека
+   */
+  @IsNotEmpty()
+  @IsString()
+  HUB_BASE_URL: string;
+
+  /**
+   * Токен, с которым будут отправляться запросы в хаб ютрека
+   */
+  @IsNotEmpty()
+  @IsString()
+  HUB_TOKEN: string;
+
+  /**
    * Название СУБД
    */
   @IsNotEmpty()
   @IsString()
-  TYPEORM_CONNECTION: string;
+  TYPEORM_CONNECTION: 'postgres';
 
   /**
    * Адрес базы
@@ -72,4 +92,62 @@ export class ConfigDto {
   @IsNotEmpty()
   @IsString()
   TYPEORM_ENTITIES: string;
+
+  /**
+   * Синхронизация моделей базы
+   * @default false
+   */
+  @IsOptional()
+  @IsBoolean()
+  @Transform((value) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
+  TYPEORM_SYNCHRONIZE: boolean = false;
+
+  /**
+   * Логирование typeOrm
+   * @default false
+   */
+  @IsOptional()
+  @IsBoolean()
+  @Transform((value) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
+  TYPEORM_LOGGING: boolean = false;
+
+  /**
+   * Имя аккаунта в гугл
+   */
+  @IsOptional()
+  @IsString()
+  GOOGLE_SERVICE_ACCOUNT_EMAIL?: string;
+
+  /**
+   * Пароль аккаунта в гугл
+   */
+  @IsOptional()
+  @IsString()
+  GOOGLE_PRIVATE_KEY?: string;
+
+  /**
+   * Ключ апи таблиц в гугл
+   */
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_API_KEY: string;
+
+  /**
+   * Ключ нужной ексель таблицы в гугл
+   */
+  @IsNotEmpty()
+  @IsString()
+  GOOGLE_SHEET_ID: string;
+
+  /**
+   * Количество записей в одном запросе
+   */
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsInt()
+  TOP_QUERY_LIST = 100;
 }

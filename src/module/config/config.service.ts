@@ -7,14 +7,11 @@ import { plainToClass } from 'class-transformer';
 import * as dotenv from 'dotenv';
 import { CONFIG_MODULE_PATH } from './constant/config.constant';
 
-
 @Injectable()
 export class ConfigService {
   private readonly _config: ConfigDto;
 
-  constructor(
-    @Inject(CONFIG_MODULE_PATH) filePath: string
-  ) {
+  constructor(@Inject(CONFIG_MODULE_PATH) filePath: string) {
     const isExistFile = fs.existsSync(filePath);
     let rawConfigFile: any;
     if (isExistFile) {
@@ -38,5 +35,4 @@ export class ConfigService {
     }
     return transformed;
   }
-
 }

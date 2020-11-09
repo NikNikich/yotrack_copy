@@ -4,6 +4,7 @@
 
 # configs
 .env
+.env.local
 ormconfig.json
 
 # Logs
@@ -36,3 +37,4 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
