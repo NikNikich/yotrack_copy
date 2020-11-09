@@ -7,6 +7,7 @@ import { SpreadSheetService } from '../spread-sheet/spread-sheet.service';
 @Injectable()
 export class GetDataCommands {
   private readonly logger: Logger = new Logger(GetDataCommands.name);
+
   constructor(
     private readonly hubService: HubService,
     private readonly youtrackService: YoutrackService,
