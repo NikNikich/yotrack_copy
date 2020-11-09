@@ -19,7 +19,7 @@ import { HubModuleDS } from './hub-ds/hub-ds.module';
     CommandModule,
     CommandsModule,
     ScheduleModule.forRoot(),
-    ConfigModule.register(process.cwd() + '/.env.local'),
+    ConfigModule.register(process.cwd() + '/.env'),
     DatabaseModule,
     ObserverModule,
     HubModule,
