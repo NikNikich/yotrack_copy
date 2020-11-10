@@ -12,10 +12,6 @@ export class ConfigService {
   private readonly _config: ConfigDto;
 
   constructor(@Inject(CONFIG_MODULE_PATH) filePath: string) {
-    const envName = process.env.NODE_ENV
-      ? `env.${process.env.NODE_ENV}`
-      : 'env';
-    //const isExistFile = fs.existsSync(process.cwd() + envName);
     const isExistFile = fs.existsSync(filePath);
     let rawConfigFile: any;
     if (isExistFile) {

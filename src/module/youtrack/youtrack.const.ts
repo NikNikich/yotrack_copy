@@ -9,4 +9,6 @@ export const ISSUE_CUSTOM_FIELDS = {
   Direction: 'endDate',
   Assignee: 'assigneeUserId',
   'Комментарий по % выполнению': 'comment',
+  'Project type': 'isCommercial',
 };
+export const PROJECT_TYPE_IS_COMMERCIAL = 'Commercial';

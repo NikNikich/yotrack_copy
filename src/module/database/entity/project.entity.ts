@@ -15,6 +15,9 @@ export class ProjectEntity extends RowEntity<ProjectEntity> {
   @Column({ type: 'varchar', nullable: true, length: 50 })
   hubResourceId?: string;
 
+  @Column({ type: 'boolean', default: false })
+  isCommercial?: boolean;
+
   @OneToMany(() => ItemEntity, (itemEntity) => itemEntity.project)
   items?: ItemEntity[];
 

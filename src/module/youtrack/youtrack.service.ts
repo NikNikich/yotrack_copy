@@ -2,14 +2,17 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   ICustomFields,
   IIssue,
-  IIssueFieldValue,
   IProject,
   ITimeTracking,
   IUser,
 } from './youtrack.interface';
-import { get, isNil, isArray, isString, isNumber } from 'lodash';
+import { get, isNil, toNumber, isString, isNumber } from 'lodash';
 import { ItemEntity } from '../database/entity/item.entity';
-import { DELAY_MS, ISSUE_CUSTOM_FIELDS } from './youtrack.const';
+import {
+  DELAY_MS,
+  ISSUE_CUSTOM_FIELDS,
+  PROJECT_TYPE_IS_COMMERCIAL,
+} from './youtrack.const';
 import { UserRepository } from '../database/repository/user.repository';
 import { ProjectRepository } from '../database/repository/project.repository';
 import { DirectionRepository } from '../database/repository/direction.repository';
@@ -279,10 +282,6 @@ export class YoutrackService {
       }
     }
     newItemEntity.name = issue.summary;
-    newItemEntity = await this.setCustomFieldsIssue(
-      issue.customFields,
-      newItemEntity,
-    );
     if (issue.updater) {
       newItemEntity.updaterUserId = await this.userRepository.getIdFoundedByYoutrackIdOrCreated(
         issue.updater.fullName,
@@ -296,6 +295,10 @@ export class YoutrackService {
         issue.project.hubResourceId,
       );
     }
+    newItemEntity = await this.setCustomFieldsIssue(
+      issue.customFields,
+      newItemEntity,
+    );
     const executeParentId =
       issue.parent.issues.length > 0 && issue.parent.issues[0].id !== issue.id;
     if (executeParentId) {
@@ -322,11 +325,11 @@ export class YoutrackService {
           }
           switch (field.name) {
             case 'Week':
-              if (isArray(field.value) && field.value.length > 0) {
-                // @ts-ignore
-                item.week = field.value
-                  .map((value: IIssueFieldValue): string => value.name)
-                  .join(', ');
+              if (isIIssueFieldValue(field.value) && !isNil(field.value.name)) {
+                const weekNumber = toNumber(field.value.name);
+                if (isNumber(weekNumber)) {
+                  item.week = weekNumber;
+                }
               }
               break;
             case 'Direction':
@@ -364,10 +367,14 @@ export class YoutrackService {
               }
               break;
             case 'Start date':
-              if (isNumber(field.value)) item.startDate = new Date(field.value);
+              if (isNumber(field.value)) {
+                item.startDate = new Date(field.value);
+              }
               break;
-            case 'End Date':
-              if (isNumber(field.value)) item.endDate = new Date(field.value);
+            case 'End date':
+              if (isNumber(field.value)) {
+                item.endDate = new Date(field.value);
+              }
               break;
             case 'Assignee':
               if (isIIssueFieldValue(field.value)) {
@@ -375,6 +382,13 @@ export class YoutrackService {
                   field.value.name,
                   field.value.id,
                 );
+              }
+              break;
+            case 'Project type':
+              if (isIIssueFieldValue(field.value) && !isNil(field.value.name)) {
+                if (field.value.name === PROJECT_TYPE_IS_COMMERCIAL) {
+                  await this.projectRepository.isCommercial(item.projectId);
+                }
               }
               break;
             default:

@@ -6,6 +6,6 @@ export const ISSUE_LIST_FIELDS =
   'customFields(id,name,value(name,id,localizedName,fullName,login,avatarUrl,isResolved,minutes,presentation))';
 export const ISSUE_LIST_QUERY_DAY = 'updated:Yesterday';
 export const ISSUE_LIST_QUERY_WEEK = 'updated:{Last week}';
-export const ISSUE_LIST_QUERY_MONTH = 'updated:{Last month}';
+export const ISSUE_LIST_QUERY_MONTH = 'updated:{This month}';
 export const TRACK_LIST_FIELDS =
   'id,author(id,fullName),duration(presentation,minutes),created,date,text';
