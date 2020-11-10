@@ -323,6 +323,7 @@ export class YoutrackService {
           switch (field.name) {
             case 'Week':
               if (isArray(field.value) && field.value.length > 0) {
+                // @ts-ignore
                 item.week = field.value
                   .map((value: IIssueFieldValue): string => value.name)
                   .join(', ');

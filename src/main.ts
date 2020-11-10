@@ -7,6 +7,7 @@ import {
 } from 'typeorm-transactional-cls-hooked';
 
 async function bootstrap() {
+  console.log(process.env.NODE_ENV);
   await NestFactory.createApplicationContext(AppModule);
   const logger = new Logger(bootstrap.name);
   logger.log('Server was started');
