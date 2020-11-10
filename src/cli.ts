@@ -7,7 +7,6 @@ import { AppModule } from './module/app.module';
  */
 
 (async () => {
-  console.log(process.env.NODE_ENV);
   const app = await NestFactory.createApplicationContext(AppModule, {});
   app.select(CommandModule).get(CommandService).exec();
 })();
