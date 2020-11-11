@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ObserverModule } from './observer/observer.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from './config/config.module';
-import { YoutrackSdkModule } from './youtrack_sdk/youtrack-sdk.module';
 import { YoutrackModule } from './youtrack/youtrack.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CommandModule } from 'nestjs-command';
@@ -14,16 +13,19 @@ import { SpreedSheetModuleDS } from './spread-sheet-ds/spread-sheet-ds.module';
 import { YoutrackModuleDS } from './youtrack-ds/youtrack-ds.module';
 import { HubModuleDS } from './hub-ds/hub-ds.module';
 
+const envName = process.env.NODE_ENV
+  ? `/.env.${process.env.NODE_ENV}`
+  : '/.env';
+
 @Module({
   imports: [
     CommandModule,
     CommandsModule,
     ScheduleModule.forRoot(),
-    ConfigModule.register(process.cwd() + '/.env'),
+    ConfigModule.register(process.cwd() + envName),
     DatabaseModule,
     ObserverModule,
     HubModule,
-    YoutrackSdkModule,
     YoutrackModule,
     YoutrackModuleDS,
     SpreadSheetModule,

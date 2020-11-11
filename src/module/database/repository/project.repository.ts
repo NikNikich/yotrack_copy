@@ -33,4 +33,14 @@ export class ProjectRepository extends BaseRepository<ProjectEntity> {
     }
     return project.id;
   }
+
+  async isCommercial(id?: number): Promise<void> {
+    if (id) {
+      const project = await this.findOne(id);
+      if (project && !project.isCommercial) {
+        project.isCommercial = true;
+        await this.save(project);
+      }
+    }
+  }
 }
