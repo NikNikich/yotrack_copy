@@ -6,7 +6,7 @@ import {
   ITimeTracking,
   IUser,
 } from './youtrack.interface';
-import { get, isNil, toNumber, isString, isNumber } from 'lodash';
+import { get, isNil, isString, isNumber, isFinite } from 'lodash';
 import { ItemEntity } from '../database/entity/item.entity';
 import {
   DELAY_MS,
@@ -326,8 +326,8 @@ export class YoutrackService {
           switch (field.name) {
             case 'Week':
               if (isIIssueFieldValue(field.value) && !isNil(field.value.name)) {
-                const weekNumber = toNumber(field.value.name);
-                if (isNumber(weekNumber)) {
+                const weekNumber = parseInt(field.value.name);
+                if (isNumber(weekNumber) && isFinite(weekNumber)) {
                   item.week = weekNumber;
                 }
               }
