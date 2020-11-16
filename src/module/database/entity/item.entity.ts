@@ -31,7 +31,7 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @Column({ type: 'numeric', nullable: true })
   percent?: number;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ type: 'integer', nullable: true })
   week?: number;
 
   @Column({ type: 'varchar', nullable: true, length: 2000 })

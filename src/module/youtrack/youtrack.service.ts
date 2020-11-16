@@ -198,12 +198,14 @@ export class YoutrackService {
       this.top,
       ISSUE_LIST_QUERY_DAY,
     );
-    if (issuesYoutrack.length > 0) {
+    const isExistIssuesYoutrack =
+      !isNil(issuesYoutrack) && issuesYoutrack.length > 0;
+    if (isExistIssuesYoutrack) {
       await this.processingQueryByIssues(issuesYoutrack, true);
-    }
-    const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
-    if (isAchieveMaxLimitIssues) {
-      await this.updateIssues(++page);
+      const isAchieveMaxLimitIssues = issuesYoutrack.length === this.top;
+      if (isAchieveMaxLimitIssues) {
+        await this.updateIssues(++page);
+      }
     }
   }
 
