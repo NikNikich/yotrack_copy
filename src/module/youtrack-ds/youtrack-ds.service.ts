@@ -19,7 +19,7 @@ import { IYoutrackDS } from './youtrack-ds.interface';
 export class YoutrackServiceDS implements IYoutrackDS {
   private readonly logger: Logger = new Logger(YoutrackServiceDS.name);
   private readonly headers = {
-    Authorization: 'Bearer ' + this.configService.config.YOUTRACK_TOKEN,
+    Authorization: 'Bearer ' + this.configService.config.HUB_TOKEN,
   };
 
   constructor(
