@@ -37,6 +37,9 @@ export class ItemEntity extends RowEntity<ItemEntity> {
   @Column({ type: 'varchar', nullable: true, length: 2000 })
   comment?: string;
 
+  @Column({ type: 'varchar', nullable: true, length: 2000 })
+  link?: string;
+
   @RelationId((item: ItemEntity) => item.direction)
   @Column({ type: 'integer', nullable: true })
   directionId?: number;
