@@ -40,6 +40,7 @@ export interface IParent {
 
 export interface IIssue {
   id: string;
+  idReadable: string;
   summary?: string;
   project?: IProject;
   parent?: IParent;

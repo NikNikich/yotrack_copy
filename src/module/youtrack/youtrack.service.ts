@@ -301,6 +301,7 @@ export class YoutrackService {
       issue.customFields,
       newItemEntity,
     );
+    newItemEntity.link = this.getIssueLink(issue.idReadable);
     const executeParentId =
       issue.parent.issues.length > 0 && issue.parent.issues[0].id !== issue.id;
     if (executeParentId) {
@@ -400,6 +401,10 @@ export class YoutrackService {
       ),
     );
     return item;
+  }
+
+  getIssueLink(idReadable: string): string {
+    return this.configService.config.YOUTRACK_BASE_URL + '/issue/' + idReadable;
   }
 
   async addIssueTimeTrack(
