@@ -21,12 +21,13 @@ export class GetDataCommands {
   })
   async getData() {
     this.logger.log('start filling the table with data');
-    await this.youtrackService.addNewUsers();
+    /* await this.youtrackService.addNewUsers();
     await this.youtrackService.addNewProjects();
     await this.youtrackService.addNewIssues();
     await this.hubService.addNewProjectTeams();
     await this.spreadSheetService.updateProjectInfo();
-    await this.youtrackService.updateNullProjectIssues();
+    await this.youtrackService.updateNullProjectIssues();*/
+    await this.spreadSheetService.updateProjectInfo();
     this.commandService.exit(0);
   }
 }
