@@ -1,4 +1,4 @@
-export const DELAY_MS = 100;
+export const DELAY_MS = 1000;
 export const ISSUE_CUSTOM_FIELDS = {
   Estimation: 'estimationTime',
   'Spent time': 'spentTime',
