@@ -27,6 +27,8 @@
 ## Описание
 
 Сервер обработки данных из youtrack.
+Ежедневно подтягивает информацию из ютрека, тспользуя REST API Youtrack и 
+ REST API Hub. Имеется возможность подгрузить имеющиеся таски за текущий месяц.
 
 ## Подтягивание зависимостей
 
@@ -71,11 +73,15 @@ TOP_QUERY_LIST = 100
 
 ```bash
 # development
-$ npm run start
+$ yarn run start
 
 # watch mode
-$ npm run start:dev
+$ yarn run start:dev
 
 # production mode
-$ npm run start:prod
+$ yarn run start:prod
+
+# add task this month
+$ yarn run start:cli
+
 ```
