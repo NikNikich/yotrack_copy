@@ -39,11 +39,11 @@ $ yarn install
 ## Настройка конфигурации
 
 1) Создать .env файл в корне проекта
-2) Добавить в конфиг следующие переменные
+2) Добавить в файл следующие переменные
 
 ```.dotenv
 # Youtrack
-YOUTRACK_BASE_URL = https://ytr.omega-r.club
+YOUTRACK_BASE_URL = <адрес ютрека>
 YOUTRACK_TOKEN = <постоянный токен>
 
 # Database
@@ -58,12 +58,12 @@ TYPEORM_LOGGING = true
 TYPEORM_ENTITIES = dist/**/*.entity{.ts,.js}
 
 # Hub
-HUB_BASE_URL = https://ytr.omega-r.club/hub/api/rest
+HUB_BASE_URL =<адрес хаба>
 HUB_TOKEN = <постоянный токен>
 
 # google
 GOOGLE_API_KEY = <GOOGLE_API_KEY>
-GOOGLE_SHEET_ID = 1RYabRn005y0v_hUvVUNT4GHyIs5xJT_F602hfVj0Ku8
+GOOGLE_SHEET_ID =  <GOOGLE_SHEET_ID>
 
 # httpQuery
 TOP_QUERY_LIST = 100
